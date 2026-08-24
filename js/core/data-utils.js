@@ -44,6 +44,7 @@ function normalizeStatus(value) {
     .trim()
     .toLowerCase()
     .replace(/[\s_-]+/g, "-");
+  if (normalized === "triage") return "triage";
   if (normalized === "todo" || normalized === "to-do") return "todo";
   if (normalized === "in-progress" || normalized === "inprogress")
     return "inprogress";

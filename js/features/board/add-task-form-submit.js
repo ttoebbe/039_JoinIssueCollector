@@ -103,7 +103,22 @@ async function createNewTask(state, values) {
 }
 
 /**
+ * Builds the creator record for a task from the signed-in user.
+ * Guest sessions carry no email, so notifications are skipped for them later.
+ * @returns {{type: string, name: string, email: string}}
+ */
+function buildCreator() {
+  const user = getCurrentUser();
+  return {
+    type: "member",
+    name: user?.name ?? "Guest",
+    email: user?.email ?? "",
+  };
+}
+
+/**
  * Builds the task payload.
+ * Creator and creation time are only set once, so editing keeps them intact.
  * @returns {Object}
  */
 function buildTaskPayload(state, values, base) {
@@ -117,6 +132,9 @@ function buildTaskPayload(state, values, base) {
     assigned: state.selectedAssigned,
     dueDate: values.dueDate,
     subtasks: state.selectedSubtasks,
+    createdBy: base.createdBy ?? buildCreator(),
+    source: base.source ?? "manual",
+    createdAt: base.createdAt ?? Date.now(),
   };
 }
 

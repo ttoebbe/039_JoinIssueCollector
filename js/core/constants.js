@@ -20,9 +20,10 @@ const ROUTES = {
 };
 
 const TASK_STATUS = {
+  TRIAGE: 'triage',
   TODO: 'todo',
-  IN_PROGRESS: 'in-progress',
-  AWAIT_FEEDBACK: 'await-feedback',
+  IN_PROGRESS: 'inprogress',
+  AWAIT_FEEDBACK: 'awaitfeedback',
   DONE: 'done'
 };
 
@@ -33,6 +34,6 @@ const PRIORITY = {
 };
 
 const API_CONFIG = {
-  BASE_URL: 'https://remotestorage-67778-default-rtdb.europe-west1.firebasedatabase.app',
+  BASE_URL: 'https://joinv2withn8n-default-rtdb.europe-west1.firebasedatabase.app',
   TIMEOUT: 10000
 };

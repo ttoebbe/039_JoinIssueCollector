@@ -32,3 +32,6 @@ Thumbs.db
 
 # ACHTUNG: .github/ wurde in der V1-.gitignore ausgeschlossen.
 # Das ist hier bewusst NICHT der Fall - dort liegen die Actions-Workflows.
+
+# Arbeitsanweisungen, gehoeren nicht ins Repo
+_bootstrap/
