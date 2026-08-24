@@ -92,6 +92,7 @@ function calcKPIs(tasks) {
 function initKpi(tasks) {
   return {
     board: tasks.length,
+    triage: 0,
     todo: 0,
     inProgress: 0,
     awaiting: 0,
@@ -119,10 +120,11 @@ function updateKpiForTask(kpiData, task, urgentOpenDates) {
  * @param {string} status - Normalized status
  */
 function incrementStatusCount(kpiData, status) {
-  if (status === "todo") kpiData.todo++;
-  else if (status === "inprogress") kpiData.inProgress++;
-  else if (status === "awaitfeedback") kpiData.awaiting++;
-  else if (status === "done") kpiData.done++;
+  if (status === TASK_STATUS.TRIAGE) kpiData.triage++;
+  else if (status === TASK_STATUS.TODO) kpiData.todo++;
+  else if (status === TASK_STATUS.IN_PROGRESS) kpiData.inProgress++;
+  else if (status === TASK_STATUS.AWAIT_FEEDBACK) kpiData.awaiting++;
+  else if (status === TASK_STATUS.DONE) kpiData.done++;
 }
 
 /**
@@ -175,7 +177,7 @@ function renderKPIs(kpiData) {
   if (getById("count-board")) setText("count-board", String(kpiData.board));
   setText(
     "next-deadline-date",
-    kpiData.nextUrgentDeadline ? formatDateLong(kpiData.nextUrgentDeadline) : "â€”"
+    kpiData.nextUrgentDeadline ? formatDateLong(kpiData.nextUrgentDeadline) : "—"
   );
 }
 
