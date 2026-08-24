@@ -54,8 +54,11 @@ a:hover {
 
 /* Input and Button reset */
 input,
-button {
+button,
+textarea,
+select {
   border: unset;
+  font: inherit;
 }
 
 button.page-busy,

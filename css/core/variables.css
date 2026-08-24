@@ -3,8 +3,6 @@
  * Unified design system to replace multiple :root definitions
  */
 
-@import url('/assets/fonts/fonts.css');
-
 :root {
   /* === TYPOGRAPHY === */
   --font-family-primary: "Inter", sans-serif;
