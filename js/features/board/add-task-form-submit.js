@@ -32,7 +32,7 @@ function getTaskFormValues(state) {
   const title = document.getElementById("task-title")?.value.trim();
   const dueDate = document.getElementById("task-due-date")?.value.trim();
   const category = getSelectedCategoryValue(state);
-  const status = document.getElementById("task-status-preset")?.value || "todo";
+  const status = document.getElementById("task-status-preset")?.value || TASK_STATUS.TRIAGE;
   const description =
     document.getElementById("task-description")?.value.trim() || "";
   return { title, description, status, category, dueDate };

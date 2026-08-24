@@ -1,6 +1,6 @@
 function wireAddTaskButtons() {
   const mainBtn = document.getElementById("boardAddTaskBtn");
-  mainBtn?.addEventListener("click", () => openOverlayWithStatus("todo"));
+  mainBtn?.addEventListener("click", () => openOverlayWithStatus(TASK_STATUS.TRIAGE));
   document.querySelectorAll(".board-column-add").forEach((btn) => {
     btn.addEventListener("click", () => handleColumnAddClick(btn));
   });
