@@ -1,0 +1,395 @@
+/*
+ * Page layouts for the stakeholder landing page.
+ *
+ * Breakpoints
+ *   768px  — not defined in Figma. The file only holds 428 px and 1440 px artboards
+ *            with nothing in between; the note in node 353017:10351 names a single
+ *            breakpoint at 1440 px. 768 px is a project decision, see spec.md 2.3.
+ *   1440px — from the design note: "Fuege bei der Umsetzung einen Breakpoint bei 1440px hinzu."
+ */
+
+/* ---------- Welcome screen (350504:9300 desktop / 350522:9493 mobile) ---------- */
+
+.welcome-page {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: var(--space-40) var(--space-16);
+  background-color: var(--color-background-inverse);
+}
+
+.welcome-page__content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-16);
+}
+
+/*
+ * On the artboard the card sits in the exact vertical centre (350504:9200 at
+ * y 310 of 1024) while the legal links sit 40 px above the bottom edge. The
+ * links are therefore taken out of the flow - but only when the viewport is
+ * tall enough that they cannot collide with the card.
+ */
+@media (min-height: 560px) {
+  .welcome-page__footer {
+    position: absolute;
+    right: 0;
+    bottom: var(--space-40);
+    left: 0;
+  }
+}
+
+.welcome-page__signup {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-16);
+  font-family: var(--font-prose);
+  color: var(--color-text-on-dark);
+}
+
+.welcome-page__signup a {
+  font-size: var(--font-size-19);
+}
+
+.welcome-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-56);
+  width: 100%;
+  max-width: var(--layout-card-max);
+  padding: var(--space-64) 28px;
+  border-radius: var(--radius-dialog);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-panel);
+  text-align: center;
+}
+
+.welcome-card__intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+  align-items: center;
+}
+
+.welcome-card__title {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  align-items: center;
+  font-family: var(--font-prose);
+  font-size: var(--font-size-display-mobile);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-strong);
+}
+
+/* Underline below "Welcome": vector 350504:9205, 120 x 0, stroke #177DA8 3 px */
+.welcome-card__rule {
+  width: 120px;
+  height: 3px;
+  border: 0;
+  margin: 0;
+  background-color: var(--color-primary-hover);
+}
+
+.welcome-card__lead {
+  font-family: var(--font-prose);
+  font-size: var(--font-size-body);
+  color: var(--color-text-muted);
+}
+
+.welcome-card__options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-70);
+  align-items: center;
+}
+
+.welcome-page__footer {
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--space-16);
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .welcome-page {
+    padding: var(--space-40) var(--space-56);
+  }
+
+  .welcome-page__signup {
+    display: none; /* not present on the 1440 px artboard 350504:9300 */
+  }
+
+  .welcome-card {
+    gap: var(--space-56);
+    padding: var(--space-56) 72px;
+  }
+
+  .welcome-card__title {
+    font-size: var(--font-size-card-title);
+  }
+
+  .welcome-card__lead {
+    font-size: var(--font-size-23);
+    color: var(--color-text-strong);
+  }
+
+  .welcome-card__options {
+    flex-direction: row;
+    gap: 64px;
+    justify-content: center;
+    align-items: flex-start;
+  }
+}
+
+/* ---------- Request page (350504:9311 desktop / 350522:9621 mobile) ---------- */
+
+.request-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-64);
+  min-height: 100vh;
+  padding: 37px 19px;
+  background-color: var(--color-background);
+}
+
+.request-page__brand {
+  width: 64px;
+}
+
+.request-page__main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+  max-width: var(--layout-mobile-content);
+  margin: 0 auto;
+}
+
+/*
+ * The heading block holds three parts whose order differs between the two
+ * artboards. Mobile (350522:9758): title with the back arrow beside it, counter
+ * below. Desktop (350504:9385): back arrow and counter form a top bar, the
+ * title sits underneath. Grid areas swap the arrangement without duplicating markup.
+ */
+.request-page__heading {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    'title back'
+    'counter counter';
+  align-items: center;
+  column-gap: var(--space-32);
+  row-gap: var(--space-8);
+}
+
+.request-page__back {
+  grid-area: back;
+}
+
+.request-page__title {
+  grid-area: title;
+  font-family: var(--font-prose);
+  font-size: var(--font-size-display-mobile);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-strong);
+}
+
+.request-page__heading .request-counter {
+  grid-area: counter;
+}
+
+/*
+ * Mobile (350522:9687) stacks lead, illustration and prose in one column with a
+ * 24 px gap. Desktop (350504:9376) puts the text in a 502 px column next to a
+ * 416 px illustration. `display: contents` lets the same markup do both:
+ * on mobile the text children become items of the outer column and are ordered
+ * around the illustration, on desktop the wrapper becomes the left column.
+ */
+.request-page__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+  margin-top: var(--space-24);
+}
+
+.request-page__text {
+  display: contents;
+}
+
+.request-page__lead,
+.request-page__body > .request-page__text > .alert {
+  order: 1;
+}
+
+.request-page__figure {
+  order: 2;
+}
+
+.request-page__prose {
+  order: 3;
+}
+
+.request-page__lead {
+  font-family: var(--font-ui);
+  font-size: var(--font-size-lead-mobile);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+}
+
+/*
+ * The illustration sits in a fixed box with scaleMode FIT in Figma, so the image
+ * is letterboxed inside it rather than filling it. `object-fit: contain` on a box
+ * of the artboard size reproduces that exactly and keeps the box height stable,
+ * which also prevents a layout shift while the image loads.
+ */
+.request-page__figure {
+  align-self: center;
+  width: 292px;
+  max-width: 100%;
+}
+
+.request-page__figure[data-state='available'] {
+  height: 201px;                       /* node 350522:9698 */
+}
+
+.request-page__figure[data-state='limit-reached'] {
+  height: 215px;                       /* node 350522:9780 */
+}
+
+.request-page__figure img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: var(--radius-image);
+}
+
+.request-page__prose {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  font-family: var(--font-prose);
+  font-size: var(--font-size-body);
+  color: var(--color-text-muted);
+}
+
+.request-page__action {
+  align-self: center;
+  margin-top: var(--space-48);
+}
+
+.request-page__footer {
+  display: flex;
+  gap: var(--space-16);
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .request-page {
+    /* Logo ends at y 85, the top bar starts at y 85 (nodes 350504:9322 / 350519:7109). */
+    gap: 0;
+    padding: 29px 40px var(--space-40);
+  }
+
+  .request-page__brand {
+    width: 46px;
+  }
+
+  .request-page__main {
+    max-width: var(--layout-desktop-content);
+  }
+
+  .request-page__heading {
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      'back counter'
+      'title title';
+    row-gap: var(--space-56);
+  }
+
+  .request-page__heading .request-counter {
+    justify-self: end;
+  }
+
+  .request-page__title {
+    font-size: var(--font-size-display-desktop);
+  }
+
+  /*
+   * On the 1440 px artboard the top bar spans the full 1121 px column while the
+   * content block below is 966 px wide and centred inside it: (1121 - 966) / 2 = 78.
+   */
+  .request-page__title,
+  .request-page__body,
+  .request-page__action {
+    padding-inline: 78px;
+  }
+
+  .request-page__body {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: var(--space-48);
+    margin-top: var(--space-48);
+  }
+
+  .request-page__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-40);
+    width: 502px;
+    flex-shrink: 0;
+  }
+
+  .request-page__lead {
+    font-family: var(--font-prose);
+    font-size: var(--font-size-lead-desktop);
+    font-weight: var(--font-weight-regular);
+  }
+
+  .request-page__prose {
+    gap: var(--space-16);
+    font-size: var(--font-size-19);
+  }
+
+  .request-page__figure {
+    align-self: flex-start;
+    width: 416px;
+    flex-shrink: 0;
+  }
+
+  .request-page__figure[data-state='available'] {
+    height: 280px;                     /* node 350504:9382 */
+  }
+
+  .request-page__figure[data-state='limit-reached'] {
+    height: 283px;                     /* node 350519:7107 */
+  }
+
+  .request-page__action {
+    align-self: flex-start;
+    margin-top: var(--space-40);
+  }
+}
+
+/* Widescreen: keep the content column where it is, per node 353021:9422. */
+@media (min-width: 1440px) {
+  .request-page__main,
+  .welcome-card {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* ---------- Limit state ----------
+ * Note 350537:9980: "This screen only appears after the daily limit has been
+ * reached! By default, show the previous frame: 'Stakeholder'."
+ */
+
+.request-page[data-limit-reached='false'] [data-state='limit-reached'],
+.request-page[data-limit-reached='true'] [data-state='available'] {
+  display: none;
+}

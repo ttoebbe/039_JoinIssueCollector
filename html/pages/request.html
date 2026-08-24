@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Join Issue Collector — Create a request</title>
+  <meta name="description" content="Send a feature request by email. Our AI system turns it into a ticket with a deadline and a priority level.">
+  <link rel="icon" href="assets/logos/join-logo-dark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/fonts/fonts.css">
+  <link rel="stylesheet" href="styles/tokens.css">
+  <link rel="stylesheet" href="styles/base.css">
+  <link rel="stylesheet" href="styles/components.css">
+  <link rel="stylesheet" href="styles/pages.css">
+</head>
+<body>
+  <div class="request-page" data-limit-reached="false" data-request-limit="10">
+    <a href="index.html" class="request-page__brand" aria-label="Back to the start page">
+      <img src="assets/logos/join-logo-dark.svg" alt="Join">
+    </a>
+
+    <main class="request-page__main">
+      <div class="request-page__heading">
+        <a href="index.html" class="icon-button request-page__back" aria-label="Back to the start page">
+          <span class="icon-button__glyph icon-button__glyph--arrow-left"></span>
+        </a>
+        <h1 class="request-page__title">Welcome</h1>
+        <p class="request-counter" data-request-counter>
+          <span class="request-counter__value" data-counter-used>0</span>
+          <span class="request-counter__separator">of</span>
+          <span class="request-counter__value" data-counter-limit>10</span>
+          <span class="request-counter__label">requests used<span class="request-counter__today"> today</span></span>
+        </p>
+      </div>
+
+      <div class="request-page__body">
+        <div class="request-page__text">
+          <p class="request-page__lead" data-state="available">
+            Easily create a ticket by sending an email — no extra steps needed.
+          </p>
+
+          <p class="alert" data-state="limit-reached" role="status">
+            The daily 10-request limit has been reached!
+          </p>
+
+          <div class="request-page__prose" data-state="available">
+            <p>
+              On this platform, you can submit your feature requests via email. Our AI
+              system will automatically generate a ticket with a deadline and priority level.
+            </p>
+            <p>
+              A total of 10 requests can be created per day. After this limit, emails can
+              still be sent, but they will be manually reviewed by our team instead of
+              generating AI tickets.
+            </p>
+          </div>
+
+          <div class="request-page__prose" data-state="limit-reached">
+            <p>
+              Need more? No worries — you can still send emails, but our team will review
+              them manually instead of using AI to create tickets.
+            </p>
+          </div>
+        </div>
+
+        <figure class="request-page__figure" data-state="available">
+          <img src="assets/images/stakeholder-intro.png" width="1111" height="836"
+               alt="A person adds cards to a kanban board with several columns.">
+        </figure>
+
+        <figure class="request-page__figure" data-state="limit-reached">
+          <img src="assets/images/stakeholder-limit-reached.png" width="1090" height="845"
+               alt="A person waits in front of a kanban board on which no further card can be placed.">
+        </figure>
+      </div>
+
+      <p class="request-page__action">
+        <a class="button button--request" data-state="available" data-request-mail
+           href="mailto:issues@example.org?subject=Feature%20request">
+          <span class="button__label button__label--desktop">Create Email Request</span>
+          <span class="button__label button__label--mobile">Create request</span>
+          <span class="button__icon button__icon--check"></span>
+        </a>
+        <a class="button button--request" data-state="limit-reached" data-request-mail
+           href="mailto:issues@example.org?subject=Feature%20request">
+          <span class="button__label button__label--desktop">Send an email</span>
+          <span class="button__label button__label--mobile">Create request</span>
+          <span class="button__icon button__icon--check"></span>
+        </a>
+      </p>
+    </main>
+
+    <nav class="request-page__footer" aria-label="Legal">
+      <a class="text-button" href="#" data-label="Privacy Policy">Privacy Policy</a>
+      <a class="text-button" href="#" data-label="Legal notice">Legal notice</a>
+    </nav>
+  </div>
+
+  <script type="module" src="scripts/request-limit.js"></script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+/*
+ * Base layer: reset, document defaults and shared typography.
+ * Values from docs/design/spec.md section 1.
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-ui);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-ratio);
+  color: var(--color-text-strong);
+  background-color: var(--color-background);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+p,
+figure {
+  margin: 0;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-badge);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/*
+ * The Figma file sets the error message "This field is required" in 12 px and
+ * two more styles in 13/14 px. That conflicts with the project rule of a 16 px
+ * minimum and with the specification sheet. 16 px is used here; see spec.md 6.5.
+ */
+.form-error {
+  font-family: var(--font-prose);
+  font-size: var(--font-size-body);
+  color: var(--color-urgent);
+}

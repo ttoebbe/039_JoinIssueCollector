@@ -1,0 +1,130 @@
+/*
+ * Design tokens for the Join Issue Collector.
+ *
+ * Every value is taken from the Figma file 6OT2cRhEtUALqFQy0ukNlT.
+ * The comment behind each token names its origin: the Figma style name where one
+ * exists, otherwise the node the value was read from. See docs/design/spec.md.
+ *
+ * Figma style names are NOT reused as token names: the file contains several
+ * different values under the same style name (see spec.md section 6.4).
+ */
+
+:root {
+  /* ---------- Brand and surface colours ---------- */
+  --color-primary: #2a3647;              /* Figma style "Version 2/main color" */
+  --color-primary-hover: #177da8;        /* Figma style "Version 2/Ligth blue" */
+  --color-primary-active: #091931;       /* Button variant "click", node 301:1823 */
+  --color-accent: #29abe2;               /* Figma style "Ligth blue" */
+  --color-surface: #ffffff;              /* Figma style "white" */
+  --color-background: #f6f7f8;           /* App page fill, node 350504:9311 */
+  --color-background-inverse: #2a3647;   /* Welcome screen fill, node 350504:9300 */
+
+  /* ---------- Text colours ---------- */
+  --color-text: #000000;                 /* Figma style "black" */
+  --color-text-strong: #2a3647;          /* Figma style "Version 2/main color" */
+  --color-text-muted: #42526e;           /* Figma style "menu color" */
+  --color-text-subtle: #686868;          /* Figma style "Style", used on text buttons */
+  --color-text-on-dark: #ffffff;         /* Figma style "white" */
+
+  /* ---------- Status colours ---------- */
+  --color-urgent: #ff3d00;               /* Figma style "urgent color" */
+  --color-medium: #ffa800;               /* Figma style "medium color" */
+  --color-low: #7ae229;                  /* Figma style "low color" */
+  --color-limit-desktop: #ff3d00;        /* Counter "10 of 10", node 350504:9579 */
+  --color-limit-mobile: #de3500;         /* Counter "10 of 10", node 350522:9778 */
+  --color-alert-surface: rgba(255, 210, 210, 0.52); /* Limit notice, node 350537:9936 */
+
+  /* ---------- Issue Collector specifics ---------- */
+  --color-creator-member: #92ffbc;       /* Creator badge "member", node 350510:12310 */
+  --color-creator-extern: #ebfc88;       /* Creator badge "extern", node 350510:12321 */
+  --color-creator-text: #0b3681;         /* Creator badge label, node 350510:12313 */
+  --gradient-ai: linear-gradient(90deg, #9327ff, #2ea1dc); /* "Ai-generated ticket", node 350510:12645 */
+  --color-label-user-story: #7b3acf;     /* Board label, node 75609:16165 */
+  --color-label-technical: #12ad9a;      /* Board label, node 75609:16167 */
+
+  /* ---------- Borders ---------- */
+  --color-border-field: #d1d1d1;         /* Figma style "Style", text field default */
+  --color-border-field-hover: #686868;   /* Text field variant "hover", node 75597:14106 */
+  --color-border-field-focus: #177da8;   /* Text field variant "click", node 75597:14109 */
+  --color-divider: #e7e7e7;              /* Figma style "icon2" */
+
+  /* ---------- Type families ----------
+   * The file uses Inter for the existing Join screens and Open Sans for the
+   * newer Issue Collector screens. Both are kept; see spec.md section 6.4 no. 4.
+   */
+  --font-ui: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --font-prose: 'Open Sans', 'Segoe UI', system-ui, sans-serif;
+
+  /* ---------- Type scale (px values exactly as in Figma) ---------- */
+  --font-size-t1: 61px;                  /* Figma style "Version 2/t1" */
+  --font-size-t2: 47px;                  /* Figma style "Version 2/t2" */
+  --font-size-t4: 28px;                  /* Figma style "Version 2/t4" */
+  --font-size-t5: 27px;                  /* Figma style "Version 2/t5" */
+  --font-size-t6: 20px;                  /* Figma style "Version 2/t6" */
+  --font-size-body: 16px;                /* Figma style "Version 2/body" */
+
+  --font-size-display-desktop: 64px;     /* "Welcome", node 350504:9374 */
+  --font-size-display-mobile: 40px;      /* "Welcome", node 350522:9690 */
+  --font-size-card-title: 32px;          /* "Welcome" on the card, node 350504:9204 */
+  --font-size-lead-desktop: 28px;        /* Lead text, node 350504:9378 */
+  --font-size-lead-mobile: 22px;         /* Lead text, node 350522:9696 */
+  --font-size-23: 23px;                  /* Buttons and prompts, node 350504:9206 */
+  --font-size-19: 19px;                  /* Prose and counter, node 350504:9380 */
+  --font-size-18: 18px;                  /* Role prompts mobile, node 350522:9536 */
+
+  --line-height-ratio: 1.2;              /* 120 % on every text style in the file */
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* ---------- Radii ----------
+   * No single project-wide radius works: the file uses at least eight deliberate
+   * values. Tokens are therefore named per part. See spec.md section 1.6.
+   */
+  --radius-checkbox: 3px;                /* Check button, node 70870:6310 */
+  --radius-badge: 4px;                   /* Creator badge, node 350510:12309 */
+  --radius-button: 8px;                  /* Button sets 301:1814 / 301:1829 */
+  --radius-image: 8px;                   /* Illustration, node 350504:9382 */
+  --radius-field: 10px;                  /* Text field, node 75597:14103 */
+  --radius-panel: 16px;                  /* Large panels, e. g. node 350504:9173 */
+  --radius-card: 24px;                   /* Board card, node 75609:16189 */
+  --radius-dialog: 30px;                 /* Welcome card, node 350504:9200 */
+  --radius-round: 50%;                   /* Avatars, cornerRadius 45 on 32-56 px nodes */
+
+  /* ---------- Shadows ---------- */
+  --shadow-card: 0 0 4px 0 rgba(0, 0, 0, 0.1);      /* Figma effect style "nuevo" */
+  --shadow-panel: 0 0 10px 3px rgba(0, 0, 0, 0.08); /* Figma effect style "shadoe backlog box" */
+  --shadow-button: 0 4px 4px 0 rgba(0, 0, 0, 0.25); /* Figma effect style "stronger" */
+  --shadow-header: 0 4px 4px 0 rgba(0, 0, 0, 0.1);  /* Figma effect style "Barra superior" */
+
+  /* ---------- Spacing ----------
+   * The gap and padding values that actually occur in the auto-layout frames.
+   * There is no 4- or 8-point system in the file; these are the real numbers.
+   */
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-16: 16px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-40: 40px;
+  --space-48: 48px;
+  --space-56: 56px;
+  --space-64: 64px;
+  --space-70: 70px;
+
+  /* ---------- Layout ---------- */
+  --layout-sidebar-width: 232px;         /* ContentLeft, node 45:2208 */
+  --layout-header-height: 96px;          /* Header, node 69360:4547 */
+  --layout-desktop-content: 1121px;      /* Stakeholder content column, node 350519:7109 */
+  --layout-desktop-gutter: 160px;        /* x offset of that column on a 1440 px frame */
+  --layout-mobile-content: 390px;        /* Stakeholder content column, node 350537:9975 */
+  --layout-card-max: 789px;              /* Welcome card, node 350504:9200 */
+
+  /* ---------- Focus ----------
+   * not defined in Figma: no component set carries a focus state.
+   * Derived from the existing active colour so keyboard focus stays visible.
+   */
+  --focus-ring: 0 0 0 3px rgba(23, 125, 168, 0.55);
+}
