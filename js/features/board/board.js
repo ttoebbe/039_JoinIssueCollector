@@ -210,6 +210,7 @@ async function deleteInvalidTasks(tasks) {
 function renderBoard() {
   const filtered = filterTasks(boardState.tasks, boardState.query);
   renderNoResults(boardState.query.length > 0 && filtered.length === 0);
+  renderColumn("triage", filtered);
   renderColumn("todo", filtered);
   renderColumn("inprogress", filtered);
   renderColumn("awaitfeedback", filtered);
