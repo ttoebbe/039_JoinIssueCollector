@@ -96,10 +96,29 @@ async function attemptLogin({ emailInput, passwordInput }) {
   if (!users || users.length === 0) {
     return showLoginErrorState(emailInput, passwordInput);
   }
-  const found = users.find((u) => u.email === email && u.pw === passwordValue);
+  const found = await findMatchingUser(users, email, passwordValue);
   if (!found) return showLoginErrorState(emailInput, passwordInput);
-  await saveCurrentUser(found);
+  await saveCurrentUser({
+    id: found.id,
+    name: found.name,
+    email: found.email,
+    color: found.color,
+  });
   window.location.href = ROUTES.SUMMARY;
+}
+
+/**
+ * Finds the user matching email and password.
+ * @param {Array} users
+ * @param {string} email
+ * @param {string} password
+ * @returns {Promise<Object|null>} The user, or null when nothing matches.
+ */
+async function findMatchingUser(users, email, password) {
+  const candidate = users.find((user) => user.email === email);
+  if (!candidate?.pwSalt || !candidate?.pwHash) return null;
+  const hash = await hashPassword(password, candidate.pwSalt);
+  return hash === candidate.pwHash ? candidate : null;
 }
 
 /**
