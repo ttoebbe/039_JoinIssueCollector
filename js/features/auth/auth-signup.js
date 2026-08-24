@@ -198,7 +198,7 @@ async function attemptSignup({ nameInput, emailInput, passwordInput }) {
     );
     return;
   }
-  const newUser = buildNewUser(
+  const newUser = await buildNewUser(
     users,
     nameInput.value.trim(),
     email,
@@ -211,19 +211,21 @@ async function attemptSignup({ nameInput, emailInput, passwordInput }) {
 }
 
 /**
- * Builds a new user.
+ * Builds a new user with a salted password hash.
  * @param {Array} users
  * @param {string} name
  * @param {string} email
  * @param {string} password
- * @returns {Object}
+ * @returns {Promise<Object>}
  */
-function buildNewUser(users, name, email, password) {
+async function buildNewUser(users, name, email, password) {
+  const pwSalt = createPasswordSalt();
   return {
     id: generateNextUserId(users),
     name,
     email,
-    pw: password,
+    pwSalt,
+    pwHash: await hashPassword(password, pwSalt),
     color: generateRandomColor(),
   };
 }
