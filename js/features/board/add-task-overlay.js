@@ -1,11 +1,11 @@
-let presetStatus = "todo";
+let presetStatus = TASK_STATUS.TRIAGE;
 
 /**
  * Opens the add-task overlay.
  * @param {string} status
  * @returns {Promise<void>}
  */
-async function openAddTaskOverlay(status = "todo") {
+async function openAddTaskOverlay(status = TASK_STATUS.TRIAGE) {
   presetStatus = status;
   return renderTaskOverlay({ mode: "create", status: presetStatus });
 }

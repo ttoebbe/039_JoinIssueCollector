@@ -74,7 +74,7 @@ function resetForm(state) {
  */
 function resetStatusPreset() {
   const statusField = document.getElementById("task-status-preset");
-  if (statusField) statusField.value = statusField.value || "todo";
+  if (statusField) statusField.value = statusField.value || TASK_STATUS.TRIAGE;
 }
 
 /**

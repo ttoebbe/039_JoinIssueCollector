@@ -69,6 +69,7 @@ function createMoveToList(task) {
   menu.className = "board-move-menu";
   if (task?.id) menu.dataset.taskId = String(task.id);
   menu.setAttribute("aria-hidden", "true");
+  menu.appendChild(createMoveToItem("triage", "Triage"));
   menu.appendChild(createMoveToItem("todo", "To-do"));
   menu.appendChild(createMoveToItem("inprogress", "In progress"));
   menu.appendChild(createMoveToItem("awaitfeedback", "Await feedback"));

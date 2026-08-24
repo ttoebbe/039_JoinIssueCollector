@@ -36,7 +36,7 @@ function getAddTaskPriorityBlockTemplate() {
  * @param {string} presetStatus
  * @returns {string}
  */
-function getAddTaskFormTemplate(presetStatus = "todo") {
+function getAddTaskFormTemplate(presetStatus = TASK_STATUS.TRIAGE) {
   return [
     getAddTaskFormOpen(presetStatus),
     getAddTaskRightColumn(),
