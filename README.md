@@ -60,6 +60,11 @@ Dann `http://localhost:8080` öffnen.
 Alternativ die VS-Code-Erweiterung *Live Server*: Rechtsklick auf `index.html`
 → *Open with Live Server*.
 
+Die Seite muss über einen Server laufen, nicht per Doppelklick über `file://`.
+Sign-up und Login hashen Passwörter mit `crypto.subtle`, und die Web Crypto API
+gibt es nur im Secure Context — `http://localhost`, `http://127.0.0.1` und HTTPS
+zählen dazu, `file://` nicht.
+
 Zustände der Landing Page ohne laufendes n8n testen:
 
 ```
