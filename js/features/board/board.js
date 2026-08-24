@@ -293,6 +293,7 @@ function normalizeStatus(value) {
     .trim()
     .toLowerCase();
   const unified = v.replace(/[\s_-]+/g, "-");
+  if (unified === "triage") return "triage";
   if (unified === "todo" || unified === "to-do") return "todo";
   if (unified === "in-progress" || unified === "inprogress")
     return "inprogress";
