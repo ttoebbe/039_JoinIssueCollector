@@ -1,90 +1,126 @@
-# Join — Kanban Task Manager
+# Join — Issue Collector
 
-A vanilla JavaScript task management web application with real-time Firebase sync. Organize tasks across a drag-and-drop Kanban board, manage contacts, and track progress via a summary dashboard.
+Kanban-Board mit KI-gestütztem Issue Collector. Stakeholder reichen Feature
+Requests per E-Mail ein; ein n8n-Workflow analysiert die Mail, bestimmt
+Kategorie, Titel, Priorität und Deadline und legt daraus automatisch ein Ticket
+in der Triage-Spalte des Boards an.
+
+Aufbauend auf [024_Join](https://github.com/ttoebbe/024_Join).
+
+---
+
+## Wie die Demo funktioniert
+
+1. Landing Page öffnen und „Create request" wählen
+2. E-Mail an die angegebene Adresse schicken — Betreff mit dem Präfix `[JOIN]`
+3. Der n8n-Workflow verarbeitet die Mail und legt das Ticket in **Triage** an
+4. Der Absender bekommt eine Bestätigungsmail und wird als externer Ersteller
+   am Ticket geführt
+5. Wird das Ticket auf dem Board in eine andere Spalte gezogen, geht eine
+   Benachrichtigung an den Ersteller
+
+Pro Tag werden maximal **10** Anfragen verarbeitet. Der aktuelle Stand wird auf
+der Landing Page angezeigt. Das Limit ist ein Kostenschutz für die KI-API.
 
 ---
 
 ## Features
 
-- **Authentication** — Register, log in, or try the app as a guest
-- **Summary Dashboard** — At-a-glance KPIs: open tasks, urgent items, and upcoming deadlines
-- **Kanban Board** — Drag-and-drop cards across four columns: *To Do*, *In Progress*, *Awaiting Feedback*, *Done*
-- **Task Management** — Create tasks with title, description, priority, due date, assigned contacts, and subtasks
-- **Contacts** — Add and manage contacts for task assignment
-- **Search** — Filter tasks on the board in real time
-- **Responsive** — Works on desktop and mobile
+- **Landing Page** — Weiche zwischen Stakeholder und Teammitglied, Prozess­erklärung, Tageslimit transparent
+- **Issue Collector** — E-Mail-Empfang, KI-Analyse, automatische Ticket-Anlage
+- **Triage-Spalte** — Standard-Backlog für alle neuen Tickets, manuell wie automatisch
+- **Ersteller-Anzeige** — sichtbar im Task-Detail, unterscheidet intern (`Member`) und extern (`Extern`)
+- **KI-Kennzeichnung** — Badge und Hinweis im Beschreibungstext
+- **Statusbenachrichtigung** — Mail an den Ersteller bei Spaltenwechsel
+- **Kanban-Board** — Drag & Drop, Suche, Subtasks, Prioritäten, Kontakte, Summary-Dashboard
 
 ---
 
-## Tech Stack
+## Tech-Stack
 
-| Layer | Technology |
+| Ebene | Technologie |
 |---|---|
 | Frontend | HTML5, CSS3, Vanilla JavaScript (ES6+) |
-| Database | Firebase Realtime Database (REST API) |
-| Auth | Custom auth via Firebase |
-| Build | None — served as static files |
+| Datenbank | Firebase Realtime Database (REST API) |
+| Automatisierung | n8n (Docker, eigener VPS) |
+| Build | keiner — statische Dateien |
 
 ---
 
-## Project Structure
+## Lokal starten
 
-```
-024_Join/
-├── index.html              # Entry point (login page)
-├── assets/
-│   ├── img/                # SVG icons and branding
-│   └── fonts/              # Custom fonts
-├── css/
-│   ├── core/               # CSS variables and base styles
-│   ├── pages/              # Page-specific styles
-│   └── components/         # Reusable component styles
-├── html/
-│   ├── pages/              # App pages (board, contacts, summary, ...)
-│   └── components/         # Shared HTML snippets
-└── js/
-    ├── core/               # Firebase service, constants, utilities
-    ├── features/           # Feature modules (auth, board, add-task, contacts, summary)
-    ├── components/         # Reusable JS components (toast, overlays, ...)
-    └── templates/          # Template rendering helpers
-```
-
----
-
-## Getting Started
-
-No build step required. Open the project directly in a browser or serve it with a local static server.
-
-**Option A — VS Code Live Server**
-
-1. Install the [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) extension
-2. Right-click `index.html` → *Open with Live Server*
-
-**Option B — Python**
+Kein Build-Step nötig.
 
 ```bash
 python -m http.server 8080
 ```
 
-Then open `http://localhost:8080` in your browser.
+Dann `http://localhost:8080` öffnen.
+
+Alternativ die VS-Code-Erweiterung *Live Server*: Rechtsklick auf `index.html`
+→ *Open with Live Server*.
+
+Zustände der Landing Page ohne laufendes n8n testen:
+
+```
+/html/pages/request.html            -> 0 of 10
+/html/pages/request.html?used=4     -> 4 of 10
+/html/pages/request.html?used=10    -> Limit erreicht
+```
 
 ---
 
-## Firebase Configuration
+## Projektstruktur
 
-The Firebase project URL and API key are defined in [js/core/constants.js](js/core/constants.js). Replace the values there if you want to point the app at your own Firebase project.
+```
+├── index.html              # Landing Page (Stakeholder / Teammitglied)
+├── assets/
+│   ├── icons/              # aus Figma exportiert (neue Features)
+│   ├── img/                # Bestand aus 024_Join (bestehende Screens)
+│   ├── logos/, images/     # aus Figma
+│   └── fonts/              # Inter + Open Sans als woff2
+├── css/
+│   ├── core/               # tokens.css (Design-Tokens), base.css
+│   ├── landing/            # Landing-Strecke
+│   ├── pages/              # App-Seiten
+│   └── components/         # wiederverwendbare Komponenten
+├── html/pages/             # App-Seiten inkl. login.html und request.html
+├── js/
+│   ├── core/               # Firebase-Service, Konstanten, Utilities
+│   ├── features/           # auth, board, add-task, contacts, summary, landing
+│   ├── components/         # Toast, Overlays
+│   └── templates/          # Template-Renderer
+├── n8n/                    # Workflows als JSON + Deploy-Dateien
+├── docs/
+│   ├── design/             # Design-Spec, Komponenten-Inventar, Referenzbilder
+│   └── *Lastenheft*        # Anforderungen
+└── tools/                  # Auswertungsskripte der Figma-Extraktion
+```
 
 ---
 
-## Architecture Notes
+## Design
 
-- **No framework, no bundler** — plain ES6 modules loaded via `<script type="module">`
-- **Service layer** — All Firebase REST calls are abstracted in `firebase-service.js` (`UserService`, `TaskService`, `ContactService`)
-- **Feature modules** — Each feature (auth, board, contacts, etc.) is self-contained under `js/features/`
-- **Local storage** — Used for session state between page navigations
+Das UI der neuen Funktionen stammt aus einer Figma-Datei, die vollständig
+extrahiert und dokumentiert wurde:
+
+- `docs/design/spec.md` — Foundations, Breakpoints, Frames, Komponenten
+- `docs/design/components.md` — vollständiges Komponenten-Inventar
+- `docs/design/reference/` — Referenz-Screenshots je Frame
+- `docs/design/MANIFEST.md` — Herkunft jeder Asset-Datei mit Node-ID
+
+Bestehende Screens aus 024_Join wurden bewusst nicht angeglichen.
 
 ---
 
-## License
+## Konfiguration
 
-This project is for educational purposes.
+Die Firebase-URL steht in `js/core/constants.js`.
+Zugangsdaten für n8n (Mailkonto, KI-API, Service Account) liegen ausschließlich
+in der `.env` auf dem Server und sind über `.gitignore` ausgeschlossen.
+
+---
+
+## Lizenz
+
+Privates, nicht kommerzielles Ausbildungsprojekt.
