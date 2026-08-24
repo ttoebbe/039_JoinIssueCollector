@@ -51,7 +51,7 @@ function getGuestNavTemplate() {
 
     <div class="nav-links">
       <nav>
-        <a href="../../index.html" data-route="login">
+        <a href="/html/pages/login.html" data-route="login">
           <img src="../../assets/img/icons/lock.svg" alt="" />
           <p>Log In</p>
         </a>

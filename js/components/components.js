@@ -204,6 +204,6 @@ function wireLogout(logoutBtn) {
   logoutBtn?.addEventListener("click", () => {
     setCurrentUser(null);
     sessionStorage.removeItem("mobileGreetingShown");
-    window.location.href = "/index.html";
+    window.location.href = "/html/pages/login.html";
   });
 }

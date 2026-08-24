@@ -3,12 +3,7 @@
  * Unified design system to replace multiple :root definitions
  */
 
-@font-face {
-  font-family: 'Inter';
-  src: url('/assets/fonts/Inter/Inter-VariableFont_opsz,wght.ttf') format('truetype');
-  font-weight: 100 900;
-  font-display: swap;
-}
+@import url('/assets/fonts/fonts.css');
 
 :root {
   /* === TYPOGRAPHY === */

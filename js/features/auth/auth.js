@@ -9,7 +9,7 @@ function startAnimation(img, bg) {
   bg.classList.add("bg-animated");
   if (window.innerWidth <= 480) {
     setTimeout(() => {
-      img.src = "./assets/img/homepage-join.svg";
+      img.src = "/assets/img/homepage-join.svg";
     }, 500);
   }
   setTimeout(() => {
@@ -24,7 +24,7 @@ function startAnimation(img, bg) {
  */
 function skipAnimation(img, bg) {
   if (!img || !bg) return;
-  img.src = "./assets/img/homepage-join.svg";
+  img.src = "/assets/img/homepage-join.svg";
   if (window.innerWidth <= 480) {
     img.style.top = "30px";
     img.style.left = "30px";
@@ -45,7 +45,7 @@ function initAnimation() {
     return;
   }
   sessionStorage.setItem("animationShown", "true");
-  if (window.innerWidth <= 480) img.src = "./assets/img/capa-1.svg";
+  if (window.innerWidth <= 480) img.src = "/assets/img/capa-1.svg";
   setTimeout(() => startAnimation(img, bg), 200);
 }
 

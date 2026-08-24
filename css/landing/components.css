@@ -216,7 +216,7 @@
 }
 
 .button__icon--check {
-  --icon: url('../assets/icons/material/check.svg');
+  --icon: url('/assets/icons/material/check.svg');
 }
 
 /* ---------- Text button — set "Text Button" (70889:6497) ---------- */
@@ -281,7 +281,7 @@
 }
 
 .icon-button__glyph--arrow-left {
-  --icon: url('../assets/icons/arrow-left.svg');
+  --icon: url('/assets/icons/arrow-left.svg');
 }
 
 /* ---------- Alert — limit notice (350537:9936 / 350522:9795) ---------- */

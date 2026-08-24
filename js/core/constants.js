@@ -9,7 +9,7 @@ const CURRENT_USER_KEY = 'join_current_user';
 const USERS_KEY = 'join_users';
 
 const ROUTES = {
-  LOGIN: '/index.html',
+  LOGIN: '/html/pages/login.html',
   SUMMARY: '/html/pages/summary.html',
   BOARD: '/html/pages/board.html',
   CONTACTS: '/html/pages/contacts.html',
