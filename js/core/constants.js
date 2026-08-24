@@ -33,6 +33,6 @@ const PRIORITY = {
 };
 
 const API_CONFIG = {
-  BASE_URL: 'https://remotestorage-67778-default-rtdb.europe-west1.firebasedatabase.app',
+  BASE_URL: 'https://joinv2withn8n-default-rtdb.europe-west1.firebasedatabase.app',
   TIMEOUT: 10000
 };
