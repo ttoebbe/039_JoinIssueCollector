@@ -20,9 +20,10 @@ const ROUTES = {
 };
 
 const TASK_STATUS = {
+  TRIAGE: 'triage',
   TODO: 'todo',
-  IN_PROGRESS: 'in-progress',
-  AWAIT_FEEDBACK: 'await-feedback',
+  IN_PROGRESS: 'inprogress',
+  AWAIT_FEEDBACK: 'awaitfeedback',
   DONE: 'done'
 };
 
