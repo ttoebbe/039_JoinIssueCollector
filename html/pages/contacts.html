@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contacts | Join</title>
+    <link
+      rel="shortcut icon"
+      href="/assets/img/homepage-join.svg"
+      type="image/x-icon"
+    />
+    <link rel="stylesheet" href="/css/core/variables.css" />
+    <link rel="stylesheet" href="/css/core/base.css" />
+    <link rel="stylesheet" href="/css/components/index.css" />
+    <link rel="stylesheet" href="/css/pages/contacts.css" />
+  </head>
+
+  <body>
+    <div class="app-shell">
+      <aside id="nav-bar-placeholder"></aside>
+      <div class="page-column">
+        <div id="header-placeholder"></div>
+
+        <!-- content starts here -->
+        <main class="content contacts-page">
+          <div class="contacts-main">
+            <section class="contact-list-panel">
+              <button
+                class="list-add-button"
+                type="button"
+                aria-controls="contact-overlay"
+              >
+                <span class="button-icon">+</span>
+                <span>Add New Contact </span>
+              </button>
+              <div class="contact-list" aria-live="polite"></div>
+            </section>
+
+            <section class="contact-detail-panel">
+              <section class="contacts-header">
+                <div class="contacts-title-row">
+                  <h1>Contacts</h1>
+                  <button
+                    type="button"
+                    class="contact-back-button"
+                    aria-label="Back to contacts"
+                  >
+                    <img
+                      src="/assets/img/icons/property-1-default.svg"
+                      alt=""
+                      aria-hidden="true"
+                    />
+                  </button>
+                </div>
+                <p class="content-border">|</p>
+                <p class="contacts-tagline">Better with a team</p>
+              </section>
+
+              <section id="contact-detail-injection"></section>
+            </section>
+          </div>
+        </main>
+
+        <!-- Edit Contact Overlay or Add New Contact Overlay -->
+        <section
+          id="contact-overlay"
+          class="contact-overlay"
+          aria-hidden="true"
+        >
+          <div
+            class="contact-overlay-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="contact-overlay-title"
+          >
+            <button
+              type="button"
+              class="overlay-close-button"
+              data-overlay-close
+              aria-label="Close add contact dialog"
+            >
+              X
+            </button>
+            <div class="overlay-panel overlay-panel-top">
+              <div class="overlay-brand">
+                <div class="overlay-logo">
+                  <img src="/assets/img/capa-1.svg" alt="Join logo" />
+                </div>
+                <h2 id="contact-overlay-title">Add contact</h2>
+                <p class="overlay-tagline">Tasks are better with a team!</p>
+                <span class="overlay-underline"></span>
+              </div>
+            </div>
+
+            <div class="overlay-panel overlay-panel-bottom">
+              <div class="overlay-form-row">
+                <div class="overlay-avatar">
+                  <div class="avatar-circle">
+                    <img
+                      src="/assets/img/icons/group-13.svg"
+                      alt="User avatar"
+                    />
+                  </div>
+                </div>
+                <form id="contact-form" class="overlay-form" novalidate>
+                  <div class="field-group">
+                    <label class="sr-only" for="contact-name">Name</label>
+                    <div class="input-with-icon">
+                      <!-- <span class="input-prefix">ddddd</span> -->
+                      <input
+                        class="overlay-input"
+                        id="contact-name"
+                        name="name"
+                        type="text"
+                        placeholder="Name"
+                        autocomplete="name"
+                      />
+                      <span class="input-icon" aria-hidden="true">
+                        <img src="/assets/img/icons/person.svg" alt="" />
+                      </span>
+                    </div>
+                    <div class="field-error" id="contact-name-error"></div>
+                    <div class="field-counter" id="contact-name-counter">
+                      0/30
+                    </div>
+                  </div>
+
+                  <div class="field-group">
+                    <label class="sr-only" for="contact-email">Email</label>
+                    <div class="input-with-icon">
+                      <!-- <span class="input-prefix">email=</span> -->
+                      <input
+                        class="overlay-input"
+                        id="contact-email"
+                        name="email"
+                        type="email"
+                        placeholder="Email"
+                        autocomplete="email"
+                      />
+                      <span class="input-icon" aria-hidden="true">
+                        <img src="/assets/img/icons/mail.svg" alt="" />
+                      </span>
+                    </div>
+                    <div class="field-error" id="contact-email-error"></div>
+                    <div class="field-counter" id="contact-email-counter">
+                      0/30
+                    </div>
+                  </div>
+
+                  <div class="field-group">
+                    <label class="sr-only" for="contact-phone">Phone</label>
+                    <div class="input-with-icon">
+                      <!-- <span class="input-prefix">phone=</span> -->
+                      <input
+                        class="overlay-input"
+                        id="contact-phone"
+                        name="phone"
+                        type="tel"
+                        placeholder="Phone"
+                        autocomplete="tel"
+                      />
+                      <span class="input-icon" aria-hidden="true">
+                        <img src="/assets/img/icons/call.svg" alt="" />
+                      </span>
+                    </div>
+                    <div class="field-error" id="contact-phone-error"></div>
+                    <div class="field-counter" id="contact-phone-counter">
+                      0/30
+                    </div>
+                  </div>
+
+                  <!-- Error message -->
+                  <div id="contactFormMsg" class="form-msg"></div>
+
+                  <div class="overlay-actions">
+                    <button
+                      type="button"
+                      id="contact-cancel"
+                      class="overlay-btn overlay-btn-secondary"
+                      data-overlay-close
+                    >
+                      <span>Cancel</span>
+                    </button>
+                    <button
+                      type="button"
+                      id="contact-delete"
+                      class="overlay-btn overlay-btn-secondary"
+                    >
+                      <span>Delete</span>
+                    </button>
+                    <button
+                      type="submit"
+                      class="overlay-btn overlay-btn-primary"
+                    >
+                      <span>Create contact</span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- content ends here -->
+      </div>
+    </div>
+    <script src="/js/core/constants.js"></script>
+    <script src="/js/core/data-utils.js"></script>
+    <script src="/js/core/ui-utils.js"></script>
+    <script src="/js/core/confirm-overlay.js"></script>
+    <script src="/js/core/toast.js"></script>
+    <script src="/js/core/firebase-service.js"></script>
+    <script src="/js/templates/contacts-templates.js"></script>
+    <script src="/js/templates/components-templates.js"></script>
+    <script src="/js/components/components.js"></script>
+    <script src="/js/features/contacts/contacts-data.js"></script>
+    <script src="/js/features/contacts/contacts-list.js"></script>
+    <script src="/js/features/contacts/contacts-detail.js"></script>
+    <script src="/js/features/contacts/contacts-overlay-ui.js"></script>
+    <script src="/js/features/contacts/contacts-overlay.js"></script>
+    <script src="/js/features/contacts/contacts-persistence.js"></script>
+    <script src="/js/features/contacts/contacts-init.js"></script>
+  </body>
+</html>

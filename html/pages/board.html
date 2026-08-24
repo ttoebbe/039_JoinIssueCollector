@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Board</title>
+    <link
+      rel="shortcut icon"
+      href="/assets/img/homepage-join.svg"
+      type="image/x-icon"
+    />
+
+    <!-- Global components + page styles -->
+    <link rel="stylesheet" href="/css/core/variables.css" />
+    <link rel="stylesheet" href="/css/core/base.css" />
+    <link rel="stylesheet" href="/css/components/index.css" />
+    <link rel="stylesheet" href="/css/pages/board.css" />
+    <link rel="stylesheet" href="/css/pages/overlay.css" />
+  </head>
+
+  <body>
+    <div class="app-shell">
+      <aside id="nav-bar-placeholder"></aside>
+
+      <div class="page-column">
+        <div id="header-placeholder"></div>
+
+        <main class="content board-content">
+          <!-- content starts here -->
+          <section class="board-page">
+            <!-- Board header row -->
+            <div class="board-head">
+              <h1 class="board-title">Board</h1>
+
+              <div class="board-actions">
+                <!-- Search -->
+                <div class="board-search">
+                  <input
+                    id="boardSearchInput"
+                    class="board-search-input"
+                    type="text"
+                    placeholder="Find Task"
+                  />
+
+                  <!-- Search icon button (optional UI-only) -->
+                  <button
+                    id="boardSearchBtn"
+                    class="board-search-btn"
+                    type="button"
+                    aria-label="Search"
+                  >
+                    <img src="/assets/img/icons/search.svg" alt="" />
+                  </button>
+                </div>
+
+                <!-- Add Task (opens overlay) -->
+                <button
+                  id="boardAddTaskBtn"
+                  class="board-add-btn"
+                  type="button"
+                >
+                  Add task <span class="board-add-plus">+</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- No results message (shown only if search has no matches) -->
+            <p id="boardNoResults" class="board-no-results" hidden>
+              No results found
+            </p>
+
+            <!-- Board columns -->
+            <div class="board-columns">
+              <!-- To do -->
+              <section class="board-column" data-status="todo">
+                <div class="board-column-head">
+                  <h2 class="board-column-title">To do</h2>
+                  <button
+                    class="board-column-add"
+                    type="button"
+                    aria-label="Add task to To do"
+                  >
+                    <img src="/assets/img/icons/plus-button-1.svg" alt="" />
+                  </button>
+                </div>
+
+                <!-- IMPORTANT: data-board-body must be on the column body -->
+                <div class="board-column-body" data-board-body>
+                  <div class="board-empty">No tasks To do</div>
+                </div>
+              </section>
+
+              <!-- In progress -->
+              <section class="board-column" data-status="inprogress">
+                <div class="board-column-head">
+                  <h2 class="board-column-title">In progress</h2>
+                  <button
+                    class="board-column-add"
+                    type="button"
+                    aria-label="Add task to In progress"
+                  >
+                    <img src="/assets/img/icons/plus-button-1.svg" alt="" />
+                  </button>
+                </div>
+
+                <div class="board-column-body" data-board-body>
+                  <div class="board-empty">No tasks In progress</div>
+                </div>
+              </section>
+
+              <!-- Await feedback -->
+              <section class="board-column" data-status="awaitfeedback">
+                <div class="board-column-head">
+                  <h2 class="board-column-title">Await feedback</h2>
+                  <button
+                    class="board-column-add"
+                    type="button"
+                    aria-label="Add task to Await feedback"
+                  >
+                    <img src="/assets/img/icons/plus-button-1.svg" alt="" />
+                  </button>
+                </div>
+
+                <div class="board-column-body" data-board-body>
+                  <div class="board-empty">No tasks Await feedback</div>
+                </div>
+              </section>
+
+              <!-- Done (NO plus button allowed here) -->
+              <section class="board-column" data-status="done">
+                <div class="board-column-head">
+                  <h2 class="board-column-title">Done</h2>
+                  <!-- no add button in done -->
+                </div>
+
+                <div class="board-column-body" data-board-body>
+                  <div class="board-empty">No tasks Done</div>
+                </div>
+              </section>
+            </div>
+          </section>
+          <!-- content ends here -->
+        </main>
+      </div>
+    </div>
+
+    <div id="overlayRoot" class="overlay-root hidden" aria-hidden="true"></div>
+
+    <!-- Scripts (order matters!) -->
+    <script src="/js/core/constants.js"></script>
+    <script src="/js/core/data-utils.js"></script>
+    <script src="/js/core/ui-utils.js"></script>
+    <script src="/js/core/confirm-overlay.js"></script>
+    <script src="/js/core/toast.js"></script>
+    <script src="/js/core/firebase-service.js"></script>
+    <script src="/js/templates/board-templates.js"></script>
+    <script src="/js/templates/add-task-templates.js"></script>
+    <script src="/js/templates/components-templates.js"></script>
+    <script src="/js/components/components.js"></script>
+    <script src="/js/features/board/add-task-form-state.js"></script>
+    <script src="/js/features/board/add-task-form-categories.js"></script>
+    <script src="/js/features/board/add-task-form-assigned-data.js"></script>
+    <script src="/js/features/board/add-task-form-assigned-ui.js"></script>
+    <script src="/js/features/board/add-task-form-assigned.js"></script>
+    <script src="/js/features/board/add-task-form-subtasks-render.js"></script>
+    <script src="/js/features/board/add-task-form-subtasks-edit.js"></script>
+    <script src="/js/features/board/add-task-form-subtasks-events.js"></script>
+    <script src="/js/features/board/add-task-form-subtasks-normalize.js"></script>
+    <script src="/js/features/board/add-task-form-subtasks-main.js"></script>
+    <script src="/js/features/board/add-task-form-submit-ui.js"></script>
+    <script src="/js/features/board/add-task-form-submit-validation.js"></script>
+    <script src="/js/features/board/add-task-form-submit-counters.js"></script>
+    <script src="/js/features/board/add-task-form-submit.js"></script>
+    <script src="/js/features/board/add-task-overlay.js"></script>
+    <script src="/js/features/board/draganddrop.js"></script>
+    <script src="/js/features/board/create-task-overlay.js"></script>
+    <script src="/js/features/board/create-task-actions.js"></script>
+    <script src="/js/features/board/create-task-detail.js"></script>
+    <script src="/js/features/board/create-task.js"></script>
+    <script src="/js/features/board/render-cards-meta.js"></script>
+    <script src="/js/features/board/render-cards-progress.js"></script>
+    <script src="/js/features/board/render-cards-assigned.js"></script>
+    <script src="/js/features/board/render-cards-prio.js"></script>
+    <script src="/js/features/board/render-cards.js"></script>
+    <script src="/js/features/board/board.js"></script>
+  </body>
+</html>

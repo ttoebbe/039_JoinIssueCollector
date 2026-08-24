@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Join | Summary</title>
+
+    <link rel="stylesheet" href="/css/core/variables.css" />
+    <link rel="stylesheet" href="/css/core/base.css" />
+    <link rel="stylesheet" href="/css/components/index.css" />
+    <link rel="shortcut icon" href="/assets/img/homepage-join.svg" type="image/x-icon" />
+        <link rel="stylesheet" href="/css/pages/summary.css" />
+  </head>
+
+  <body>
+    <div class="app-shell">
+      <aside id="nav-bar-placeholder"></aside>
+
+      <div class="page-column">
+        <div id="header-placeholder"></div>
+
+        <main class="content">
+          <div class="summary-body">
+            <div class="summary-left">
+              <div class="summary-headline">
+                <h1 class="summary-h1">Join 360</h1>
+                <div class="summary-line"></div>
+                <p class="summary-sub">Key Metrics at a Glance</p>
+              </div>
+
+              <section class="summary-kpis">
+                <a href="board.html" class="kpi-card kpi-top">
+                  <div class="kpi-icon">
+                    <img src="/assets/img/icons/group-7.svg" alt="" />
+                  </div>
+                  <div class="kpi-stack">
+                    <div class="kpi-number" id="count-todo">0</div>
+                    <div class="kpi-label">To-do</div>
+                  </div>
+                </a>
+
+                <a href="board.html" class="kpi-card kpi-top">
+                  <div class="kpi-icon">
+                    <img src="/assets/img/icons/frame-59.svg" alt="" />
+                  </div>
+                  <div class="kpi-stack">
+                    <div class="kpi-number" id="count-done">0</div>
+                    <div class="kpi-label">Done</div>
+                  </div>
+                </a>
+
+                <a href="board.html" class="kpi-card kpi-wide">
+                  <div class="kpi-wide-left">
+                    <div class="kpi-icon kpi-icon--stack">
+                      <img class="icon-bg" src="/assets/img/icons/ellipse-4.svg" alt="" />
+                      <img class="icon-fg" src="/assets/img/icons/Prio-Urgent-white.svg" alt="" />
+                    </div>
+
+                    <div class="kpi-stack">
+                      <div class="kpi-number" id="count-urgent">0</div>
+                      <div class="kpi-label">Urgent</div>
+                    </div>
+                  </div>
+
+                  <div class="kpi-divider"></div>
+
+                  <div class="kpi-wide-right">
+                    <div class="kpi-date" id="next-deadline-date">—</div>
+                    <div class="kpi-sub">Upcoming Deadline</div>
+                  </div>
+                </a>
+
+                <a href="board.html" class="kpi-card kpi-bottom">
+                  <div class="kpi-number" id="count-board">0</div>
+                  <div class="kpi-label">Tasks in Board</div>
+                </a>
+
+                <a href="board.html" class="kpi-card kpi-bottom">
+                  <div class="kpi-number" id="count-in-progress">0</div>
+                  <div class="kpi-label">Tasks In Progress</div>
+                </a>
+
+                <a href="board.html" class="kpi-card kpi-bottom">
+                  <div class="kpi-number" id="count-awaiting">0</div>
+                  <div class="kpi-label">Awaiting Feedback</div>
+                </a>
+              </section>
+            </div>
+
+            <section class="greeting">
+              <p id="greeting-text">Good morning,</p>
+              <h2 id="user-name">Guest</h2>
+            </section>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script src="/js/core/constants.js"></script>
+    <script src="/js/core/data-utils.js"></script>
+    <script src="/js/core/ui-utils.js"></script>
+    <script src="/js/core/confirm-overlay.js"></script>
+    <script src="/js/core/toast.js"></script>
+    <script src="/js/core/firebase-service.js"></script>
+    <script src="/js/templates/components-templates.js"></script>
+    <script src="/js/templates/summary-templates.js"></script>
+    <script src="/js/components/components.js"></script>
+    <script src="/js/features/summary/summary.js"></script>
+  </body>
+</html>
+
+
+
