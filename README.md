@@ -99,7 +99,7 @@ Zustände der Landing Page ohne laufendes n8n testen:
 ├── docs/
 │   ├── design/             # Design-Spec, Komponenten-Inventar, Referenzbilder
 │   └── *Lastenheft*        # Anforderungen
-└── tools/                  # Auswertungsskripte der Figma-Extraktion
+└── tools/                  # Hilfsskripte (Demo-Kontakte seeden)
 ```
 
 ---

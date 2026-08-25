@@ -7,7 +7,7 @@ sondern nur Figmas Sammelbehaelter. Verbindlich sind die Werte je Variante.
 Spalten: AL = Auto-Layout-Richtung (H/V/-), Gap = itemSpacing, Padding = T/R/B/L,
 Shadow = x y blur spread Farbe. Textstil = Familie und Groesse/Gewicht des ersten Text-Nodes der Variante.
 
-Erzeugt aus dem Cache, nicht von Hand gepflegt. Quelle: `tools/components.py`.
+Erzeugt aus dem Cache, nicht von Hand gepflegt. Das erzeugende Skript ist nach Abschluss der Extraktion aus dem Repo entfernt worden.
 
 
 ##### `585:3672` — add contact text

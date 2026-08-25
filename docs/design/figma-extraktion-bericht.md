@@ -23,7 +23,7 @@ Durchlaufen: Phase 1–6 des Workflows `claude/figma-extraktion-workflow.md`
 | `assets/images/` | 9 Rasterbilder in **Originalaufloesung**, kein Downscaling |
 | `assets/fonts/` | 8 woff2-Dateien + fertiges `fonts.css` (Inter, Open Sans, Poppins, Mulish) |
 | `docs/design/reference/` | 44 von 101 Referenz-Screenshots (s. Punkt 3) |
-| `tools/` | Auswertungsskripte, arbeiten ausschliesslich gegen den Cache |
+| `tools/` | Auswertungsskripte der Extraktion, nach Abschluss aus dem Repo entfernt |
 
 Alle Schriften der Datei sind frei verfuegbar — **keine kommerzielle Schrift**, kein offener Punkt bei den Fonts.
 Alle Rasterbilder liegen in hoeherer Aufloesung vor als ihre Anzeigegroesse — **kein Qualitaetsrisiko**.
@@ -119,9 +119,11 @@ sind **offen**. Das Design deckt sie visuell ab und ist dokumentiert:
 
 **57 von 101 Referenz-Screenshots fehlen.** Figmas `/v1/images` liefert seit dem Rendern der
 grossen Design-System-Frames (1920 x 6140 px und 3533 x 9441 px) durchgaengig HTTP 429.
-Ein Hintergrundprozess (`tools/fetch-refs.py`) laeuft weiter und laedt mit exponentiellem
-Backoff nach, sobald das Kontingent zurueckgesetzt ist. Fortschritt: `.figma-cache/fetch-refs.log`.
-Neustart bei Bedarf mit `python tools/fetch-refs.py` — bereits vorhandene Dateien werden uebersprungen.
+Die restlichen Referenz-Screenshots wurden nicht nachgeladen — das Kontingent
+der Figma-API war erschoepft. Das Nachladeskript ist mit den uebrigen
+Extraktionsskripten aus dem Repo entfernt worden; es liegt weiterhin in der
+Git-Historie (`git show ab7523a:tools/fetch-refs.py`). Fuer die Umsetzung ist
+es nicht noetig, die gemessenen Werte stehen in `spec.md`.
 
 **8 Frames liefern grundsaetzlich kein Rendering**, weil sie in Figma ausgeblendet sind:
 die komplette Forgot-Password-Strecke (`656:3794`, `656:3836`, `664:3733`, `664:3772`) und
@@ -160,16 +162,12 @@ Es steht bewusst nicht in `.gitignore`.
 
 ## 4. Reproduzierbarkeit
 
+Die Auswertungsskripte wurden nach Abschluss der Extraktion aus dem Repo
+entfernt. Sie arbeiteten gegen `.figma-cache/` und sind ueber die
+Git-Historie wieder herstellbar. Ihr vollstaendiges Ergebnis liegt in
+`docs/design/` und `assets/`.
+
 ```bash
-# Auswertung erneut ausfuehren (nur gegen den Cache, kein API-Aufruf)
-python tools/foundations.py       # Farb-, Text- und Effektstile mit tatsaechlichen Werten
-python tools/components.py        # alle Component-Sets und Varianten
-python tools/tree.py <node-id> 6  # Layoutbaum eines Nodes
-python tools/manifest.py          # assets/MANIFEST.md neu erzeugen
-
-# Fehlende Referenz-Screenshots nachladen (braucht die API)
-python tools/fetch-refs.py
-
 # Entwurf lokal ansehen
 python -m http.server 8321
 #   http://127.0.0.1:8321/index.html
