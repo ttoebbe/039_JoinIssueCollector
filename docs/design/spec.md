@@ -820,9 +820,10 @@ Beide Seiten genannt, nichts stillschweigend entschieden.
 | `assets/icons/material/*.svg` | `raw.githubusercontent.com/google/material-design-icons` | Google, Apache 2.0 |
 | `assets/images/*` | Original-URLs aus `image-fills.json` | Figma S3, unskaliert |
 | `assets/fonts/*` | `fonts.googleapis.com/css2` + `fonts.gstatic.com` | Google Fonts, OFL 1.1 |
-| `docs/design/components.md` | `tools/components.py` gegen den Cache | — |
+| `docs/design/components.md` | Auswertungsskript gegen den Cache | — |
 | `docs/design/reference/*.png` | `GET /v1/images?format=png&scale=1` | Figma REST API |
-| `assets/MANIFEST.md` | `tools/manifest.py` gegen den Cache | — |
+| `assets/MANIFEST.md` | Auswertungsskript gegen den Cache | — |
 
-Alle Auswertungsskripte liegen in `tools/` und arbeiten ausschliesslich gegen `.figma-cache/`.
-Ein erneuter API-Aufruf ist fuer Nachfragen nicht noetig.
+Alle Auswertungsskripte arbeiteten ausschliesslich gegen `.figma-cache/` und sind nach
+Abschluss der Extraktion aus dem Repo entfernt worden. Ein erneuter API-Aufruf ist fuer
+Nachfragen nicht noetig.
