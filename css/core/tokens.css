@@ -38,7 +38,9 @@
   --color-creator-member: #92ffbc;       /* Creator badge "member", node 350510:12310 */
   --color-creator-extern: #ebfc88;       /* Creator badge "extern", node 350510:12321 */
   --color-creator-text: #0b3681;         /* Creator badge label, node 350510:12313 */
-  --gradient-ai: linear-gradient(90deg, #9327ff, #2ea1dc); /* "Ai-generated ticket", node 350510:12645 */
+  --color-ai-gradient-from: #9327ff;      /* "Ai-generated ticket" gradient start, node 350510:12645 */
+  --color-ai-gradient-to: #2ea1dc;        /* "Ai-generated ticket" gradient end, node 350510:12645 */
+  --gradient-ai: linear-gradient(90deg, var(--color-ai-gradient-from), var(--color-ai-gradient-to));
   --color-label-user-story: #7b3acf;     /* Board label, node 75609:16165 */
   --color-label-technical: #12ad9a;      /* Board label, node 75609:16167 */
 

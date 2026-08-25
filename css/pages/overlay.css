@@ -163,7 +163,106 @@
   display: block;
 }
 
+.task-detail-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.task-detail-ai-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 22px;
+  font-size: 16px;
+  font-weight: 400;
+  background: linear-gradient(
+    var(--color-ai-gradient-from),
+    var(--color-ai-gradient-to)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.task-detail-ai-icon {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  background: linear-gradient(
+    var(--color-ai-gradient-from),
+    var(--color-ai-gradient-to)
+  );
+  -webkit-mask: url("/assets/icons/material/wand-stars.svg") no-repeat center / 16px 16px;
+  mask: url("/assets/icons/material/wand-stars.svg") no-repeat center / 16px 16px;
+}
+
+.task-detail-creator {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.task-detail-creator-label {
+  font-size: 20px;
+  color: var(--color-text-primary);
+}
+
+.task-detail-creator-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 4px;
+  border-radius: 4px;
+  font-size: 16px;
+  color: var(--color-creator-text);
+}
+
+.task-detail-creator-badge[data-type="member"] {
+  background: var(--color-creator-member);
+}
+
+.task-detail-creator-badge[data-type="extern"] {
+  background: var(--color-creator-extern);
+}
+
+.task-detail-creator-badge img {
+  height: 14px;
+  width: auto;
+  display: block;
+}
+
+.task-detail-creator-name {
+  font-family: var(--font-prose);
+  font-size: 19px;
+  color: var(--color-overlay-dark);
+}
+
+.task-detail-creator-action {
+  padding: 0 3px;
+  border-radius: 4px;
+  font-size: 16px;
+  color: var(--color-text-blue);
+  text-decoration: none;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.task-detail-creator-action:hover,
+.task-detail-creator-action:active {
+  background: var(--color-text-primary);
+  color: var(--color-text-white);
+}
+
 @media (max-width: 800px) {
+  .task-detail-head {
+    padding-right: 40px;
+  }
+
   .overlay-panel {
     top: 0;
     left: 0;

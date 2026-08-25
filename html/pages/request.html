@@ -52,6 +52,10 @@
               still be sent, but they will be manually reviewed by our team instead of
               generating AI tickets.
             </p>
+            <p>
+              Every subject line has to start with <strong>[JOIN]</strong> — the button
+              below fills that in for you.
+            </p>
           </div>
 
           <div class="request-page__prose" data-state="limit-reached">
@@ -75,23 +79,31 @@
 
       <p class="request-page__action">
         <a class="button button--request" data-state="available" data-request-mail
-           href="mailto:issues@example.org?subject=Feature%20request">
+           href="#">
           <span class="button__label button__label--desktop">Create Email Request</span>
           <span class="button__label button__label--mobile">Create request</span>
           <span class="button__icon button__icon--check"></span>
         </a>
         <a class="button button--request" data-state="limit-reached" data-request-mail
-           href="mailto:issues@example.org?subject=Feature%20request">
+           href="#">
           <span class="button__label button__label--desktop">Send an email</span>
           <span class="button__label button__label--mobile">Create request</span>
           <span class="button__icon button__icon--check"></span>
         </a>
       </p>
+
+      <noscript>
+        <p class="request-page__noscript">
+          JavaScript is disabled. Send your request to
+          <strong>issues [at] thomas-toebbe.de</strong> and start the subject with
+          <strong>[JOIN]</strong>.
+        </p>
+      </noscript>
     </main>
 
     <nav class="request-page__footer" aria-label="Legal">
-      <a class="text-button" href="#" data-label="Privacy Policy">Privacy Policy</a>
-      <a class="text-button" href="#" data-label="Legal notice">Legal notice</a>
+      <a class="text-button" href="/html/pages/privacy-policy.html" data-label="Privacy Policy">Privacy Policy</a>
+      <a class="text-button" href="/html/pages/legal-notice.html" data-label="Legal notice">Legal notice</a>
     </nav>
   </div>
 

@@ -12,13 +12,44 @@ function renderTaskDetailOverlay(root, task) {
  * Fills the task detail content.
  */
 function fillTaskDetail(detail, task) {
-  detail.appendChild(createCategoryPill(task));
+  detail.appendChild(createDetailHeader(task));
   detail.appendChild(createDetailTitle(task));
   detail.appendChild(createDetailDescription(task));
   detail.appendChild(createDetailMeta(task));
+  const creator = createCreatorRow(task);
+  if (creator) detail.appendChild(creator);
   detail.appendChild(createAssignedSection(task));
   detail.appendChild(createSubtasksSection(task));
   detail.appendChild(createDetailActions(task));
+}
+
+/**
+ * Creates the detail header holding the category pill and the AI badge.
+ * @param {Object} task
+ * @returns {HTMLElement}
+ */
+function createDetailHeader(task) {
+  const head = document.createElement("div");
+  head.className = "task-detail-head";
+  head.appendChild(createCategoryPill(task));
+  if (task?.aiGenerated === true) head.appendChild(createAiBadge());
+  return head;
+}
+
+/**
+ * Creates the "Ai-generated ticket" badge. The flag is written by the n8n
+ * workflow only, so the strict comparison keeps every other value out.
+ * @returns {HTMLElement}
+ */
+function createAiBadge() {
+  const badge = document.createElement("span");
+  badge.className = "task-detail-ai-badge";
+  const icon = document.createElement("span");
+  icon.className = "task-detail-ai-icon";
+  icon.setAttribute("aria-hidden", "true");
+  badge.appendChild(icon);
+  badge.appendChild(document.createTextNode("Ai-generated ticket"));
+  return badge;
 }
 
 /**
@@ -120,6 +151,102 @@ function createMetaIcon(iconSrc, prioKey) {
   if (prioKey) img.dataset.prio = prioKey;
   img.src = iconSrc;
   return img;
+}
+
+/**
+ * Creates the creator row for the task detail overlay.
+ * Returns null for legacy tasks that carry no creator record.
+ * @param {Object} task
+ * @returns {HTMLElement|null}
+ */
+function createCreatorRow(task) {
+  const creator = task?.createdBy;
+  if (!creator?.name) return null;
+  const row = document.createElement("div");
+  row.className = "task-detail-creator";
+  row.appendChild(createCreatorLabel());
+  row.appendChild(createCreatorBadge(creator));
+  row.appendChild(createCreatorName(creator));
+  const action = createCreatorAction(creator);
+  if (action) row.appendChild(action);
+  return row;
+}
+
+/**
+ * Creates the label of the creator row.
+ * @returns {HTMLElement}
+ */
+function createCreatorLabel() {
+  const label = document.createElement("span");
+  label.className = "task-detail-creator-label";
+  label.textContent = "Creator:";
+  return label;
+}
+
+/**
+ * Creates the badge that tells a team member from an external requester.
+ * Anything other than "extern" counts as a member.
+ * @param {Object} creator
+ * @returns {HTMLElement}
+ */
+function createCreatorBadge(creator) {
+  const type = creator?.type === "extern" ? "extern" : "member";
+  const badge = document.createElement("span");
+  badge.className = "task-detail-creator-badge";
+  badge.dataset.type = type;
+  badge.appendChild(createCreatorBadgeIcon(type));
+  badge.appendChild(document.createTextNode(getCreatorTypeLabel(type)));
+  return badge;
+}
+
+/**
+ * Creates the icon of the creator badge.
+ * @param {string} type
+ * @returns {HTMLImageElement}
+ */
+function createCreatorBadgeIcon(type) {
+  const icon = document.createElement("img");
+  icon.src = "/assets/icons/creator-badge-" + type + ".svg";
+  icon.alt = "";
+  return icon;
+}
+
+/**
+ * Maps a creator type to its badge label.
+ * @param {string} type
+ * @returns {string}
+ */
+function getCreatorTypeLabel(type) {
+  return type === "extern" ? "Extern" : "Member";
+}
+
+/**
+ * Creates the creator name element.
+ * @param {Object} creator
+ * @returns {HTMLElement}
+ */
+function createCreatorName(creator) {
+  const name = document.createElement("span");
+  name.className = "task-detail-creator-name";
+  name.textContent = creator?.name || "";
+  return name;
+}
+
+/**
+ * Creates the action next to the creator: an email link for external
+ * requesters, the contacts page for members. Guest sessions store an empty
+ * email, so they get no action at all.
+ * @param {Object} creator
+ * @returns {HTMLAnchorElement|null}
+ */
+function createCreatorAction(creator) {
+  if (!creator?.email) return null;
+  const isExtern = creator.type === "extern";
+  const link = document.createElement("a");
+  link.className = "task-detail-creator-action";
+  link.href = isExtern ? "mailto:" + creator.email : "/html/pages/contacts.html";
+  link.textContent = isExtern ? "Send email" : "See profile";
+  return link;
 }
 
 /**
