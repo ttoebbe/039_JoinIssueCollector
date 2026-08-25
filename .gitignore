@@ -5,7 +5,10 @@
 .env
 .env*
 *.local
+
+# Google service account keys - never commit
 *service-account*.json
+*serviceaccount*.json
 
 # Figma raw cache (16 MB) - lokal halten
 .figma-cache/
