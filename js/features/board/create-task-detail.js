@@ -12,7 +12,7 @@ function renderTaskDetailOverlay(root, task) {
  * Fills the task detail content.
  */
 function fillTaskDetail(detail, task) {
-  detail.appendChild(createCategoryPill(task));
+  detail.appendChild(createDetailHeader(task));
   detail.appendChild(createDetailTitle(task));
   detail.appendChild(createDetailDescription(task));
   detail.appendChild(createDetailMeta(task));
@@ -21,6 +21,35 @@ function fillTaskDetail(detail, task) {
   detail.appendChild(createAssignedSection(task));
   detail.appendChild(createSubtasksSection(task));
   detail.appendChild(createDetailActions(task));
+}
+
+/**
+ * Creates the detail header holding the category pill and the AI badge.
+ * @param {Object} task
+ * @returns {HTMLElement}
+ */
+function createDetailHeader(task) {
+  const head = document.createElement("div");
+  head.className = "task-detail-head";
+  head.appendChild(createCategoryPill(task));
+  if (task?.aiGenerated === true) head.appendChild(createAiBadge());
+  return head;
+}
+
+/**
+ * Creates the "Ai-generated ticket" badge. The flag is written by the n8n
+ * workflow only, so the strict comparison keeps every other value out.
+ * @returns {HTMLElement}
+ */
+function createAiBadge() {
+  const badge = document.createElement("span");
+  badge.className = "task-detail-ai-badge";
+  const icon = document.createElement("span");
+  icon.className = "task-detail-ai-icon";
+  icon.setAttribute("aria-hidden", "true");
+  badge.appendChild(icon);
+  badge.appendChild(document.createTextNode("Ai-generated ticket"));
+  return badge;
 }
 
 /**
