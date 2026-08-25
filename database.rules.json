@@ -1,0 +1,26 @@
+{
+  "rules": {
+    ".read": true,
+    ".write": true,
+
+    "tasks": {
+      "$taskId": {
+        "status": {
+          ".validate": "newData.isString() && newData.val().matches(/^(triage|todo|inprogress|awaitfeedback|done)$/)"
+        },
+        "prio": {
+          ".validate": "newData.isString() && newData.val().matches(/^(urgent|medium|low)$/)"
+        },
+        "source": {
+          ".validate": "newData.isString() && newData.val().matches(/^(manual|email)$/)"
+        },
+        "aiGenerated": {
+          ".validate": "newData.isBoolean()"
+        },
+        "createdAt": {
+          ".validate": "newData.isNumber()"
+        }
+      }
+    }
+  }
+}
