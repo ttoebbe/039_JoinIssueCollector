@@ -15,6 +15,10 @@
 
 const STATUS_ENDPOINT = null; // not defined yet: n8n endpoint for the daily counter
 
+const MAIL_USER = 'issues';
+const MAIL_HOST = 'thomas-toebbe.de';
+const MAIL_SUBJECT = '[JOIN] Feature request';
+
 /**
  * Reads the configured daily request limit from the page root.
  * @param {HTMLElement} root Page root carrying `data-request-limit`.
@@ -93,6 +97,22 @@ function update(root, used, limit) {
 }
 
 /**
+ * Fills in the real mailto target at runtime.
+ * The address is assembled from parts so it is not harvestable from the
+ * served HTML, and the subject carries the [JOIN] prefix the n8n workflow
+ * filters on.
+ * @param {Document} doc
+ * @returns {void}
+ */
+function wireRequestMailLinks(doc) {
+  const target = `${MAIL_USER}@${MAIL_HOST}`;
+  const href = `mailto:${target}?subject=${encodeURIComponent(MAIL_SUBJECT)}`;
+  doc.querySelectorAll('[data-request-mail]').forEach((link) => {
+    link.setAttribute('href', href);
+  });
+}
+
+/**
  * Boots the request page: renders the query-string state, then upgrades it
  * with the live count as soon as the n8n endpoint answers.
  * @returns {Promise<void>}
@@ -100,6 +120,7 @@ function update(root, used, limit) {
 async function init() {
   const root = document.querySelector('[data-request-limit]');
   if (!root) return;
+  wireRequestMailLinks(document);
   const limit = readLimit(root);
   update(root, readUsedCount(limit), limit);
   const live = await fetchUsedCount(limit);

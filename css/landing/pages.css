@@ -282,6 +282,13 @@
   margin-top: var(--space-48);
 }
 
+.request-page__noscript {
+  margin-top: var(--space-16);
+  font-family: var(--font-prose);
+  font-size: var(--font-size-body);
+  color: var(--color-text-muted);
+}
+
 .request-page__footer {
   display: flex;
   gap: var(--space-16);
