@@ -5,14 +5,22 @@ Requests per E-Mail ein; ein n8n-Workflow analysiert die Mail, bestimmt
 Kategorie, Titel, Priorität und Deadline und legt daraus automatisch ein Ticket
 in der Triage-Spalte des Boards an.
 
+Live: **https://join.thomas-toebbe.de**
+
 Aufbauend auf [024_Join](https://github.com/ttoebbe/024_Join).
+
+**In drei Sätzen:** Eine Mail mit `[JOIN]` im Betreff geht an die
+Anfrageadresse **issues [at] thomas-toebbe.de**. Kurz darauf steht daraus ein
+fertiges Ticket in der Spalte **Triage** des Boards. Wird es dort in eine
+andere Spalte gezogen, bekommt der Ersteller automatisch eine Mail über den
+neuen Stand.
 
 ---
 
 ## Wie die Demo funktioniert
 
 1. Landing Page öffnen und „Create request" wählen
-2. E-Mail an **issues@thomas-toebbe.de** schicken — der Betreff **muss** mit
+2. E-Mail an **issues [at] thomas-toebbe.de** schicken — der Betreff **muss** mit
    `[JOIN]` beginnen, Groß- und Kleinschreibung ist egal
 3. Der n8n-Workflow verarbeitet die Mail und legt das Ticket in **Triage** an
 4. Der Absender bekommt eine Bestätigungsmail und wird als externer Ersteller
@@ -23,7 +31,7 @@ Aufbauend auf [024_Join](https://github.com/ttoebbe/024_Join).
 Eine brauchbare Anfrage schreibt sich wie eine kurze Mail an einen Kollegen:
 
 ```
-An:      issues@thomas-toebbe.de
+An:      issues [at] thomas-toebbe.de
 Betreff: [JOIN] Board lädt zu langsam
 
 Das Board braucht auf dem Handy mehrere Sekunden, bis die Karten da sind.
@@ -124,6 +132,8 @@ Zustände der Landing Page ohne laufendes n8n testen:
 ├── n8n/                    # Workflows als JSON (laufen in der bestehenden Instanz)
 ├── docs/
 │   ├── design/             # Design-Spec, Komponenten-Inventar, Referenzbilder
+│   ├── n8n-setup.md        # Workflows einrichten und importieren
+│   ├── deployment.md       # Secrets und Ablauf des Deployments
 │   └── *Lastenheft*        # Anforderungen
 └── tools/                  # Hilfsskripte (Demo-Kontakte seeden)
 ```
@@ -141,6 +151,23 @@ extrahiert und dokumentiert wurde:
 - `docs/design/MANIFEST.md` — Herkunft jeder Asset-Datei mit Node-ID
 
 Bestehende Screens aus 024_Join wurden bewusst nicht angeglichen.
+
+---
+
+## Deployment
+
+Die Seite liegt auf **https://join.thomas-toebbe.de** und wird von Hand über
+GitHub Actions ausgerollt: Reiter *Actions* → *Deploy frontend* →
+*Run workflow*. Es gibt keinen Push-Trigger — ein Commit auf `main` verändert
+die Live-Seite nicht.
+
+Hochgeladen wird nur, was die Seite ausmacht: `index.html`, `html/`, `css/`,
+`js/` und `assets/`. Welche Secrets der Workflow braucht, wo sie angelegt
+werden und was nach einem Deploy zu prüfen ist, steht in
+[`docs/deployment.md`](docs/deployment.md).
+
+Die n8n-Seite — Workflows importieren, Credentials, Webhook-Pfade, CORS —
+steht in [`docs/n8n-setup.md`](docs/n8n-setup.md).
 
 ---
 
