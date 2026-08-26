@@ -33,8 +33,8 @@ Das ist eine **Positivliste, keine Ausschlussliste** — und zwar bewusst:
 
 - Code a Cuisine spiegelt `dist/…/browser`, einen sauber abgegrenzten
   Build-Ordner. Join hat keinen. Ein Spiegeln des Wurzelverzeichnisses würde
-  `.git/`, `docs/`, `n8n/`, `tools/`, `database.rules.json` und `CLAUDE.md`
-  mit auf den Webspace legen.
+  `.git/`, `docs/`, `n8n/`, `tools/`, `database.rules.json`, `firebase.json`
+  und `CLAUDE.md` mit auf den Webspace legen.
 - Eine Ausschlussliste altert schlecht: Was später im Repository dazukommt,
   wäre automatisch online, bis jemand daran denkt, es auszuschließen. Bei einer
   Positivliste ist es umgekehrt — Neues bleibt offline, bis es hier eingetragen
@@ -254,33 +254,86 @@ sie erst, wenn ihr Inhalt in der Firebase-Konsole veröffentlicht wurde.
 Die Regeln greifen sofort, ein Neuladen der Seite genügt. Ein Deploy des
 Frontends ist dafür **nicht** nötig — beides sind getrennte Wege.
 
-### 7.2 Warum von Hand und nicht über die CLI
+### 7.2 Derselbe Weg über die CLI
 
-Firebase kann das auch: `firebase deploy --only database` spielt die Regeln aus
-dem Repository ein. Der Weg ist hier trotzdem nicht eingerichtet, weil er vier
-Dinge nach sich zieht, die es sonst im Projekt nicht gibt:
+Wer die Konsole nicht anfassen will, kann die Regeln auch lokal einspielen. Das
+ist **kein Ersatz** für 7.1, sondern die zweite Tür zur selben Datei — beide
+veröffentlichen exakt den Inhalt von `database.rules.json`.
 
-- eine `firebase.json`, die auf `database.rules.json` zeigt
-- eine `.firebaserc` mit der Projekt-ID
-- die Firebase CLI — lokal oder als Schritt in der Action
-- ein weiteres GitHub-Secret, ein Service-Account-Token mit Deploy-Rechten
+```bash
+npm install -g firebase-tools   # einmalig
+firebase login                  # interaktiv, kein Token nötig
+firebase deploy --only database
+```
 
-Das wäre eine ganze Werkzeugkette für **eine Datei, die sich praktisch nie
-ändert**: Die Regeln hängen an den Statuswerten und am Prioritätsfeld, und die
-sind seit Phase 2 stabil. Ändern sie sich doch, ist der Weg oben in zwei Minuten
-erledigt. Kommt später ein zweiter Grund dazu, regelmäßig gegen Firebase zu
-deployen, ist die Entscheidung neu zu bewerten.
+Die beiden Dateien, die die CLI dafür braucht, liegen im Wurzelverzeichnis und
+sind eingecheckt:
+
+- [`../firebase.json`](../firebase.json) — zeigt auf `database.rules.json`
+- [`../.firebaserc`](../.firebaserc) — trägt die Projekt-ID `joinv2withn8n`
+
+Beide enthalten nichts Geheimes: Die Projekt-ID steckt ohnehin in der
+Datenbank-URL in [`../js/core/constants.js`](../js/core/constants.js), die mit
+dem Frontend ausgeliefert wird. Auf den Webspace kommen sie trotzdem nicht —
+die Positivliste des Deploy-Workflows kennt nur die fünf Einträge aus
+Abschnitt 1.
+
+Nach dem Deploy dieselbe Prüfung wie nach dem Konsolenweg, Abschnitt 7.4.
+
+### 7.2.1 Warum das nicht in die GitHub Action wandert
+
+`firebase login` ist interaktiv und funktioniert in einem CI-Lauf nicht. Die
+Action bräuchte stattdessen einen Firebase-Token mit Schreibrechten auf die
+Datenbank, abgelegt als Secret **in einem öffentlichen Repository** — für eine
+Datei, die sich praktisch nie ändert: Die Regeln hängen an den Statuswerten und
+am Prioritätsfeld, und die sind seit Phase 2 stabil.
+
+Der lokale Weg braucht kein Secret. Der Anmeldezustand liegt auf Thomas'
+Rechner, nicht im Repository. Kommt später ein zweiter Grund dazu, regelmäßig
+gegen Firebase zu deployen, ist die Entscheidung neu zu bewerten.
 
 ### 7.3 Was die Regeln leisten — und was nicht
 
 Der Kern in drei Sätzen; die Begründung im Detail steht in
 [`n8n-setup.md`](n8n-setup.md), Abschnitt 4.
 
-**`.read` und `.write` bleiben auf `true`.** Das Frontend spricht die Datenbank
-ohne Authentifizierung an — Join hat kein Firebase Auth, sondern prüft den Login
+**`.read` bleibt auf `true`.** Das Frontend spricht die Datenbank ohne
+Authentifizierung an — Join hat kein Firebase Auth, sondern prüft den Login
 selbst gegen den `users`-Knoten. Es gibt also kein `auth`-Objekt, gegen das eine
-Regel prüfen könnte; geschlossene Regeln würden Login, Board und Kontakte sofort
-unbenutzbar machen.
+Regel prüfen könnte; ein Leseverbot bräche die Anmeldung sofort. Das ist der
+dokumentierte Kompromiss, keine Nachlässigkeit.
+
+**`.write` steht nicht mehr global auf `true`, sondern pro Knoten.** `tasks` und
+`contacts` bleiben offen — beide werden aus dem unauthentifizierten Frontend
+geschrieben, daran ändert sich nichts. `users` bekommt eine engere Regel:
+
+```
+"users": { "$userId": { ".write": "!data.exists() || !newData.exists()" } }
+```
+
+Sie erlaubt das **Anlegen** eines Datensatzes (`!data.exists()`) und sein
+**Löschen** (`!newData.exists()`, damit Testkonten weiter aus der Konsole
+entfernt werden können), verbietet aber das **Ändern** eines bestehenden. Ein
+Angreifer, der die Datenbank-URL kennt — sie steht in `constants.js` und damit
+im öffentlichen Repository —, kann so kein fremdes Konto übernehmen, indem er
+dessen `pwHash` überschreibt.
+
+**Das globale `.write: true` musste dafür weichen.** In der Realtime Database
+kaskadieren Schreibregeln nach unten: Ist der Zugriff auf einer höheren Ebene
+einmal erlaubt, werden die Regeln darunter gar nicht mehr ausgewertet. Ein
+`.write` an der Wurzel hätte die `users`-Regel wirkungslos gemacht. Deshalb
+hängt die Schreiberlaubnis jetzt an `tasks` und `contacts` einzeln.
+
+Der Sign-up bleibt davon unberührt: `UserService.create` schreibt per `PUT` auf
+`users/<id>` mit einer frisch vergebenen ID, dort existiert noch nichts —
+`!data.exists()` trifft zu. Eine Nebenwirkung gibt es doch: Läuft die ID-Vergabe
+in `generateNextUserId` einmal auf eine bereits belegte ID, schlägt die
+Registrierung jetzt fehl, statt den fremden Datensatz stillschweigend zu
+überschreiben. Das ist die gewollte Richtung.
+
+Die Feld-`.validate`-Regeln auf `users` begrenzen `name` und `email` in der
+Länge und verlangen für `pwHash` und `pwSalt` Zeichenketten — dieselbe
+Datenmüll-Bremse wie auf `tasks`.
 
 **Die `.validate`-Regeln fangen fehlerhafte Schreibvorgänge aus dem Browser
 ab** — falsche Statuswerte, eine unbekannte Priorität, ein `createdAt` als Text.

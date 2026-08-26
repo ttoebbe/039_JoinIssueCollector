@@ -126,16 +126,22 @@ Quelle: Firebase-Dokumentation, *Database Secrets* (deprecated) sowie
 
 ## 4. Der Rules-Kompromiss
 
-**Die Rules bleiben offen.** `.read` und `.write` stehen in
-[`../database.rules.json`](../database.rules.json) auf `true`. Wie die Datei in
-die Datenbank kommt, steht in
+**Die Rules bleiben weitgehend offen.** `.read` steht in
+[`../database.rules.json`](../database.rules.json) auf `true`, `.write` ist auf
+`tasks` und `contacts` offen. Wie die Datei in die Datenbank kommt, steht in
 [`deployment.md`](deployment.md#7-datenbank-regeln-einspielen), Abschnitt 7.
 
 Der Grund ist unangenehm und gehört ausgesprochen: Das Frontend spricht die
 Realtime Database **ohne Authentifizierung** an — der Login von Join ist eine
 Eigenbau-Prüfung gegen den `users`-Knoten, kein Firebase Auth. Es gibt also kein
-`auth`-Objekt, gegen das eine Regel prüfen könnte. Würden `.read`/`.write`
-geschlossen, brächen Login, Board und Kontakte sofort und vollständig.
+`auth`-Objekt, gegen das eine Regel prüfen könnte. Würde `.read` geschlossen,
+brächen Login, Board und Kontakte sofort und vollständig.
+
+**Eine Ausnahme gibt es:** Auf `users` erlaubt die Regel nur noch Anlegen und
+Löschen, nicht das Ändern eines bestehenden Datensatzes — sonst könnte jeder,
+der die Datenbank-URL kennt, ein fremdes Konto durch Überschreiben des
+`pwHash` übernehmen. Die Begründung im Detail steht in
+[`deployment.md`](deployment.md), Abschnitt 7.3.
 
 Der Service Account ändert daran **nichts**. Er ist der saubere Weg für den
 Server-Pfad und die Vorbereitung darauf, die Rules später zu schließen — aber

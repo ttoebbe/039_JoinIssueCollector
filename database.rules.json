@@ -1,9 +1,9 @@
 {
   "rules": {
     ".read": true,
-    ".write": true,
 
     "tasks": {
+      ".write": true,
       "$taskId": {
         "status": {
           ".validate": "newData.isString() && newData.val().matches(/^(triage|todo|inprogress|awaitfeedback|done)$/)"
@@ -19,6 +19,28 @@
         },
         "createdAt": {
           ".validate": "newData.isNumber()"
+        }
+      }
+    },
+
+    "contacts": {
+      ".write": true
+    },
+
+    "users": {
+      "$userId": {
+        ".write": "!data.exists() || !newData.exists()",
+        "name": {
+          ".validate": "newData.isString() && newData.val().length <= 60"
+        },
+        "email": {
+          ".validate": "newData.isString() && newData.val().length <= 100"
+        },
+        "pwHash": {
+          ".validate": "newData.isString()"
+        },
+        "pwSalt": {
+          ".validate": "newData.isString()"
         }
       }
     }

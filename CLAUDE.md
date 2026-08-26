@@ -6,7 +6,9 @@ Kanban-Board (Code-Basis: `ttoebbe/024_Join`) mit KI-gestütztem Issue Collector
 über n8n. Stakeholder reichen Feature Requests per E-Mail ein; n8n analysiert
 sie, klassifiziert und legt Tickets in der Triage-Spalte des Boards an.
 
-Anforderungen: `docs/Join - Issue Collector_Lastenheft.md`
+Anforderungen: Lastenheft der Developer Akademie — fremdes Material, liegt
+nur lokal und ist nicht im Repository. Was daraus für Design und Umsetzung
+folgt, steht in `docs/design/spec.md` und `docs/design/figma-extraktion-bericht.md`.
 Projektplan: siehe Claude-Projekt „Entwicklungshelferlein", `claude/plan-join-v2.md`
 
 ## Stack — nicht ändern
