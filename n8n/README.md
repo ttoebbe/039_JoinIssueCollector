@@ -1,8 +1,7 @@
 # n8n-Workflows
 
-Hier liegen die Workflow-JSONs des Issue Collectors. Zwei der drei stehen,
-`quota-status.workflow.json` ist der einzige offene Punkt — solange steht dafür
-hier bewusst **kein leerer Platzhalter**.
+Hier liegen die Workflow-JSONs des Issue Collectors. **Alle drei sind
+vorhanden** — es fehlt keiner mehr.
 
 ## Die drei Workflows
 
@@ -77,9 +76,9 @@ steht in [`../docs/n8n-setup.md`](../docs/n8n-setup.md).
 
 ## `status-notify.workflow.json`
 
-> **Auch diese Datei ist ein Entwurf** — von Hand geschrieben, kein n8n-Export.
-> Nach Import, Testlauf und Korrekturen im Editor exportiert Thomas den Workflow
-> und der Export **ersetzt** die Datei.
+> **Diese Datei ist der Export** aus der laufenden Instanz — importiert, aktiv
+> und getestet. Was am Entwurf noch offen war, ist in
+> [`../docs/n8n-setup.md`](../docs/n8n-setup.md), Abschnitt 9.6, abgehakt.
 
 Das Board ruft den Webhook aus `persistStatusChange`
 ([`../js/features/board/draganddrop.js`](../js/features/board/draganddrop.js))
@@ -141,6 +140,61 @@ Board ausgeliefert wird. **Die Liste ist gegen das echte Deployment zu prüfen**
 — steht dort die falsche Domain, scheitert der Aufruf im Browser, während er per
 `curl` durchläuft. Siehe [`../docs/n8n-setup.md`](../docs/n8n-setup.md),
 Abschnitt 9.4.
+
+## `quota-status.workflow.json`
+
+> **Diese Datei ist ein Entwurf** — von Hand geschrieben, kein n8n-Export. Nach
+> Import und Testlauf exportiert Thomas den Workflow und der Export **ersetzt**
+> die Datei.
+
+Die Landing Page ruft den Webhook beim Laden auf
+([`../js/features/landing/request-limit.js`](../js/features/landing/request-limit.js))
+und zeigt daraus den Tageszähler „n von 10 requests used".
+
+### Die Node-Kette
+
+```
+Receive quota request                       [Webhook GET /webhook/join-quota]
+  └─ Read counter                           [Code]
+       └─ Respond: counter                  [200]
+```
+
+Drei Nodes, kein IF: Es gibt nichts zu entscheiden. `Read counter` liest
+`/home/node/.n8n/join-quota-state.json` — **dieselbe Datei, die der Issue
+Collector schreibt** — und antwortet mit `{"used": n, "limit": 10}`. Fehlende
+Datei oder ein Stand vom Vortag ergeben beide `used: 0`; die Prüfung der
+UTC-Tagesgrenze ist zeichengleich aus dem Guard des Issue Collectors
+übernommen, damit beide dieselbe Grenze sehen.
+
+**Der Workflow schreibt nie.** Ein Aufruf verbraucht deshalb keinen Quota-Slot,
+und ein im Sekundentakt abgerufener Endpunkt sperrt niemanden aus.
+
+### Keine Credentials
+
+Der einzige der drei Workflows ohne: weder Firebase noch SMTP noch IMAP werden
+angesprochen. Nach dem Import sind nur Timeout, Timezone und der Webhook-Pfad
+zu kontrollieren.
+
+### Das Limit steht an zwei Stellen
+
+`SYSTEM_LIMIT = 10` hier im Node `Read counter` und `SYSTEM_LIMIT = 10` im Guard
+des Issue Collectors. n8n kennt keine geteilten Konstanten zwischen Workflows —
+**beide Stellen sind zusammen zu ändern.** Laufen sie auseinander, meldet die
+Seite ein Limit, das das Postfach nicht kennt, oder umgekehrt. Details in
+[`../docs/n8n-setup.md`](../docs/n8n-setup.md), Abschnitt 10.2.
+
+### Bewusst ohne Secret
+
+Der Endpunkt ist öffentlich. Er gibt zwei Zahlen preis, die ohnehin sichtbar auf
+der Landing Page stehen. Ein Secret müsste im ausgelieferten Client-Code
+mitgeliefert werden und schützte damit nichts — siehe
+[`../docs/n8n-setup.md`](../docs/n8n-setup.md), Abschnitt 10.3.
+
+### CORS
+
+**Dieselbe** Liste wie im Status-Workflow, Zeichen für Zeichen. Kommt eine
+Domain dazu, muss sie in **beide** Webhook-Nodes. Siehe
+[`../docs/n8n-setup.md`](../docs/n8n-setup.md), Abschnitt 10.4.
 
 ## Wo die Workflows laufen
 
