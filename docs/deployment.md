@@ -65,12 +65,18 @@ Alle als **Repository-Secrets** (kein GitHub-Environment).
 
 | Name | Pflicht | Form | Herkunft |
 |---|---|---|---|
-| `SFTP_HOST` | ja | `wXXXXXXX.kasserver.com` oder die Server-Adresse des Hosters | Hosting-Verwaltung, SFTP-Zugangsdaten. Identisch mit dem Wert im Code-a-Cuisine-Repo, wenn es derselbe Webspace ist |
-| `SFTP_USER` | ja | `ssh-wXXXXXXX` — der Benutzername des SFTP-Zugangs | Hosting-Verwaltung, dort wo der Zugang angelegt wurde |
+| `SFTP_HOST` | ja | Hostname des Webspace — ohne `sftp://`, ohne Pfad | konsoleH → *Produktübersicht* → *FTP-Hauptbenutzer*, Feld **Server** |
+| `SFTP_USER` | ja | Loginname des FTP-Zugangs | konsoleH → *Produktübersicht* → *FTP-Hauptbenutzer*, Feld **Loginname** |
 | `SFTP_PORT` | nein | `22` | nur setzen, wenn der Hoster einen abweichenden Port nennt. Ohne das Secret nimmt der Workflow 22 |
 | `SFTP_REMOTE_DIR` | ja | `/public_html/join` — der Dokumentenstamm von `join.thomas-toebbe.de`, absoluter Pfad | konsoleH, per WebFTP-Breadcrumb bestätigt. Hintergrund unten |
 | `SFTP_PASSWORD` | eine von beiden | das Passwort des SFTP-Benutzers | Passwortmanager |
 | `SFTP_KEY` | eine von beiden | vollständiger privater Schlüssel inklusive `-----BEGIN …-----`/`-----END …-----`-Zeilen | Passwortmanager. Der öffentliche Teil muss beim Hoster hinterlegt sein |
+
+**`SFTP_HOST` und `SFTP_USER` stehen hier bewusst nicht im Klartext.** Dieses
+Repository ist öffentlich, und beide Werte sind Teil der SFTP-Anmeldung — zusammen
+mit dem Passwort ergäben sie einen vollständigen Zugang. Sie gehören in die
+Secrets, nicht in die Dokumentation; die Spalte *Herkunft* sagt stattdessen, wo
+sie zu finden sind.
 
 Fehlt ein Pflicht-Secret, bricht der Lauf gleich im ersten Schritt ab und nennt
 **welches** fehlt. Ist weder `SFTP_PASSWORD` noch `SFTP_KEY` gesetzt, ebenso.
