@@ -37,3 +37,13 @@ const API_CONFIG = {
   BASE_URL: 'https://joinv2withn8n-default-rtdb.europe-west1.firebasedatabase.app',
   TIMEOUT: 10000
 };
+
+// The secret ships inside the delivered client code and is therefore not a real
+// secret. It keeps random requests away, nothing more. What actually protects
+// the endpoint sits in the n8n workflow: the recipient address is read from the
+// database instead of the request, unknown status values are rejected, and the
+// number of mails per ticket and day is capped.
+const NOTIFY_CONFIG = {
+  ENDPOINT: 'https://n8n.thomas-toebbe.de/webhook/join-status',
+  SECRET: 'join-v2-demo'
+};

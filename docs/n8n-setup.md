@@ -397,3 +397,126 @@ Ebenfalls nach dem Import zu setzen, weil es nicht in der JSON steckt:
   ohne Zugangsdaten in der Luft.
 - **Webhook-Pfade prüfen**, damit sie nach dem Import noch `join-` tragen.
 - **Workflow aktivieren.**
+
+---
+
+## 9. Der Status-Workflow
+
+`n8n/status-notify.workflow.json`, Webhook `POST /webhook/join-status`. Das
+Board meldet dorthin jeden Spaltenwechsel, den es tatsächlich gespeichert hat;
+der Workflow entscheidet allein, ob daraus eine Mail wird.
+
+### 9.1 `JOIN_NOTIFY_SECRET`
+
+Die dritte Env-Variable neben `JOIN_IMAP_USER` und `JOIN_IMAP_PASSWORD`. Der
+Guard-Node liest sie über `$env.JOIN_NOTIFY_SECRET` und vergleicht sie mit dem
+Header `x-join-secret` der Anfrage.
+
+```yaml
+# /opt/code-a-cuisine/docker-compose.yml
+environment:
+  - JOIN_NOTIFY_SECRET=${JOIN_NOTIFY_SECRET}
+```
+
+Der Wert selbst in die `.env` neben der Compose-Datei. Er muss **denselben Wert
+haben wie `NOTIFY_CONFIG.SECRET`** in [`../js/core/constants.js`](../js/core/constants.js) —
+sonst weist der Guard jede Anfrage des Boards ab.
+
+Voraussetzung ist wie bei den IMAP-Variablen `N8N_BLOCK_ENV_ACCESS_IN_NODE=false`
+(Abschnitt 6.3). Fehlt die Variable ganz, wirft der Guard-Node einen sprechenden
+Fehler statt still alles abzulehnen — sonst wäre der Zustand „Secret nicht
+gesetzt" vom Zustand „Secret falsch" nicht zu unterscheiden.
+
+### 9.2 Warum das Secret keine Sicherheit ist
+
+`NOTIFY_CONFIG.SECRET` steht im ausgelieferten Client-Code. Jeder, der das Board
+im Browser öffnet, kann es aus den Dev-Tools lesen. Es hält Zufallsanfragen und
+Scanner ab, mehr nicht — als Zugangsschutz taugt es nicht, und es soll auch nicht
+als solcher gelesen werden.
+
+Was den Endpunkt tatsächlich schützt, sind drei Eigenschaften des Workflows:
+
+| Schutz | Wirkung |
+|---|---|
+| **Empfänger aus der Datenbank** | Der Node `Fetch task` holt den Ticket-Datensatz und nimmt die Adresse aus `createdBy.email`. Käme sie aus dem Request-Body, wäre der Webhook ein offener Mailversender: Wer das Secret aus dem Client-Code hat, könnte an beliebige Adressen schicken lassen. So kann der Workflow nur den Ersteller eines **existierenden** Tickets anschreiben. |
+| **Statusprüfung** | `from` und `to` müssen zwei **verschiedene** der fünf gültigen Statuswerte sein. Erfundene Werte und Nicht-Wechsel fliegen raus, bevor irgendetwas gelesen wird. |
+| **Deckelung** | Höchstens **3 Mails pro Ticket und Tag**. Wer eine Karte zwanzigmal hin und her schiebt, schreibt den Absender nicht zwanzigmal an. |
+
+Der Guard prüft in genau dieser Reihenfolge: erst das Secret, dann die Felder,
+dann die Statuswerte, zuletzt die Deckelung. So rührt eine Anfrage ohne Secret
+die Zählerdatei nicht an.
+
+Alles, was durchfällt, bekommt dieselbe nackte Antwort — HTTP 403 mit
+`{ "status": "rejected" }`. Der Grund steht nur im Execution-Log, nicht in der
+Antwort: Ein Aufrufer soll nicht erfahren, an welcher Prüfung er gescheitert ist.
+
+**Der Client wertet die Antwort ohnehin nicht aus.** `notifyStatusChange` feuert
+und vergisst — schlägt der Aufruf fehl, weil n8n aus ist, merkt das Board davon
+nichts. Die drei Antworten sind zum Debuggen von Hand da.
+
+### 9.3 Eigene Zählerdatei
+
+```
+/home/node/.n8n/join-notify-state.json
+```
+
+Die **dritte** Zählerdatei im selben Volume, getrennt von den beiden anderen:
+`quota-state.json` gehört Code a Cuisine, `join-quota-state.json` dem Issue
+Collector (Abschnitt 5.1). Sie zusammenzulegen hieße, dass eingehende Mails und
+ausgehende Statusmails sich ein Kontingent teilen.
+
+Aufbau — `perTask` zählt pro Ticket-ID, `day` ist der UTC-Tag:
+
+```json
+{ "day": "2026-08-26", "perTask": { "t2": 2, "t7": 1 } }
+```
+
+Zurücksetzen:
+
+```bash
+cd /opt/code-a-cuisine
+docker compose exec n8n rm -f /home/node/.n8n/join-notify-state.json
+docker compose exec n8n sh -c 'ls /home/node/.n8n/ | grep -c join-notify-state.json'   # 0 = reset
+```
+
+Die **bekannte Schwäche aus Abschnitt 5.1 gilt hier genauso**: Read-Modify-Write
+ohne Sperre. Zwei Spaltenwechsel im selben Moment lesen denselben Stand und
+zählen zusammen nur einen Slot. Bei drei Mails pro Ticket und Tag ist das
+hinnehmbar.
+
+### 9.4 CORS
+
+Der Aufruf kommt aus dem Browser, nicht vom Server. Der Webhook-Node trägt
+deshalb unter *Allowed Origins (CORS)* die Domains, von denen das Board
+ausgeliefert wird:
+
+```
+https://join.thomas-toebbe.de,http://127.0.0.1:5500,http://localhost:5500,http://localhost:8080
+```
+
+Die letzten drei sind die lokalen Entwicklungsadressen: Live Server (5500, je
+nach Einstellung unter `127.0.0.1` oder `localhost`) und `python -m http.server
+8080` aus der [`../README.md`](../README.md).
+
+**Diese Liste ist gegen das echte Deployment zu prüfen.** Steht dort die falsche
+Domain, schlägt der Aufruf im Browser fehl, während er per `curl` funktioniert —
+ein Fehlerbild, das leicht in die Irre führt, weil der Workflow im Execution-Log
+sauber durchläuft und trotzdem nichts ankommt.
+
+An Caddy ist nichts zu tun: `/webhook/*` ist bereits durchgelassen
+(Abschnitt 5.2).
+
+### 9.5 Nach dem Import
+
+Wie bei jedem Import (Abschnitt 8) von Hand nachziehen:
+
+| Was | Wert |
+|---|---|
+| Timeout | `80` Sekunden |
+| Timezone | `UTC` |
+| Credentials | `Join V2 - Firebase RTDB (Service Account)` an `Fetch task`, `Join V2 - issues (SMTP)` an `Send status mail` |
+| Webhook-Pfad | `join-status` |
+
+Danach den Workflow aktivieren. Nach `JOIN_NOTIFY_SECRET` in `.env` und Compose
+muss der Container einmal neu starten (`docker compose up -d`), sonst kennt der
+Guard die Variable nicht.
