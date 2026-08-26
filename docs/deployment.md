@@ -68,7 +68,7 @@ Alle als **Repository-Secrets** (kein GitHub-Environment).
 | `SFTP_HOST` | ja | `wXXXXXXX.kasserver.com` oder die Server-Adresse des Hosters | Hosting-Verwaltung, SFTP-Zugangsdaten. Identisch mit dem Wert im Code-a-Cuisine-Repo, wenn es derselbe Webspace ist |
 | `SFTP_USER` | ja | `ssh-wXXXXXXX` — der Benutzername des SFTP-Zugangs | Hosting-Verwaltung, dort wo der Zugang angelegt wurde |
 | `SFTP_PORT` | nein | `22` | nur setzen, wenn der Hoster einen abweichenden Port nennt. Ohne das Secret nimmt der Workflow 22 |
-| `SFTP_REMOTE_DIR` | ja | absoluter Pfad, z. B. `/join.thomas-toebbe.de` | siehe unten |
+| `SFTP_REMOTE_DIR` | ja | `/public_html/join` — der Dokumentenstamm von `join.thomas-toebbe.de`, absoluter Pfad | konsoleH, per WebFTP-Breadcrumb bestätigt. Hintergrund unten |
 | `SFTP_PASSWORD` | eine von beiden | das Passwort des SFTP-Benutzers | Passwortmanager |
 | `SFTP_KEY` | eine von beiden | vollständiger privater Schlüssel inklusive `-----BEGIN …-----`/`-----END …-----`-Zeilen | Passwortmanager. Der öffentliche Teil muss beim Hoster hinterlegt sein |
 
