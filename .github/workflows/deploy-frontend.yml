@@ -1,0 +1,180 @@
+# Mirrors the static site into the document root of join.thomas-toebbe.de on the
+# Hetzner web space. There is no build step — the files in the repository are the
+# files that go online. Secrets and troubleshooting: docs/deployment.md.
+
+name: Deploy frontend
+
+# Manual only. A push trigger would put every commit on main straight onto the
+# live site, and a deployment is a decision, not a side effect of committing.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Two deployments writing into the same document root would interleave, so they
+# queue instead of cancelling — a cancelled mirror leaves a half-uploaded site.
+concurrency:
+  group: deploy-frontend
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Stage and upload
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v5
+
+      # Checked before anything is copied or installed, and every missing name is
+      # printed: a run that stops with "a secret is missing" sends whoever started
+      # it back to the settings page to compare five names by hand.
+      # SFTP_PORT is deliberately absent here — it is optional and defaults to 22.
+      - name: Check the required secrets
+        env:
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          SFTP_REMOTE_DIR: ${{ secrets.SFTP_REMOTE_DIR }}
+          SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
+          SFTP_KEY: ${{ secrets.SFTP_KEY }}
+        run: |
+          set -euo pipefail
+
+          missing=0
+
+          for name in SFTP_HOST SFTP_USER SFTP_REMOTE_DIR; do
+            if [ -z "${!name:-}" ]; then
+              echo "::error::$name is not set. Add it under Settings > Secrets and variables > Actions as a repository secret."
+              missing=1
+            fi
+          done
+
+          if [ -z "${SFTP_PASSWORD:-}" ] && [ -z "${SFTP_KEY:-}" ]; then
+            echo "::error::Neither SFTP_PASSWORD nor SFTP_KEY is set. One of the two has to exist as a repository secret."
+            missing=1
+          fi
+
+          [ "$missing" -eq 0 ] || exit 1
+
+      # Join has no build folder to mirror. Uploading the repository root would
+      # carry .git, docs/, n8n/, tools/, database.rules.json and CLAUDE.md onto
+      # the web space, so the five entries that actually make up the site are
+      # copied out first. A positive list, not an exclude list — whatever the
+      # repository gains later stays offline until it is named here.
+      - name: Stage the files that make up the site
+        run: |
+          set -euo pipefail
+
+          SITE_DIR="$RUNNER_TEMP/site"
+          rm -rf "$SITE_DIR"
+          mkdir -p "$SITE_DIR"
+
+          for entry in index.html html css js assets; do
+            if [ ! -e "$GITHUB_WORKSPACE/$entry" ]; then
+              echo "::error::$entry is missing from the checkout — the deployment list in this workflow no longer matches the repository."
+              exit 1
+            fi
+            cp -R "$GITHUB_WORKSPACE/$entry" "$SITE_DIR/"
+          done
+
+          # Two spot checks against an empty or half-copied staging directory:
+          # the entry page, and the file that carries the database URL.
+          for required in index.html js/core/constants.js; do
+            if [ ! -f "$SITE_DIR/$required" ]; then
+              echo "::error::$required is not in the staging directory — aborting instead of uploading a broken site."
+              exit 1
+            fi
+          done
+
+          echo "SITE_DIR=$SITE_DIR" >> "$GITHUB_ENV"
+          echo "Staged $(find "$SITE_DIR" -type f | wc -l) files from index.html, html/, css/, js/ and assets/." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Install lftp and sshpass
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq lftp sshpass
+
+      - name: Prepare SFTP credentials
+        env:
+          SFTP_KEY: ${{ secrets.SFTP_KEY }}
+          SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
+        run: |
+          set -euo pipefail
+          install -d -m 700 ~/.ssh
+
+          # lftp speaks the sftp protocol through a connect program, so both
+          # auth variants are configured on the ssh command line.
+          if [ -n "${SFTP_KEY:-}" ]; then
+            printf '%s\n' "$SFTP_KEY" > ~/.ssh/deploy_key
+            chmod 600 ~/.ssh/deploy_key
+            CONNECT_PROGRAM="ssh -a -x -i $HOME/.ssh/deploy_key -o BatchMode=yes -o StrictHostKeyChecking=accept-new"
+          elif [ -n "${SFTP_PASSWORD:-}" ]; then
+            # sshpass -e reads the password from SSHPASS, so it never appears in
+            # the process list. Keys are switched off or ssh would try them first.
+            CONNECT_PROGRAM="sshpass -e ssh -a -x -o PubkeyAuthentication=no -o StrictHostKeyChecking=accept-new"
+          else
+            echo "::error::Set either SFTP_KEY or SFTP_PASSWORD as a repository secret."
+            exit 1
+          fi
+
+          echo "CONNECT_PROGRAM=$CONNECT_PROGRAM" >> "$GITHUB_ENV"
+
+      - name: Upload the site over SFTP
+        env:
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          SFTP_PORT: ${{ secrets.SFTP_PORT }}
+          SFTP_REMOTE_DIR: ${{ secrets.SFTP_REMOTE_DIR }}
+          SSHPASS: ${{ secrets.SFTP_PASSWORD }}
+        run: |
+          set -euo pipefail
+
+          LOCAL_DIR="$SITE_DIR"
+          PORT="${SFTP_PORT:-22}"
+
+          # --delete removes everything in the target that is not in the staging
+          # directory. Against the account root that would wipe unrelated
+          # subdomains, so the target has to be an absolute path with at least
+          # one segment below the root — anything vaguer is refused rather than
+          # mirrored into.
+          REMOTE_DIR="${SFTP_REMOTE_DIR:-}"
+          if [ -z "$REMOTE_DIR" ] ||
+             [ "${REMOTE_DIR#/}" = "$REMOTE_DIR" ] ||
+             [ -z "$(printf '%s' "$REMOTE_DIR" | tr -d '/')" ]; then
+            echo "::error::SFTP_REMOTE_DIR must be an absolute path to the document root of the subdomain (for example /join.thomas-toebbe.de), not the account root."
+            exit 1
+          fi
+
+          # ssh authenticates through sshpass, so lftp needs no password of its
+          # own. Handing -u a bare user name still makes lftp ask for one, and
+          # with no tty on the runner that prompt fails — lftp then falls back
+          # to an anonymous login ("GetPass() failed -- assume anonymous
+          # login"), which the server rejects as Permission denied. A
+          # placeholder silences the prompt without putting the real password
+          # into the process list.
+          run_lftp() {
+            lftp -c "
+              set cmd:fail-exit yes;
+              set net:max-retries 2;
+              set net:timeout 20;
+              set sftp:auto-confirm yes;
+              set sftp:connect-program \"$CONNECT_PROGRAM\";
+              open -u \"$SFTP_USER\",unused-by-sftp sftp://$SFTP_HOST:$PORT;
+              $1
+            "
+          }
+
+          # mirror --reverse uploads; --delete is scoped to the target directory
+          # passed here and never walks above it. lftp lists the local directory
+          # itself, so dotfiles are part of the mirror without an extra flag.
+          run_lftp "mirror --reverse --delete --verbose --parallel=2 \"$LOCAL_DIR\" \"$REMOTE_DIR\";"
+
+          # Prove the entry page actually arrived instead of trusting the mirror.
+          REMOTE_INDEX="$(run_lftp "cls -1 \"$REMOTE_DIR/index.html\";" || true)"
+          if [ -z "$(printf '%s' "$REMOTE_INDEX" | tr -d '[:space:]')" ]; then
+            echo "::error::index.html is not in the document root after the upload — the site would not load."
+            exit 1
+          fi
+
+          echo "Uploaded to $REMOTE_DIR, index.html confirmed on the server." >> "$GITHUB_STEP_SUMMARY"
