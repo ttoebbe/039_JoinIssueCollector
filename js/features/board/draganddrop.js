@@ -137,11 +137,16 @@ function applyStatusChange(task, status) {
 }
 
 /**
- * Persists the status change.
+ * Persists the status change and reports it to n8n.
+ * The notification runs after the write, so only a stored change can trigger
+ * a mail. The typeof check covers pages that do not load notify-status.js.
  */
 async function persistStatusChange(task, previous, status) {
   try {
     await TaskService.update(task.id, task);
+    if (typeof notifyStatusChange === "function") {
+      notifyStatusChange(task, previous, status);
+    }
   } catch (error) {
     rollbackStatus(task, previous);
   }
