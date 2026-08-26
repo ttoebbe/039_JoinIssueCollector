@@ -223,7 +223,13 @@ Umständen ins Repo — weder als Datei noch als Textausschnitt.
 
 ## Weiterführend
 
+- [Abschnitt *Architektur*](../README.md#architektur) in der README — wie
+  Webhosting, VPS und Firebase zusammenhängen, plus das Ablaufdiagramm von der
+  Mail zum Ticket
 - [`../docs/n8n-setup.md`](../docs/n8n-setup.md) — Schreibzugriff auf Firebase,
   Betrieb neben Code a Cuisine, Import-Weg, Prüfliste vor dem ersten Import
-- [`../database.rules.json`](../database.rules.json) — Validierungsregeln, gegen
-  die der Automat ab Phase 6 schreibt
+- [`../docs/deployment.md`](../docs/deployment.md#7-datenbank-regeln-einspielen)
+  — wie `database.rules.json` in die Datenbank kommt
+- [`../database.rules.json`](../database.rules.json) — Validierungsregeln für
+  Schreibvorgänge **aus dem Browser**. Der Service-Account-Token der Workflows
+  gilt als Admin-Zugriff und übergeht sie

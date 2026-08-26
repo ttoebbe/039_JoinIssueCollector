@@ -7,6 +7,11 @@ Diese Datei beschreibt den Weg. Sie führt ihn nicht aus: Service Account anlege
 Rules einspielen, Credential erzeugen und der Schreibtest sind Handarbeit an der
 laufenden Umgebung.
 
+Den Klickweg zum Einspielen der Rules beschreibt
+[`deployment.md`](deployment.md#7-datenbank-regeln-einspielen), Abschnitt 7.
+Das Gesamtbild — Webhosting, VPS, Firebase — steht im Abschnitt
+[*Architektur*](../README.md#architektur) der README.
+
 ---
 
 ## 1. Ausgangslage
@@ -122,7 +127,9 @@ Quelle: Firebase-Dokumentation, *Database Secrets* (deprecated) sowie
 ## 4. Der Rules-Kompromiss
 
 **Die Rules bleiben offen.** `.read` und `.write` stehen in
-[`../database.rules.json`](../database.rules.json) auf `true`.
+[`../database.rules.json`](../database.rules.json) auf `true`. Wie die Datei in
+die Datenbank kommt, steht in
+[`deployment.md`](deployment.md#7-datenbank-regeln-einspielen), Abschnitt 7.
 
 Der Grund ist unangenehm und gehört ausgesprochen: Das Frontend spricht die
 Realtime Database **ohne Authentifizierung** an — der Login von Join ist eine

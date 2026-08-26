@@ -254,6 +254,11 @@ werden und was nach einem Deploy zu prüfen ist, steht in
 Die n8n-Seite — Workflows importieren, Credentials, Webhook-Pfade, CORS —
 steht in [`docs/n8n-setup.md`](docs/n8n-setup.md).
 
+`database.rules.json` wird von keinem Workflow mit ausgerollt. Wie die Regeln in
+die Datenbank kommen, steht in
+[`docs/deployment.md`](docs/deployment.md#7-datenbank-regeln-einspielen),
+Abschnitt 7.
+
 ---
 
 ## Konfiguration

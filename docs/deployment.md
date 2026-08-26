@@ -9,6 +9,11 @@ Der Workflow liegt in
 und lädt die Dateien per SFTP auf den Hetzner-Webspace. Es gibt **keinen
 Build-Step** — die Dateien im Repository sind die Dateien, die online gehen.
 
+Wie Webhosting, n8n-VPS und Firebase zusammenhängen, zeigt der Abschnitt
+[*Architektur*](../README.md#architektur) in der README. Diese Datei behandelt
+nur den Weg aufs Webhosting; der n8n-Teil steht in
+[`n8n-setup.md`](n8n-setup.md).
+
 ---
 
 ## 1. Was deployt wird — und was nicht
