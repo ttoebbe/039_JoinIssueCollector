@@ -96,6 +96,33 @@ erkennt einen *offensichtlich* zu vagen Wert — sie kann nicht wissen, ob ein
 konkreter Pfad der richtige ist. **Den Pfad einmal in der Hosting-Verwaltung
 nachsehen, nicht raten.**
 
+### Das Secret aus Git Bash setzen — die MSYS-Falle
+
+Wer den Wert per CLI setzt statt über die Weboberfläche, tritt unter Windows in
+eine stille Falle. **Git Bash (MSYS) wandelt Argumente, die wie Unix-Pfade
+aussehen, in Windows-Pfade um, bevor eine native `.exe` sie überhaupt sieht.**
+Aus
+
+```bash
+gh secret set SFTP_REMOTE_DIR --body "/public_html/join"
+```
+
+wird im Secret `C:/Program Files/Git/public_html/join`. `gh` meldet dabei
+**Exit 0**, und `gh secret list` zeigt nur Namen und Zeitstempel, keine Werte —
+der Fehler bleibt bis zum Workflow-Lauf unsichtbar.
+
+Sicher ist der Weg über stdin, dort greift keine Konvertierung:
+
+```bash
+printf '%s' "/public_html/join" | gh secret set SFTP_REMOTE_DIR --repo ttoebbe/039_JoinIssueCollector
+```
+
+Genau dieser Fall ist beim ersten Deploy eingetreten, und **die Schutzprüfung
+oben hat ihn abgefangen**: Der verbogene Wert beginnt mit `C:` statt mit `/`,
+der Lauf brach ab, bevor der erste `lftp`-Aufruf startete. Deshalb lief kein
+`--delete` gegen ein falsches Ziel — der Grund, warum die Prüfung im Workflow
+steht.
+
 ### Klickpfad zum Anlegen
 
 GitHub → Repository → *Settings* → *Secrets and variables* → *Actions* →
