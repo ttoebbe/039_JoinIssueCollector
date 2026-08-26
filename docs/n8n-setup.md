@@ -234,8 +234,8 @@ sonst blockt der Browser den Aufruf von der Landing Page.
 
 ## 6. Was der Issue Collector zusätzlich am Container braucht
 
-Zwei Punkte, die nur der Issue Collector benötigt und die nicht im Workflow
-stehen können.
+Vier Punkte, die nur der Issue Collector benötigt und die nicht im Workflow
+stehen können. Alle vier sind am laufenden System verifiziert, nicht vermutet.
 
 ### 6.1 `NODE_FUNCTION_ALLOW_EXTERNAL=imap`
 
@@ -264,6 +264,18 @@ Mails bleiben einfach in der INBOX liegen. Der Ordnername `zu-bearbeiten` trägt
 übrigens einen **Bindestrich**; im Postfach heißt er so, auch wenn das
 Lastenheft „zu bearbeiten" schreibt.
 
+**Die Zielordner brauchen das Namespace-Präfix `INBOX.`** Auf diesem Mailserver
+heißen sie `INBOX.erledigt` und `INBOX.zu-bearbeiten` — nicht `erledigt` und
+`zu-bearbeiten`. Ohne Präfix bricht der Move ab:
+
+```
+Client tried to access nonexistent namespace
+```
+
+Der Server legt die Unterordner unterhalb von `INBOX` an; ein Name ohne Präfix
+zeigt für ihn in einen Namespace, den es nicht gibt. Die drei
+`Move mail to …`-Nodes tragen das Präfix in ihrem `TARGET_FOLDER` bereits.
+
 ### 6.2 `JOIN_IMAP_USER` und `JOIN_IMAP_PASSWORD`
 
 Dieselben Code-Nodes brauchen Zugangsdaten. Ein n8n-Credential können sie nicht
@@ -284,16 +296,56 @@ Die Werte selbst in die `.env` neben der Compose-Datei — nie ins Repository.
 Nach der Änderung `docker compose up -d` aus `/opt/code-a-cuisine`.
 
 Die Nodes lesen sie über `$env.JOIN_IMAP_USER` und `$env.JOIN_IMAP_PASSWORD` und
-werfen einen sprechenden Fehler, wenn eine der beiden fehlt. Voraussetzung ist,
-dass `N8N_BLOCK_ENV_ACCESS_IN_NODE` **nicht** auf `true` steht — der Standard ist
-`false`, also ist normalerweise nichts zu tun.
+werfen einen sprechenden Fehler, wenn eine der beiden fehlt. Voraussetzung ist
+`N8N_BLOCK_ENV_ACCESS_IN_NODE=false`, und zwar ausdrücklich gesetzt — siehe
+Abschnitt 6.3.
+
+### 6.3 `N8N_BLOCK_ENV_ACCESS_IN_NODE=false`
+
+Die Variable muss **ausdrücklich in der Compose-Datei stehen**. Fehlt sie,
+scheitert jeder `$env`-Zugriff im Code-Node:
+
+```
+access to env vars denied
+```
+
+Die drei `Move mail to …`-Nodes fallen damit aus, bevor sie überhaupt eine
+Verbindung aufbauen — sie kommen nicht an `JOIN_IMAP_USER` und
+`JOIN_IMAP_PASSWORD` heran.
+
+```yaml
+# /opt/code-a-cuisine/docker-compose.yml, Zeile 52
+environment:
+  - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
+```
+
+Dass n8n die Variable von Haus aus auf `false` führt, half hier nicht: Ohne den
+Eintrag war der Zugriff im laufenden Container blockiert. Die Zeile steht seit
+dem Live-Test drin.
+
+### 6.4 SMTP nur über Port 587
+
+**Hetzner Cloud sperrt ausgehend die Ports 25 und 465.** Offen ist allein
+**587**. Das SMTP-Credential läuft deshalb auf 587 mit **STARTTLS**:
+
+| Feld im Credential | Wert |
+|---|---|
+| Port | `587` |
+| SSL/TLS | **aus** |
+| STARTTLS | an |
+
+Mit Port 465 gibt es keine Fehlermeldung, an der man das erkennen könnte: Der
+Versand **hängt**, bis der Execution-Timeout des Workflows zuschlägt. Der
+betroffene `Send …`-Node steht bis dahin auf „running", und der Lauf bricht
+zuletzt am Timeout ab statt an der Verbindung — die Ursache steht nirgends im
+Log.
 
 ---
 
 ## 7. Vor dem ersten Import prüfen
 
-Sechs Punkte am Container. Die Zeilen 3 bis 5 sind gesetzt; 1, 2 und 6 sind
-offen und vor dem ersten Join-Import zu klären.
+Sieben Punkte am Container. Die Zeilen 3 bis 7 sind gesetzt; 1 und 2 sind offen
+und vor dem produktiven Betrieb zu klären.
 
 | # | Prüfpunkt | Warum |
 |---|---|---|
@@ -302,13 +354,14 @@ offen und vor dem ersten Join-Import zu klären.
 | 3 | `TZ=UTC` | bereits gesetzt. Der Tageszähler rechnet auf UTC-Mitternacht; eine andere Zeitzone verschiebt den Reset. |
 | 4 | `NODE_FUNCTION_ALLOW_BUILTIN=fs` | bereits gesetzt. Ohne das kann der Quota-Guard die Zählerdatei nicht schreiben. |
 | 5 | `NODE_FUNCTION_ALLOW_EXTERNAL=imap` | seit dem 26.08.2026 gesetzt. Siehe Abschnitt 6.1. |
-| 6 | `JOIN_IMAP_USER` und `JOIN_IMAP_PASSWORD` | **offen.** Siehe Abschnitt 6.2. |
+| 6 | `JOIN_IMAP_USER` und `JOIN_IMAP_PASSWORD` | gesetzt — der Live-Test hat sich am Postfach angemeldet. Siehe Abschnitt 6.2. |
+| 7 | `N8N_BLOCK_ENV_ACCESS_IN_NODE=false` | seit dem Live-Test gesetzt, `docker-compose.yml` Zeile 52. Ohne den Eintrag scheitert `$env` im Code-Node. Siehe Abschnitt 6.3. |
 
 Prüfen lässt sich das so:
 
 ```bash
 cd /opt/code-a-cuisine
-docker compose exec n8n env | grep -E "WEBHOOK_URL|^TZ=|NODE_FUNCTION_ALLOW_|JOIN_IMAP_USER"
+docker compose exec n8n env | grep -E "WEBHOOK_URL|^TZ=|NODE_FUNCTION_ALLOW_|JOIN_IMAP_USER|N8N_BLOCK_ENV_ACCESS_IN_NODE"
 docker compose config | grep -A5 volumes
 ```
 
@@ -323,12 +376,19 @@ docker compose config | grep -A5 volumes
 inaktiv; sie müssten anschließend ohnehin einzeln in der UI aktiviert werden,
 und stille Fehlschläge fallen dabei leicht durch.
 
-Nach **jedem** Import die Workflow-Settings kontrollieren — beim Import werden
-sie nicht übernommen und fallen auf die Standardwerte zurück:
+Nach **jedem** Import die Workflow-Settings im Editor von Hand nachziehen — der
+Import übernimmt sie nicht und lässt die Standardwerte der Instanz stehen:
 
-- **Timeout** — der Issue Collector wartet auf die KI-Antwort, der Standardwert
-  ist dafür knapp
-- **Error Workflow** — sonst schlägt ein Fehler still fehl
+| Setting | Wert | Warum |
+|---|---|---|
+| **Timeout** | `80` Sekunden | Der Issue Collector wartet auf die KI-Antwort; der Standardwert ist dafür zu knapp. |
+| **Timezone** | `UTC` | Der Tageszähler rechnet auf UTC-Mitternacht, eine andere Zeitzone verschiebt den Reset. |
+| **Error Workflow** | — | Sonst schlägt ein Fehler still fehl. |
+
+Timeout und Timezone **stehen in der JSON** — `settings.executionTimeout: 80`
+und `settings.timezone: "Etc/UTC"`. Der Import liest sie trotzdem nicht ein.
+Deshalb beide nach jedem Import einzeln kontrollieren, statt sich auf die Datei
+zu verlassen.
 
 Ebenfalls nach dem Import zu setzen, weil es nicht in der JSON steckt:
 
