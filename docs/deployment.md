@@ -276,11 +276,43 @@ deployen, ist die Entscheidung neu zu bewerten.
 Der Kern in drei Sätzen; die Begründung im Detail steht in
 [`n8n-setup.md`](n8n-setup.md), Abschnitt 4.
 
-**`.read` und `.write` bleiben auf `true`.** Das Frontend spricht die Datenbank
-ohne Authentifizierung an — Join hat kein Firebase Auth, sondern prüft den Login
+**`.read` bleibt auf `true`.** Das Frontend spricht die Datenbank ohne
+Authentifizierung an — Join hat kein Firebase Auth, sondern prüft den Login
 selbst gegen den `users`-Knoten. Es gibt also kein `auth`-Objekt, gegen das eine
-Regel prüfen könnte; geschlossene Regeln würden Login, Board und Kontakte sofort
-unbenutzbar machen.
+Regel prüfen könnte; ein Leseverbot bräche die Anmeldung sofort. Das ist der
+dokumentierte Kompromiss, keine Nachlässigkeit.
+
+**`.write` steht nicht mehr global auf `true`, sondern pro Knoten.** `tasks` und
+`contacts` bleiben offen — beide werden aus dem unauthentifizierten Frontend
+geschrieben, daran ändert sich nichts. `users` bekommt eine engere Regel:
+
+```
+"users": { "$userId": { ".write": "!data.exists() || !newData.exists()" } }
+```
+
+Sie erlaubt das **Anlegen** eines Datensatzes (`!data.exists()`) und sein
+**Löschen** (`!newData.exists()`, damit Testkonten weiter aus der Konsole
+entfernt werden können), verbietet aber das **Ändern** eines bestehenden. Ein
+Angreifer, der die Datenbank-URL kennt — sie steht in `constants.js` und damit
+im öffentlichen Repository —, kann so kein fremdes Konto übernehmen, indem er
+dessen `pwHash` überschreibt.
+
+**Das globale `.write: true` musste dafür weichen.** In der Realtime Database
+kaskadieren Schreibregeln nach unten: Ist der Zugriff auf einer höheren Ebene
+einmal erlaubt, werden die Regeln darunter gar nicht mehr ausgewertet. Ein
+`.write` an der Wurzel hätte die `users`-Regel wirkungslos gemacht. Deshalb
+hängt die Schreiberlaubnis jetzt an `tasks` und `contacts` einzeln.
+
+Der Sign-up bleibt davon unberührt: `UserService.create` schreibt per `PUT` auf
+`users/<id>` mit einer frisch vergebenen ID, dort existiert noch nichts —
+`!data.exists()` trifft zu. Eine Nebenwirkung gibt es doch: Läuft die ID-Vergabe
+in `generateNextUserId` einmal auf eine bereits belegte ID, schlägt die
+Registrierung jetzt fehl, statt den fremden Datensatz stillschweigend zu
+überschreiben. Das ist die gewollte Richtung.
+
+Die Feld-`.validate`-Regeln auf `users` begrenzen `name` und `email` in der
+Länge und verlangen für `pwHash` und `pwSalt` Zeichenketten — dieselbe
+Datenmüll-Bremse wie auf `tasks`.
 
 **Die `.validate`-Regeln fangen fehlerhafte Schreibvorgänge aus dem Browser
 ab** — falsche Statuswerte, eine unbekannte Priorität, ein `createdAt` als Text.
