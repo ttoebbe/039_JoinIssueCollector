@@ -660,3 +660,20 @@ holt die Zahlen beim Laden der Seite, mit **3 Sekunden Timeout** über
   Testschalter für beide UI-Zustände (`?used=4`, `?used=10`) und bleibt es.
 - **`limit` aus der Antwort** übernimmt die Seite, wenn es eine Zahl größer
   null ist; sonst bleibt `data-request-limit`.
+
+### 10.7 Am laufenden System geprüft
+
+Der Workflow ist importiert, aktiv und getestet;
+[`../n8n/quota-status.workflow.json`](../n8n/quota-status.workflow.json) ist der
+Export aus der laufenden Instanz. Was am Entwurf noch offen war, ist damit
+geklärt und beim nächsten Import **nicht erneut zu prüfen**:
+
+| Punkt | Ergebnis |
+|---|---|
+| `respondWith: "json"` zusammen mit `={{ JSON.stringify(…) }}` | richtig so. Der Aufruf von `https://n8n.thomas-toebbe.de/webhook/join-quota` liefert `{"limit":10,"used":1}` — ein echtes JSON-Objekt, keinen String und kein doppelt kodiertes JSON. Der Ausdruck erzeugt den Text, der Node setzt den `Content-Type`; zusammen ergibt das genau **eine** Kodierung. |
+| `httpMethod` im Webhook-Node | steht nicht mehr im Export. `GET` ist der Vorgabewert des Nodes, und Vorgabewerte schreibt n8n nicht mit. Der Endpunkt antwortet weiterhin auf `GET` — der Wert fehlt im JSON, nicht am Node. Abschnitt 10.5 bleibt damit gültig. |
+| CORS im Browser | die Liste aus Abschnitt 10.4 stimmt. `request.html` von `http://127.0.0.1:5500` bekommt die Antwort, der Browser verwirft sie nicht. Ein `curl`-Test allein hätte das nicht gezeigt. |
+
+**Live-Test an der Seite:** `request.html` zeigt den echten Stand des Tages —
+`1 of 10` bei einer verbrauchten Anfrage. Die Zahl kommt aus dem Endpunkt, nicht
+aus `data-request-limit` und nicht aus `?used=`.
