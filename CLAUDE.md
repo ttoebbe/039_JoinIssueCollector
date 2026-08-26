@@ -41,6 +41,13 @@ Projektplan: siehe Claude-Projekt „Entwicklungshelferlein", `claude/plan-join-
 - Gültige Statuswerte: `triage`, `todo`, `inprogress`, `awaitfeedback`, `done`.
   Neue Tasks default `triage`. Fallback für Unbekanntes bleibt `todo` —
   Bestandstasks dürfen nicht nach Triage wandern.
+- **Jeder Statuswechsel läuft über `persistStatusChange`** in
+  `js/features/board/draganddrop.js`. Drag-and-drop und das Move-Menü aus
+  `board.js` gehen beide durch `updateTaskStatus` dorthin. Dort sitzt der
+  **einzige** Hook für die n8n-Benachrichtigung (`notifyStatusChange`), und zwar
+  nach dem erfolgreichen `TaskService.update`. Keinen zweiten Hook in
+  `render-cards-meta.js` oder anderswo einbauen — sonst gehen Mails doppelt
+  oder für Wechsel raus, die gar nicht gespeichert wurden.
 - Prioritätsfeld heißt `prio`, Werte `urgent` | `medium` | `low`.
 - Ersteller-Typ heißt `member` | `extern` (wie die Design-Varianten).
 - **Mindestschriftgröße 16 px**, Kleingedrucktes nie unter 14 px (Lastenheft).

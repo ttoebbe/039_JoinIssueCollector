@@ -1,7 +1,8 @@
 # n8n-Workflows
 
-Hier liegen die Workflow-JSONs des Issue Collectors. Sie entstehen in Phase 6
-und 7 — solange stehen hier bewusst **keine leeren Platzhalter**.
+Hier liegen die Workflow-JSONs des Issue Collectors. Zwei der drei stehen,
+`quota-status.workflow.json` ist der einzige offene Punkt — solange steht dafür
+hier bewusst **kein leerer Platzhalter**.
 
 ## Die drei Workflows
 
@@ -73,6 +74,73 @@ JOIN_IMAP_PASSWORD
 Sie stehen **nicht** im Workflow, weil diese Datei im Repository liegt. Warum
 die Nodes überhaupt nötig sind und was sonst noch am Container zu setzen ist,
 steht in [`../docs/n8n-setup.md`](../docs/n8n-setup.md).
+
+## `status-notify.workflow.json`
+
+> **Auch diese Datei ist ein Entwurf** — von Hand geschrieben, kein n8n-Export.
+> Nach Import, Testlauf und Korrekturen im Editor exportiert Thomas den Workflow
+> und der Export **ersetzt** die Datei.
+
+Das Board ruft den Webhook aus `persistStatusChange`
+([`../js/features/board/draganddrop.js`](../js/features/board/draganddrop.js))
+auf — **nach** dem erfolgreichen Schreiben, also nur für einen Wechsel, der
+wirklich in der Datenbank steht. Der Aufruf ist „fire and forget": Ist n8n aus,
+merkt das Board nichts davon.
+
+### Die Node-Kette
+
+```
+Receive status change                       [Webhook POST /webhook/join-status]
+  └─ Guard: verify, throttle                [Code]
+       └─ Passed the guard?                 [IF]
+            ├─ true  → Fetch task                [HTTP GET]
+            │            └─ Build mail            [Code]
+            │                 └─ Notify creator?  [IF]
+            │                      ├─ true  → Send status mail   [Send Email]
+            │                      │            └─ Respond: ok    [200]
+            │                      └─ false → Respond: skipped    [200]
+            └─ false → Respond: rejected          [403]
+```
+
+Der Guard prüft in dieser Reihenfolge: Secret, Pflichtfelder, die fünf gültigen
+Statuswerte (`from` und `to` müssen verschieden sein), zuletzt die Deckelung von
+**3 Mails pro Ticket und Tag**. Alles, was durchfällt, wird zu `rejected` — der
+Grund steht nur im Execution-Log, nicht in der Antwort.
+
+`Build mail` schickt nur an einen Ersteller mit `type: "extern"` und einer
+Adresse. Interne Mitglieder sehen den Wechsel auf dem Board und bekommen laut
+Lastenheft keine Mail; dieser Fall ist `skipped` und kein Fehler.
+
+**Die Empfängeradresse kommt aus dem Ticket-Datensatz, nie aus dem Request.**
+Das ist der Grund für den Node `Fetch task`: Käme sie aus dem Body, wäre der
+Webhook ein offener Mailversender. Warum das Secret allein nichts schützt, steht
+in [`../docs/n8n-setup.md`](../docs/n8n-setup.md), Abschnitt 9.2.
+
+### Die zwei Credentials
+
+| Node | Credential-Typ | Anmerkung |
+|---|---|---|
+| `Fetch task` | Google Service Account API | `Join V2 - Firebase RTDB (Service Account)`, dasselbe wie im Issue Collector |
+| `Send status mail` | SMTP | `Join V2 - issues (SMTP)`, Port 587 mit STARTTLS |
+
+### Die eine Env-Variable
+
+```
+JOIN_NOTIFY_SECRET
+```
+
+Gleicher Wert wie `NOTIFY_CONFIG.SECRET` in
+[`../js/core/constants.js`](../js/core/constants.js). Steht **nicht** im
+Workflow — der Guard liest sie über `$env`. Details in
+[`../docs/n8n-setup.md`](../docs/n8n-setup.md), Abschnitt 9.
+
+### CORS
+
+Der Webhook-Node trägt unter *Allowed Origins (CORS)* die Domains, von denen das
+Board ausgeliefert wird. **Die Liste ist gegen das echte Deployment zu prüfen**
+— steht dort die falsche Domain, scheitert der Aufruf im Browser, während er per
+`curl` durchläuft. Siehe [`../docs/n8n-setup.md`](../docs/n8n-setup.md),
+Abschnitt 9.4.
 
 ## Wo die Workflows laufen
 
