@@ -12,15 +12,41 @@ Aufbauend auf [024_Join](https://github.com/ttoebbe/024_Join).
 ## Wie die Demo funktioniert
 
 1. Landing Page öffnen und „Create request" wählen
-2. E-Mail an die angegebene Adresse schicken — Betreff mit dem Präfix `[JOIN]`
+2. E-Mail an **issues@thomas-toebbe.de** schicken — der Betreff **muss** mit
+   `[JOIN]` beginnen, Groß- und Kleinschreibung ist egal
 3. Der n8n-Workflow verarbeitet die Mail und legt das Ticket in **Triage** an
 4. Der Absender bekommt eine Bestätigungsmail und wird als externer Ersteller
    am Ticket geführt
 5. Wird das Ticket auf dem Board in eine andere Spalte gezogen, geht eine
    Benachrichtigung an den Ersteller
 
-Pro Tag werden maximal **10** Anfragen verarbeitet. Der aktuelle Stand wird auf
-der Landing Page angezeigt. Das Limit ist ein Kostenschutz für die KI-API.
+Eine brauchbare Anfrage schreibt sich wie eine kurze Mail an einen Kollegen:
+
+```
+An:      issues@thomas-toebbe.de
+Betreff: [JOIN] Board lädt zu langsam
+
+Das Board braucht auf dem Handy mehrere Sekunden, bis die Karten da sind.
+Das ist dringend, wir zeigen es am 30.09.2026 dem Kunden.
+```
+
+Aus Betreff und Fließtext bestimmt die KI Titel, Kategorie (`Technical Task`
+oder `User Story`), Priorität (`urgent`, `medium`, `low`) und — falls im Text
+eine Deadline steht — das Fälligkeitsdatum. Ein Datum wird nie erfunden. Im
+Beschreibungstext des Tickets steht der Hinweis, dass es KI-generiert wurde.
+
+Was sonst noch passieren kann:
+
+| Fall | Was der Absender bekommt |
+|---|---|
+| Betreff **ohne** `[JOIN]` | nichts. Die Mail wird kommentarlos verworfen, damit Spam keine Antwort und kein Kontingent bekommt. |
+| Tageslimit erreicht | eine Mail mit dem Hinweis auf das Limit und dem Zeitpunkt, an dem es zurückgesetzt wird. Kein Ticket. |
+| Mail nicht verwertbar | eine Mail mit dem Hinweis, dass das Team sie erhalten hat und sich meldet. |
+
+Pro Tag werden maximal **10** Anfragen verarbeitet, davon höchstens **3** je
+Absender. Der aktuelle Stand wird auf der Landing Page angezeigt. Das Limit ist
+ein Kostenschutz für die KI-API und wird täglich um Mitternacht UTC
+zurückgesetzt.
 
 ---
 
@@ -95,7 +121,7 @@ Zustände der Landing Page ohne laufendes n8n testen:
 │   ├── features/           # auth, board, add-task, contacts, summary, landing
 │   ├── components/         # Toast, Overlays
 │   └── templates/          # Template-Renderer
-├── n8n/                    # Workflows als JSON + Deploy-Dateien
+├── n8n/                    # Workflows als JSON (laufen in der bestehenden Instanz)
 ├── docs/
 │   ├── design/             # Design-Spec, Komponenten-Inventar, Referenzbilder
 │   └── *Lastenheft*        # Anforderungen

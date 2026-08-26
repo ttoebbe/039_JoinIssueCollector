@@ -186,6 +186,33 @@ Join verwendet im selben Volume:
 /home/node/.n8n/join-quota-state.json
 ```
 
+Aufbau der Datei — `system` ist der Tageszähler aus dem Lastenheft (10),
+`perSender` begrenzt zusätzlich einen einzelnen Absender auf 3 Anfragen:
+
+```json
+{ "day": "2026-08-26", "system": 4, "perSender": { "stakeholder@example.com": 2 } }
+```
+
+Zurücksetzen, analog zum bestehenden Zähler von Code a Cuisine:
+
+```bash
+cd /opt/code-a-cuisine
+docker compose exec n8n rm -f /home/node/.n8n/join-quota-state.json
+docker compose exec n8n sh -c 'ls /home/node/.n8n/ | grep -c join-quota-state.json'   # 0 = reset
+```
+
+Der Zähler wird **vor** dem KI-Aufruf hochgezählt, nicht nach dem erfolgreichen
+Schreiben des Tickets. Eine Mail, an der das Modell scheitert, kostet ihren Slot
+trotzdem — sonst wäre das Limit kein Kostenschutz, sondern nur eine Erfolgsstatistik.
+
+**Bekannte Schwäche: der Zähler ist Read-Modify-Write ohne Sperre.** Der
+Code-Node liest die Datei, erhöht den Wert und schreibt sie zurück. Treffen zwei
+Mails so dicht hintereinander ein, dass zwei Workflow-Läufe sich überlappen,
+lesen beide denselben Stand und schreiben denselben erhöhten Wert — ein Slot
+zählt dann nur einmal. Bei zehn Anfragen am Tag in einer Demo ist das
+hinnehmbar; als stiller Fehler soll es trotzdem nicht dastehen. Sauber wäre eine
+Datei-Sperre oder ein Zähler in der Datenbank statt im Dateisystem.
+
 ### 5.2 Eigene Webhook-Pfade
 
 ```
@@ -205,11 +232,68 @@ sonst blockt der Browser den Aufruf von der Landing Page.
 
 ---
 
-## 6. Vor dem ersten Import prüfen
+## 6. Was der Issue Collector zusätzlich am Container braucht
 
-Vier Punkte am Container. Die letzten beiden sind für Code a Cuisine bereits
-gesetzt; die ersten beiden waren dort ausdrücklich **offene Prüfpunkte** und
-sind vor dem ersten Join-Import zu klären.
+Zwei Punkte, die nur der Issue Collector benötigt und die nicht im Workflow
+stehen können.
+
+### 6.1 `NODE_FUNCTION_ALLOW_EXTERNAL=imap`
+
+Der IMAP-Trigger kann eine Mail **nicht verschieben**. Sein Feld *Action* kennt
+genau zwei Werte, „None" und „Mark as Read"; einen Zielordner gibt es dort
+nicht. Das Lastenheft verlangt das Verschieben aber zweimal ausdrücklich — nach
+`erledigt` bei erfolgreicher Verarbeitung, nach `zu-bearbeiten` im Fehlerfall.
+Also erledigt es ein Code-Node, der sich selbst per `require('imap')` mit dem
+Postfach verbindet.
+
+n8n lädt in Code-Nodes nur Module, die ausdrücklich freigegeben sind:
+
+```yaml
+# /opt/code-a-cuisine/docker-compose.yml
+environment:
+  - NODE_FUNCTION_ALLOW_EXTERNAL=imap
+```
+
+`imap@0.8.19` liegt bereits im n8n-Image, es ist also nichts nachzuinstallieren.
+Die Variable ist seit dem 26.08.2026 gesetzt und am Container geprüft:
+`require('imap')` liefert dort `typeof === "function"`.
+
+Ohne die Freigabe scheitern die drei `Move mail to …`-Nodes bei jedem Lauf. Weil
+sie auf `continueOnFail` stehen, fällt das nicht als roter Workflow auf — die
+Mails bleiben einfach in der INBOX liegen. Der Ordnername `zu-bearbeiten` trägt
+übrigens einen **Bindestrich**; im Postfach heißt er so, auch wenn das
+Lastenheft „zu bearbeiten" schreibt.
+
+### 6.2 `JOIN_IMAP_USER` und `JOIN_IMAP_PASSWORD`
+
+Dieselben Code-Nodes brauchen Zugangsdaten. Ein n8n-Credential können sie nicht
+verwenden — Credentials stehen nur konfigurierten Nodes zur Verfügung, nicht dem
+Code darin. Sie kämen also als Klartext in den Code-Node, und der Code-Node
+steht im Workflow-Export, und der Export liegt im Repository.
+
+Deshalb kommen sie aus der Umgebung des Containers:
+
+```yaml
+# /opt/code-a-cuisine/docker-compose.yml
+environment:
+  - JOIN_IMAP_USER=${JOIN_IMAP_USER}
+  - JOIN_IMAP_PASSWORD=${JOIN_IMAP_PASSWORD}
+```
+
+Die Werte selbst in die `.env` neben der Compose-Datei — nie ins Repository.
+Nach der Änderung `docker compose up -d` aus `/opt/code-a-cuisine`.
+
+Die Nodes lesen sie über `$env.JOIN_IMAP_USER` und `$env.JOIN_IMAP_PASSWORD` und
+werfen einen sprechenden Fehler, wenn eine der beiden fehlt. Voraussetzung ist,
+dass `N8N_BLOCK_ENV_ACCESS_IN_NODE` **nicht** auf `true` steht — der Standard ist
+`false`, also ist normalerweise nichts zu tun.
+
+---
+
+## 7. Vor dem ersten Import prüfen
+
+Sechs Punkte am Container. Die Zeilen 3 bis 5 sind gesetzt; 1, 2 und 6 sind
+offen und vor dem ersten Join-Import zu klären.
 
 | # | Prüfpunkt | Warum |
 |---|---|---|
@@ -217,18 +301,20 @@ sind vor dem ersten Join-Import zu klären.
 | 2 | `WEBHOOK_URL` gesetzt | **offen.** Ohne die Variable baut n8n die Webhook-URLs gegen `localhost:5678` — die Landing Page bekommt eine unbrauchbare Adresse. |
 | 3 | `TZ=UTC` | bereits gesetzt. Der Tageszähler rechnet auf UTC-Mitternacht; eine andere Zeitzone verschiebt den Reset. |
 | 4 | `NODE_FUNCTION_ALLOW_BUILTIN=fs` | bereits gesetzt. Ohne das kann der Quota-Guard die Zählerdatei nicht schreiben. |
+| 5 | `NODE_FUNCTION_ALLOW_EXTERNAL=imap` | seit dem 26.08.2026 gesetzt. Siehe Abschnitt 6.1. |
+| 6 | `JOIN_IMAP_USER` und `JOIN_IMAP_PASSWORD` | **offen.** Siehe Abschnitt 6.2. |
 
 Prüfen lässt sich das so:
 
 ```bash
 cd /opt/code-a-cuisine
-docker compose exec n8n env | grep -E "WEBHOOK_URL|^TZ=|NODE_FUNCTION_ALLOW_BUILTIN"
+docker compose exec n8n env | grep -E "WEBHOOK_URL|^TZ=|NODE_FUNCTION_ALLOW_|JOIN_IMAP_USER"
 docker compose config | grep -A5 volumes
 ```
 
 ---
 
-## 7. Import-Weg
+## 8. Import-Weg
 
 Über den **n8n-Editor**, per SSH-Tunnel erreichbar (siehe Abschnitt 1):
 *Workflow → Import from File*, JSON aus `../n8n/` auswählen.
