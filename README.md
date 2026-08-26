@@ -58,6 +58,53 @@ zurückgesetzt.
 
 ---
 
+## Architektur
+
+Drei Systeme, die nichts voneinander wissen müssen: das Frontend liegt als
+statische Dateien auf dem Webhosting, n8n läuft in Docker auf einem VPS, und
+die Datenbank ist eine gehostete Firebase Realtime Database.
+
+```mermaid
+flowchart LR
+    SH["Stakeholder"]
+    MB["Anfrage-Postfach<br/>Hetzner IMAP"]
+    N8N["n8n<br/>Hetzner VPS CPX12<br/>n8n.thomas-toebbe.de"]
+    GEM["Google Gemini<br/>gemini-3.5-flash"]
+    FB[("Firebase<br/>Realtime Database<br/>europe-west1")]
+    FE["Frontend<br/>Hetzner Webhosting<br/>join.thomas-toebbe.de"]
+    TM["Team"]
+
+    SH -->|"E-Mail mit [JOIN]"| MB
+    SH --> FE
+    TM --> FE
+    N8N -->|"IMAP: Polling und<br/>Verschieben nach erledigt"| MB
+    N8N -->|"Betreff + Text"| GEM
+    GEM -->|"Titel, Kategorie,<br/>Priorität, Deadline"| N8N
+    N8N -->|"GET Task-IDs, PUT Ticket<br/>Service Account"| FB
+    N8N -->|"SMTP Port 587"| SH
+    FE <-->|"REST ohne Auth"| FB
+    FE -->|"POST /webhook/join-status"| N8N
+    FE -->|"GET /webhook/join-quota"| N8N
+```
+
+Was das Bild nicht zeigt: n8n bekommt für Join **keinen eigenen Server**,
+sondern teilt sich die bestehende Instanz auf dem Code-a-Cuisine-VPS mit den
+dortigen Workflows — deshalb hat Join eine eigene Zählerdatei und eigene
+Webhook-Pfade, damit sich die beiden Projekte nicht in die Quere kommen.
+
+Die beiden Pfeile zur Datenbank sind **nicht gleichwertig**: n8n schreibt über
+einen Service Account, das Frontend spricht die REST-API dagegen ganz ohne
+Authentifizierung an — Join hat kein Firebase Auth, sondern prüft den Login
+selbst gegen den `users`-Knoten. Das ist ein bewusster Demo-Kompromiss, kein
+gelöstes Sicherheitsproblem; was daraus für die Datenbank-Regeln folgt, steht
+in [`docs/n8n-setup.md`](docs/n8n-setup.md), Abschnitt 4.
+
+Der einzige Weg, auf dem Kosten entstehen, führt über den Gemini-Aufruf. Er ist
+deshalb hinter das Tageslimit von 10 Anfragen gehängt — der Zähler ist kein
+Komfortfeature, sondern der Kostendeckel.
+
+---
+
 ## Features
 
 - **Landing Page** — Weiche zwischen Stakeholder und Teammitglied, Prozess­erklärung, Tageslimit transparent
