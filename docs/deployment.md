@@ -219,3 +219,115 @@ Was den Zugriff tatsächlich begrenzt, sind die Regeln in
 Die Datenbank-URL steht in
 [`../js/core/constants.js`](../js/core/constants.js) und wird mit
 ausgeliefert — deshalb prüft der Workflow, dass diese Datei im Staging liegt.
+
+---
+
+## 7. Datenbank-Regeln einspielen
+
+[`../database.rules.json`](../database.rules.json) liegt im Repository, aber
+**kein Automatismus spielt sie ein**. Die Datei ist die Vorlage; wirksam wird
+sie erst, wenn ihr Inhalt in der Firebase-Konsole veröffentlicht wurde.
+
+### 7.1 Der Weg
+
+1. [console.firebase.google.com](https://console.firebase.google.com) öffnen
+   und anmelden.
+2. Das Projekt der V2-Datenbank wählen — es ist das, dessen Datenbank-URL in
+   [`../js/core/constants.js`](../js/core/constants.js) steht
+   (`joinv2withn8n-default-rtdb…`, Region `europe-west1`).
+3. Links **Build → Realtime Database** wählen. Hat das Projekt mehrere
+   Datenbank-Instanzen, oben die richtige auswählen — die URL muss zu
+   `API_CONFIG.BASE_URL` passen.
+4. Reiter **Regeln** (englisch *Rules*) öffnen.
+5. Den **kompletten** Inhalt von `database.rules.json` in den Editor einfügen
+   und das ersetzen, was dort steht. Kein Zusammenführen von Hand — die Datei
+   im Repository ist der maßgebliche Stand.
+6. **Veröffentlichen** (*Publish*) klicken. Der Editor meldet Syntaxfehler
+   vorher; wird der Knopf nicht aktiv, ist der eingefügte Text unvollständig.
+7. Danach die Prüfung aus 7.4 durchgehen.
+
+Die Regeln greifen sofort, ein Neuladen der Seite genügt. Ein Deploy des
+Frontends ist dafür **nicht** nötig — beides sind getrennte Wege.
+
+### 7.2 Warum von Hand und nicht über die CLI
+
+Firebase kann das auch: `firebase deploy --only database` spielt die Regeln aus
+dem Repository ein. Der Weg ist hier trotzdem nicht eingerichtet, weil er vier
+Dinge nach sich zieht, die es sonst im Projekt nicht gibt:
+
+- eine `firebase.json`, die auf `database.rules.json` zeigt
+- eine `.firebaserc` mit der Projekt-ID
+- die Firebase CLI — lokal oder als Schritt in der Action
+- ein weiteres GitHub-Secret, ein Service-Account-Token mit Deploy-Rechten
+
+Das wäre eine ganze Werkzeugkette für **eine Datei, die sich praktisch nie
+ändert**: Die Regeln hängen an den Statuswerten und am Prioritätsfeld, und die
+sind seit Phase 2 stabil. Ändern sie sich doch, ist der Weg oben in zwei Minuten
+erledigt. Kommt später ein zweiter Grund dazu, regelmäßig gegen Firebase zu
+deployen, ist die Entscheidung neu zu bewerten.
+
+### 7.3 Was die Regeln leisten — und was nicht
+
+Der Kern in drei Sätzen; die Begründung im Detail steht in
+[`n8n-setup.md`](n8n-setup.md), Abschnitt 4.
+
+**`.read` und `.write` bleiben auf `true`.** Das Frontend spricht die Datenbank
+ohne Authentifizierung an — Join hat kein Firebase Auth, sondern prüft den Login
+selbst gegen den `users`-Knoten. Es gibt also kein `auth`-Objekt, gegen das eine
+Regel prüfen könnte; geschlossene Regeln würden Login, Board und Kontakte sofort
+unbenutzbar machen.
+
+**Die `.validate`-Regeln fangen fehlerhafte Schreibvorgänge aus dem Browser
+ab** — falsche Statuswerte, eine unbekannte Priorität, ein `createdAt` als Text.
+Sie sind eine Datenmüll-Bremse, kein Zugriffsschutz.
+
+**Auf n8n wirken sie nicht.** Der Workflow schreibt mit einem
+Service-Account-Token, und der gilt in der Realtime Database als Admin-Zugriff,
+der alle Regeln übergeht. Was aus dem Automaten kommt, prüft allein der
+Code-Node `Map AI answer` in
+[`../n8n/issue-collector.workflow.json`](../n8n/issue-collector.workflow.json).
+
+### 7.4 Der Test nach dem Einspielen
+
+Auf `https://join.thomas-toebbe.de`, mit offener Browser-Konsole. Vier Schritte,
+weil sie zusammen jedes validierte Feld einmal schreiben:
+
+| Schritt | Prüft |
+|---|---|
+| Einloggen | `.read` auf `users` ist offen |
+| Task anlegen (*Add task*) | `status`, `prio`, `source`, `aiGenerated`, `createdAt` in einem Rutsch |
+| Task in eine andere Spalte ziehen | `status` beim Zurückschreiben des ganzen Tasks |
+| Kontakt anlegen | Schreibzugriff außerhalb von `tasks` |
+
+Sichtbar wird ein Verstoß als roter Toast „Connection error. Try again." und in
+der Konsole als `Firebase Error (400)` mit dem Text der abgelehnten Regel —
+[`../js/core/firebase-service.js`](../js/core/firebase-service.js) protokolliert
+die Antwort, bevor der Toast erscheint.
+
+**Bricht etwas, ist eine `.validate`-Regel zu streng.** Dann die betroffene
+Regel **entfernen** und den Fall melden — nicht das Muster aufweichen, bis es
+gerade so durchgeht. Eine Regel, die nur noch fast stimmt, ist schlimmer als
+keine: Sie erweckt den Eindruck einer Prüfung, die es nicht mehr gibt.
+
+### 7.5 Die bekannte Stolperstelle: `prio` und die Alt-Werte
+
+Zwei Stellen im Frontend fangen bis heute die V1-Werte `high` und `alta` ab:
+
+- [`../js/features/board/render-cards-prio.js`](../js/features/board/render-cards-prio.js),
+  Zeilen 82–83
+- [`../js/features/summary/summary.js`](../js/features/summary/summary.js),
+  Zeile 40
+
+Beide Werte sind laut Regel **nicht** erlaubt — `prio` lässt nur `urgent`,
+`medium` und `low` zu. Für einen Bestandstask mit `prio: "high"` hieße das:
+Anzeigen geht, **Verschieben nicht.** Das Board schreibt beim Spaltenwechsel
+über `TaskService.update` den **ganzen** Task per `PUT` zurück (siehe
+`persistStatusChange` in
+[`../js/features/board/draganddrop.js`](../js/features/board/draganddrop.js)),
+also auch das unveränderte `prio` — und Firebase lehnt die gesamte Operation ab,
+nicht nur das eine Feld.
+
+**In der V2-Datenbank gibt es solche Tasks nicht**, die V1-Daten wurden bewusst
+nicht importiert. Der Punkt steht hier trotzdem, weil er genau dann zuschlägt,
+wenn jemand später V1-Tasks nachzieht: Der Import selbst liefe durch, das
+Verschieben scheiterte erst hinterher.

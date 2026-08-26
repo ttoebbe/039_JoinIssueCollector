@@ -138,8 +138,7 @@ Sicherheitsproblem.
 
 ### Was die Rules trotzdem leisten
 
-**Datenmüll abwehren.** Genau dafür sind sie da, sobald ab Phase 6 ein Automat
-schreibt. Validiert werden auf jedem Task:
+**Datenmüll aus dem Browser abwehren.** Validiert werden auf jedem Task:
 
 | Feld | erlaubt |
 |---|---|
@@ -151,8 +150,17 @@ schreibt. Validiert werden auf jedem Task:
 
 Die Statuswerte sind Zeichen für Zeichen dieselben wie `TASK_STATUS` in
 [`../js/core/constants.js`](../js/core/constants.js). Weichen sie ab, lehnt
-Firebase die Schreibvorgänge des Workflows kommentarlos ab — bei jeder Änderung
-an einer der beiden Stellen die andere mitziehen.
+Firebase die Schreibvorgänge der Seite kommentarlos ab — bei jeder Änderung an
+einer der beiden Stellen die andere mitziehen.
+
+**Auf die Schreibvorgänge des Workflows greifen sie dagegen nicht.** n8n
+authentifiziert sich mit einem Service-Account-Token, und der gilt in der
+Realtime Database als Admin-Zugriff, der alle Regeln übergeht — auch die
+`.validate`-Regeln. Was der Automat schreibt, prüft allein der Code-Node
+`Map AI answer` in
+[`../n8n/issue-collector.workflow.json`](../n8n/issue-collector.workflow.json).
+Das ist kein Versehen, sondern die Kehrseite von Abschnitt 3: derselbe Token,
+der kurzlebig und widerrufbar ist, bringt eben auch volle Rechte mit.
 
 ### Wirkungsweise
 
