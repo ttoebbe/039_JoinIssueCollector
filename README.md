@@ -103,6 +103,44 @@ Der einzige Weg, auf dem Kosten entstehen, führt über den Gemini-Aufruf. Er is
 deshalb hinter das Tageslimit von 10 Anfragen gehängt — der Zähler ist kein
 Komfortfeature, sondern der Kostendeckel.
 
+### Von der Mail zum Ticket
+
+Die Reihenfolge im Issue Collector ist kein Zufall — sie ist der Kostenschutz:
+
+```mermaid
+sequenceDiagram
+    participant S as Stakeholder
+    participant M as Postfach
+    participant N as n8n
+    participant G as Gemini
+    participant F as Firebase
+
+    S->>M: E-Mail mit [JOIN] im Betreff
+    N->>M: Polling
+    Note over N: Betreff-Filter<br/>ohne [JOIN]: still verwerfen
+    Note over N: Quota reservieren<br/>vor dem KI-Aufruf
+    N->>G: Betreff + Text
+    G->>N: Titel, Kategorie, Priorität,<br/>Deadline, Zusammenfassung
+    Note over N: Antwort in Code prüfen<br/>Rules greifen hier nicht
+    N->>F: GET tasks?shallow=true
+    F->>N: vorhandene Task-IDs
+    N->>F: PUT tasks/tN
+    N->>S: Bestätigungsmail
+    N->>M: Mail nach INBOX.erledigt
+```
+
+Der Quota-Slot wird **vor** dem Aufruf des Modells reserviert, nicht nach einem
+erfolgreichen Ticket. Ein Fehlschlag der KI kostet damit ebenfalls einen Slot —
+genau das macht den Zähler zum Kostendeckel und nicht zur Erfolgsstatistik.
+Umgekehrt läuft der Betreff-Filter **vor** dem Zähler, damit eine Spam-Mail
+weder ein Kontingent verbraucht noch eine Antwort bekommt.
+
+„Rules greifen hier nicht" ist der wichtigste Hinweis im Bild: n8n schreibt mit
+einem Service-Account-Token, und das gilt in der Realtime Database als
+Admin-Zugriff — die `.validate`-Regeln aus `database.rules.json` werden dabei
+übergangen. Die Prüfung im Code-Node `Map AI answer` ist deshalb die einzige,
+die es für diesen Weg gibt.
+
 ---
 
 ## Features
