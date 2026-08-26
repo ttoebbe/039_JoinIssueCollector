@@ -346,13 +346,13 @@ Log.
 
 ## 7. Vor dem ersten Import prüfen
 
-Acht Punkte am Container. Die Zeilen 3 bis 8 sind gesetzt; 1 und 2 sind offen
-und vor dem produktiven Betrieb zu klären.
+Acht Punkte am Container. Alle acht sind gesetzt und am 26.08.2026 am
+laufenden Container nachgewiesen.
 
 | # | Prüfpunkt | Warum |
 |---|---|---|
-| 1 | Volume für `/home/node/.n8n` vorhanden | **offen.** Ohne Volume sind Workflows, Credentials und der Quota-Stand nach jedem Container-Neustart weg. |
-| 2 | `WEBHOOK_URL` gesetzt | **offen.** Ohne die Variable baut n8n die Webhook-URLs gegen `localhost:5678` — die Landing Page bekommt eine unbrauchbare Adresse. |
+| 1 | Volume für `/home/node/.n8n` vorhanden | erledigt. `docker inspect code-a-cuisine-n8n-1` zeigt `volume code-a-cuisine_n8n_data … -> /home/node/.n8n`; der Container hat seither vier Neustarts überstanden, ohne Credentials oder Workflows zu verlieren. Ohne Volume wären Workflows, Credentials und der Quota-Stand nach jedem Neustart weg. |
+| 2 | `WEBHOOK_URL` gesetzt | erledigt. `printenv` im Container liefert `https://n8n.thomas-toebbe.de/`. Ohne die Variable baut n8n die Webhook-URLs gegen `localhost:5678` — die Landing Page bekäme eine unbrauchbare Adresse. |
 | 3 | `TZ=UTC` | bereits gesetzt. Der Tageszähler rechnet auf UTC-Mitternacht; eine andere Zeitzone verschiebt den Reset. |
 | 4 | `NODE_FUNCTION_ALLOW_BUILTIN=fs` | bereits gesetzt. Ohne das kann der Quota-Guard die Zählerdatei nicht schreiben. |
 | 5 | `NODE_FUNCTION_ALLOW_EXTERNAL=imap` | seit dem 26.08.2026 gesetzt. Siehe Abschnitt 6.1. |
@@ -554,3 +554,109 @@ sagte das Gegenteil und ist entsprechend korrigiert.
   Deckelung — keine Mail mehr, Antwort 403 (Abschnitt 9.2).
 - Ein Ticket mit internem Ersteller löst **keine** Mail aus; der Lauf endet an
   `Notify creator?` mit `skipped`.
+
+---
+
+## 10. Der Quota-Workflow
+
+`n8n/quota-status.workflow.json`, Webhook `GET /webhook/join-quota`. Er liefert
+der Landing Page den Stand des Tageslimits — mehr nicht. Drei Nodes:
+
+```
+Receive quota request                       [Webhook GET /webhook/join-quota]
+  └─ Read counter                           [Code]
+       └─ Respond: counter                  [200, {"used": n, "limit": 10}]
+```
+
+### 10.1 Dieselbe Zählerdatei, nur lesend
+
+```
+/home/node/.n8n/join-quota-state.json
+```
+
+Das ist die Datei aus Abschnitt 5.1, die der **Issue Collector schreibt**. Der
+Quota-Workflow liest sie und schreibt sie nie. Daraus folgen zwei Dinge:
+
+- Ein Aufruf des Endpunkts **verbraucht keinen Slot**. Wer die Adresse im
+  Sekundentakt abruft, sperrt damit niemanden aus.
+- Die Zahl kann nur **hinterherhinken**, nie vorlaufen. Zwischen Abruf und
+  einer eintreffenden Mail liegt das übliche Rennen; bei zehn Anfragen am Tag
+  ist das ohne Bedeutung.
+
+Fehlt die Datei — noch keine Mail an diesem Tag, oder der Zähler wurde
+zurückgesetzt —, antwortet der Workflow `used: 0`. Steht darin ein **früherer**
+UTC-Tag, ebenfalls `used: 0`: `Read counter` verwendet dafür dieselbe Funktion
+`resetWhenNewDay` wie der Guard des Issue Collectors, Zeichen für Zeichen. Beide
+sehen damit dieselbe Tagesgrenze, und der Zähler springt auf der Landing Page
+zur selben Minute auf null, in der die Mailverarbeitung wieder Slots vergibt.
+
+### 10.2 `limit` steht an zwei Stellen
+
+`SYSTEM_LIMIT = 10` im Node `Read counter` und `SYSTEM_LIMIT = 10` im Guard des
+Issue Collectors. **n8n kennt keine geteilten Konstanten zwischen Workflows** —
+die beiden Stellen sind zusammen zu ändern.
+
+Läuft die Zahl auseinander, entsteht der unangenehme Fall lautlos: Die Seite
+meldet „Limit erreicht", während das Postfach weiter Tickets anlegt, oder
+umgekehrt. Ein dritter Ort trägt dieselbe Zahl, ist aber unkritisch —
+`data-request-limit="10"` in
+[`../html/pages/request.html`](../html/pages/request.html) dient nur als
+Rückfallwert, solange der Endpunkt nicht antwortet; die Antwort überschreibt ihn.
+
+### 10.3 Der Endpunkt ist bewusst offen
+
+Kein Secret, kein Token. Er gibt zwei Zahlen preis: wie viele der täglichen
+Anfragen verbraucht sind und wie viele es gibt. Dieselben zwei Zahlen stehen
+sichtbar auf der Landing Page.
+
+Ein Secret würde daran nichts verbessern, sondern nur so aussehen: Es müsste im
+ausgelieferten Client-Code stehen, und damit hielte es jeder in der Hand, der
+den Seitenquelltext öffnet — genau die Begründung aus Abschnitt 9.2, nur ohne
+den Schaden, den ein missbrauchter Statuswebhook anrichten könnte. Der
+Quota-Endpunkt schreibt nichts, verschickt nichts und kostet nichts.
+
+### 10.4 CORS
+
+Der Webhook-Node trägt **dieselbe** Liste wie der Status-Workflow
+(Abschnitt 9.4):
+
+```
+https://join.thomas-toebbe.de,http://127.0.0.1:5500,http://localhost:5500,http://localhost:8080
+```
+
+Die beiden Listen sind zusammen zu pflegen. Kommt eine Domain dazu und nur
+einer der beiden Workflows erfährt davon, fällt das erst im Browser auf: Der
+Aufruf läuft per `curl` sauber durch, im Browser verwirft ihn die
+Same-Origin-Prüfung.
+
+### 10.5 Nach dem Import
+
+| Was | Wert |
+|---|---|
+| Timeout | `80` Sekunden |
+| Timezone | `UTC` |
+| Credentials | keine — der Workflow spricht weder Firebase noch SMTP an |
+| Webhook-Pfad | `join-quota` |
+| HTTP-Methode | `GET` |
+
+Danach aktivieren und im Browser aufrufen:
+
+```
+https://n8n.thomas-toebbe.de/webhook/join-quota
+```
+
+Erwartet wird `{"used":0,"limit":10}` beziehungsweise der Stand des Tages.
+
+### 10.6 Was die Landing Page daraus macht
+
+[`../js/features/landing/request-limit.js`](../js/features/landing/request-limit.js)
+holt die Zahlen beim Laden der Seite, mit **3 Sekunden Timeout** über
+`AbortSignal`. Drei Verhaltensweisen sind Absicht:
+
+- **Endpunkt tot, langsam oder mit Fehler:** `used = 0`, die Seite zeigt den
+  verfügbaren Zustand. Der umgekehrte Fehler wäre der schlimmere — eine
+  ausgefallene n8n-Instanz würde Stakeholdern grundlos den Weg versperren.
+- **`?used=` in der URL gewinnt** über die Antwort des Endpunkts. Das ist der
+  Testschalter für beide UI-Zustände (`?used=4`, `?used=10`) und bleibt es.
+- **`limit` aus der Antwort** übernimmt die Seite, wenn es eine Zahl größer
+  null ist; sonst bleibt `data-request-limit`.

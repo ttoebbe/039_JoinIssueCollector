@@ -1,0 +1,94 @@
+{
+  "name": "Join V2 — Quota Status",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "join-quota",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "https://join.thomas-toebbe.de,http://127.0.0.1:5500,http://localhost:5500,http://localhost:8080"
+        }
+      },
+      "id": "0b6f2d14-9a3c-4f21-8d57-3c81b47ae902",
+      "name": "Receive quota request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1360,
+        192
+      ],
+      "webhookId": "5d21c8f7-4b16-4a09-9e3d-72f5a1c6b840",
+      "notes": "GET /webhook/join-quota. Deliberately public and without a secret: the answer is two numbers, how many of the daily requests are spent and how many there are. A secret would have to ship inside the delivered landing-page code, so anyone reading the page source would hold it - it would hide nothing and only add a way for the page to break. Allowed Origins (CORS) carries the same list as the status workflow; without it the browser discards the answer although the call itself succeeded."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Read counter — answers the landing page with the current state of the daily\n// cap. Runs once for all items and emits exactly one item:\n//   { used, limit }\n// This workflow only reads. The counter file is written by the issue\n// collector alone, so a request to this endpoint never spends a slot and a\n// hammered endpoint cannot lock stakeholders out.\n\n// The system-wide daily limit from the Lastenheft. The issue collector carries\n// the same number as SYSTEM_LIMIT in its guard node. n8n has no shared\n// constants between workflows, so the two places have to be changed together —\n// a mismatch would make the landing page count towards a limit the mailbox\n// does not enforce.\nconst SYSTEM_LIMIT = 10;\n\n// The counter file the issue collector writes (docs/n8n-setup.md 5.1).\n// `quota-state.json` in the same volume belongs to Code a Cuisine. Requires\n// NODE_FUNCTION_ALLOW_BUILTIN to include `fs`.\nconst fs = require('fs');\nconst QUOTA_FILE = '/home/node/.n8n/join-quota-state.json';\n\n/**\n * Reads the counter file, returning a fresh state when it is missing.\n * @returns {Object} The quota state\n */\nfunction readQuotaState() {\n  try {\n    return JSON.parse(fs.readFileSync(QUOTA_FILE, 'utf8'));\n  } catch (error) {\n    return { day: null, system: 0, perSender: {} };\n  }\n}\n\n/**\n * Starts a fresh counter on the first mail of a new UTC day. The container runs\n * on TZ=UTC, so the day rolls over at UTC midnight. Copied unchanged from the\n * guard node of the issue collector so both workflows see the same day\n * boundary — a state file from yesterday reads as zero here as well.\n * @param {Object} state - The state read from disk\n * @param {Date} now - The current time\n * @returns {Object} The state, reset when the day rolled over\n */\nfunction resetWhenNewDay(state, now) {\n  const day = now.toISOString().slice(0, 10);\n  const sameDay = Boolean(state) && state.day === day;\n  return {\n    day,\n    system: sameDay ? Number(state.system) || 0 : 0,\n    perSender: sameDay && state.perSender ? state.perSender : {},\n  };\n}\n\n/**\n * The number of requests spent today, capped at the limit. A counter file that\n * somehow holds more must not make the page read `12 of 10`.\n * @param {Object} state - The state for the current day\n * @returns {number} A value between 0 and SYSTEM_LIMIT\n */\nfunction countUsed(state) {\n  const used = Number(state.system) || 0;\n  return Math.min(Math.max(used, 0), SYSTEM_LIMIT);\n}\n\n// --- main -------------------------------------------------------------------\nconst state = resetWhenNewDay(readQuotaState(), new Date());\n\nreturn [{ json: { used: countUsed(state), limit: SYSTEM_LIMIT } }];\n"
+      },
+      "id": "3e9a7c52-8d40-4b6e-a17f-9c2b5081de34",
+      "name": "Read counter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1136,
+        192
+      ],
+      "notes": "Reads /home/node/.n8n/join-quota-state.json, the same file the issue collector writes. Missing file or a state from an earlier UTC day both answer used=0. Read-only - calling this endpoint never spends a quota slot. The limit of 10 sits here and in the guard of the issue collector and has to be changed in both."
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ used: $json.used, limit: $json.limit }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "c47b1e08-2f95-4d63-b8a1-6e0d39f7c215",
+      "name": "Respond: counter",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        -912,
+        192
+      ],
+      "notes": "Answers {\"used\": n, \"limit\": 10}. The landing page falls back to used=0 when this endpoint does not answer, so a dead n8n leaves the page usable instead of showing a limit that was never reached."
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Receive quota request": {
+      "main": [
+        [
+          {
+            "node": "Read counter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read counter": {
+      "main": [
+        [
+          {
+            "node": "Respond: counter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "timezone": "Etc/UTC",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": 80
+  },
+  "nodeGroups": [],
+  "tags": []
+}

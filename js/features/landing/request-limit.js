@@ -5,15 +5,23 @@
  * "This screen only appears after the daily limit has been reached!
  *  By default, show the previous frame: 'Stakeholder'."
  *
- * The real count comes from the n8n workflow that throttles the mailbox. Until
- * that endpoint exists, the count is read from the query string, which also
- * provides the test data for both UI states:
- *   request.html          -> 0 of 10, state "available"
+ * The real count comes from the n8n workflow that throttles the mailbox — it
+ * reads the same counter file the issue collector writes and answers
+ * `{ used, limit }` (see n8n/quota-status.workflow.json).
+ *
+ * A `used` parameter in the URL overrides the live count and stays in place as
+ * the test data source for both UI states:
+ *   request.html          -> the live count, state follows it
  *   request.html?used=4   -> 4 of 10, state "available"
  *   request.html?used=10  -> 10 of 10, state "limit-reached"
+ *
+ * When the endpoint fails or does not answer in time, the page falls back to
+ * "0 used" and stays usable. A dead n8n instance must not lock stakeholders
+ * out of a limit that was never reached — that error would be the worse one.
  */
 
-const STATUS_ENDPOINT = null; // not defined yet: n8n endpoint for the daily counter
+const STATUS_ENDPOINT = 'https://n8n.thomas-toebbe.de/webhook/join-quota';
+const STATUS_TIMEOUT_MS = 3000;
 
 const MAIL_USER = 'issues';
 const MAIL_HOST = 'thomas-toebbe.de';
@@ -30,15 +38,72 @@ function readLimit(root) {
 }
 
 /**
- * Reads how many requests were used today.
+ * Reads the `used` override from the query string. An unparsable value still
+ * counts as an override so the test switch never falls through to the network.
+ * @returns {number|null} The overridden count, or null when the URL carries none.
+ */
+function readUsedOverride() {
+  const raw = new URLSearchParams(window.location.search).get('used');
+  if (raw === null) return null;
+  const parsed = Number.parseInt(raw, 10);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
+}
+
+/**
+ * Asks the n8n endpoint for today's counter, giving up after a short timeout.
+ * @returns {Promise<Object|null>} The payload, or null when nothing usable arrived.
+ */
+async function fetchQuota() {
+  try {
+    const response = await fetch(STATUS_ENDPOINT, {
+      headers: { Accept: 'application/json' },
+      signal: AbortSignal.timeout(STATUS_TIMEOUT_MS),
+    });
+    return response.ok ? await response.json() : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Takes the limit from the endpoint when it is plausible, otherwise keeps the
+ * one configured on the page.
+ * @param {Object|null} quota Payload of the quota endpoint.
+ * @param {number} fallback Limit read from `data-request-limit`.
+ * @returns {number} The limit to render.
+ */
+function resolveLimit(quota, fallback) {
+  const parsed = Number(quota?.limit);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+/**
+ * Takes the used count from the endpoint. Anything missing or nonsensical
+ * reads as 0, which shows the page in its available state.
+ * @param {Object|null} quota Payload of the quota endpoint.
  * @param {number} limit Upper bound used for clamping.
  * @returns {number} A value between 0 and `limit`.
  */
-function readUsedCount(limit) {
-  const raw = new URLSearchParams(window.location.search).get('used');
-  const parsed = Number.parseInt(raw ?? '', 10);
+function resolveUsed(quota, limit) {
+  const parsed = Number(quota?.used);
   if (!Number.isFinite(parsed) || parsed < 0) return 0;
   return Math.min(parsed, limit);
+}
+
+/**
+ * Resolves the counter to render: the `?used=` override when the URL carries
+ * one, otherwise the live values from n8n.
+ * @param {number} fallbackLimit Limit read from `data-request-limit`.
+ * @returns {Promise<{used: number, limit: number}>} The counter state.
+ */
+async function readCounterState(fallbackLimit) {
+  const override = readUsedOverride();
+  if (override !== null) {
+    return { used: Math.min(override, fallbackLimit), limit: fallbackLimit };
+  }
+  const quota = await fetchQuota();
+  const limit = resolveLimit(quota, fallbackLimit);
+  return { used: resolveUsed(quota, limit), limit };
 }
 
 /**
@@ -65,23 +130,6 @@ function applyLimitState(root, isExhausted) {
   root.dataset.limitReached = String(isExhausted);
   const counter = root.querySelector('[data-request-counter]');
   counter?.classList.toggle('request-counter--exhausted', isExhausted);
-}
-
-/**
- * Fetches the live counter from n8n once that endpoint exists.
- * @param {number} limit Upper bound used for clamping.
- * @returns {Promise<number|null>} The used count, or null when unavailable.
- */
-async function fetchUsedCount(limit) {
-  if (!STATUS_ENDPOINT) return null;
-  try {
-    const response = await fetch(STATUS_ENDPOINT, { headers: { Accept: 'application/json' } });
-    if (!response.ok) return null;
-    const payload = await response.json();
-    return Math.min(Math.max(Number(payload.used) || 0, 0), limit);
-  } catch {
-    return null;
-  }
 }
 
 /**
@@ -113,18 +161,17 @@ function wireRequestMailLinks(doc) {
 }
 
 /**
- * Boots the request page: renders the query-string state, then upgrades it
- * with the live count as soon as the n8n endpoint answers.
+ * Boots the request page: wires the mail links, then renders the counter once
+ * the override or the endpoint has been resolved.
  * @returns {Promise<void>}
  */
 async function init() {
   const root = document.querySelector('[data-request-limit]');
   if (!root) return;
   wireRequestMailLinks(document);
-  const limit = readLimit(root);
-  update(root, readUsedCount(limit), limit);
-  const live = await fetchUsedCount(limit);
-  if (live !== null) update(root, live, limit);
+  const fallbackLimit = readLimit(root);
+  const counter = await readCounterState(fallbackLimit);
+  update(root, counter.used, counter.limit);
 }
 
 init();
