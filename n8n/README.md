@@ -1,7 +1,8 @@
 # n8n-Workflows
 
-Hier liegen die Workflow-JSONs des Issue Collectors. **Alle drei sind
-vorhanden** — es fehlt keiner mehr.
+Hier liegen die Workflow-JSONs des Issue Collectors. **Alle drei sind Exporte
+aus der laufenden Instanz** — importiert, aktiv und getestet, keine von Hand
+geschriebenen Entwürfe mehr.
 
 ## Die drei Workflows
 
@@ -13,11 +14,11 @@ vorhanden** — es fehlt keiner mehr.
 
 ## `issue-collector.workflow.json`
 
-> **Diese Datei ist ein Entwurf.** Sie wurde von Hand geschrieben, damit es
-> überhaupt etwas zu importieren gibt — sie ist **kein** n8n-Export. Nach
-> Import, Testlauf und den Korrekturen im Editor exportiert Thomas den Workflow
-> aus n8n, und dieser Export **ersetzt** die Datei. Erst dann gilt sie als das,
-> was das Lastenheft verlangt: der Export des laufenden Workflows.
+> **Diese Datei ist der Export** aus der laufenden Instanz — importiert, aktiv
+> und getestet. Der Testlauf hat die Zielordner der drei `Move mail to …`-Nodes
+> korrigiert: Der Mailserver legt sie unterhalb von `INBOX` an, ohne das Präfix
+> bricht der Move mit „nonexistent namespace" ab. Siehe
+> [`../docs/n8n-setup.md`](../docs/n8n-setup.md), Abschnitt 6.1.
 
 ### Die Node-Kette
 
@@ -143,9 +144,9 @@ Abschnitt 9.4.
 
 ## `quota-status.workflow.json`
 
-> **Diese Datei ist ein Entwurf** — von Hand geschrieben, kein n8n-Export. Nach
-> Import und Testlauf exportiert Thomas den Workflow und der Export **ersetzt**
-> die Datei.
+> **Diese Datei ist der Export** aus der laufenden Instanz — importiert, aktiv
+> und getestet. Was am Entwurf noch offen war, ist in
+> [`../docs/n8n-setup.md`](../docs/n8n-setup.md), Abschnitt 10.7, abgehakt.
 
 Die Landing Page ruft den Webhook beim Laden auf
 ([`../js/features/landing/request-limit.js`](../js/features/landing/request-limit.js))
