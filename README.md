@@ -218,8 +218,7 @@ Zustände der Landing Page ohne laufendes n8n testen:
 ├── docs/
 │   ├── design/             # Design-Spec, Komponenten-Inventar, Referenzbilder
 │   ├── n8n-setup.md        # Workflows einrichten und importieren
-│   ├── deployment.md       # Secrets und Ablauf des Deployments
-│   └── *Lastenheft*        # Anforderungen
+│   └── deployment.md       # Secrets und Ablauf des Deployments
 └── tools/                  # Hilfsskripte (Demo-Kontakte seeden)
 ```
 

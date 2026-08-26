@@ -38,3 +38,6 @@ Thumbs.db
 
 # Arbeitsanweisungen, gehoeren nicht ins Repo
 _bootstrap/
+
+# Aufgabenstellung der Akademie - fremdes Material, bleibt lokal
+docs/Join - Issue Collector_Lastenheft.*
