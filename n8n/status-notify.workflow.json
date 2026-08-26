@@ -10,13 +10,13 @@
           "allowedOrigins": "https://join.thomas-toebbe.de,http://127.0.0.1:5500,http://localhost:5500,http://localhost:8080"
         }
       },
-      "id": "3b0f1c62-5a41-4d18-9c33-1d5f0b7ae201",
+      "id": "7cf85cfc-b427-4ba4-877f-e7338a7cbef5",
       "name": "Receive status change",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        -1000,
-        240
+        -1360,
+        192
       ],
       "webhookId": "7c1de3a4-0f56-4a2b-8e17-6d9c4b21f503",
       "notes": "POST /webhook/join-status. Allowed Origins (CORS) lists the domains the board is served from; without them the browser discards the answer although the call itself succeeded. Check the list against the real deployment - a wrong entry fails in the browser while curl keeps working."
@@ -25,13 +25,13 @@
       "parameters": {
         "jsCode": "// Guard node — request verification and the per-ticket daily cap. Runs once for\n// all items and emits exactly one item whose `route` steers the rest of the\n// workflow:\n//   ok        — a real, saved column change of a known ticket\n//   rejected  — everything else; the caller gets a bare 403\n// The order of the checks is the point: the secret is tested first, so an\n// unauthenticated request never touches the counter file.\n\n// Valid board statuses, mirroring TASK_STATUS in js/core/constants.js. A value\n// outside this list cannot come from the board and is treated as noise.\nconst VALID_STATUS = ['triage', 'todo', 'inprogress', 'awaitfeedback', 'done'];\n\n// How many mails a single ticket may trigger per day. Someone who drags a card\n// back and forth twenty times must not mail the requester twenty times.\nconst PER_TASK_LIMIT = 3;\n\n// Own counter file on the n8n data volume, separate from the two quota files\n// that already live there: `quota-state.json` belongs to Code a Cuisine and\n// `join-quota-state.json` to the issue collector. Requires\n// NODE_FUNCTION_ALLOW_BUILTIN to include `fs`.\nconst fs = require('fs');\nconst STATE_FILE = '/home/node/.n8n/join-notify-state.json';\n\n/**\n * Wraps a routing decision into the single item the workflow expects.\n * @param {string} route - Either ok or rejected\n * @param {Object} extra - Fields merged into the item\n * @returns {Array<Object>} The n8n item list\n */\nfunction emit(route, extra) {\n  return [{ json: { route, reason: '', ...extra } }];\n}\n\n/**\n * Turns the request down. The reason never reaches the caller — the Respond\n * node answers a bare `rejected` — but it shows up in the execution log, which\n * is the only place where a failing call can be diagnosed.\n * @param {string} reason - Why the request was turned down\n * @returns {Array<Object>} The n8n item list\n */\nfunction reject(reason) {\n  return emit('rejected', { reason });\n}\n\n/**\n * Reads a request field as a trimmed string.\n * @param {any} value - The raw field of the request body\n * @returns {string} The trimmed value, empty when the field was not a string\n */\nfunction readText(value) {\n  return typeof value === 'string' ? value.trim() : '';\n}\n\n/**\n * Reads the counter file, returning a fresh state when it is missing.\n * @returns {Object} The notification state\n */\nfunction readNotifyState() {\n  try {\n    return JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));\n  } catch (error) {\n    return { day: null, perTask: {} };\n  }\n}\n\n/**\n * Persists the counter file.\n * @param {Object} state - The state to store\n * @returns {void}\n */\nfunction writeNotifyState(state) {\n  fs.writeFileSync(STATE_FILE, JSON.stringify(state));\n}\n\n/**\n * Starts a fresh counter on the first notification of a new UTC day. The\n * container runs on TZ=UTC, so the day rolls over at UTC midnight.\n * @param {Object} state - The state read from disk\n * @param {Date} now - The current time\n * @returns {Object} The state, reset when the day rolled over\n */\nfunction resetWhenNewDay(state, now) {\n  const day = now.toISOString().slice(0, 10);\n  const sameDay = Boolean(state) && state.day === day;\n  return { day, perTask: sameDay && state.perTask ? state.perTask : {} };\n}\n\n/**\n * Checks and reserves one mail slot for a ticket. The slot is taken before the\n * database is read, so a ticket whose creator turns out to be internal still\n * spends one — the cap limits calls, not successful mails.\n * @param {string} taskId - The ticket the notification belongs to\n * @returns {boolean} True when a slot was taken, false when the cap is reached\n */\nfunction reserveSlot(taskId) {\n  const state = resetWhenNewDay(readNotifyState(), new Date());\n  const used = Number(state.perTask[taskId]) || 0;\n  if (used >= PER_TASK_LIMIT) return false;\n  state.perTask[taskId] = used + 1;\n  writeNotifyState(state);\n  return true;\n}\n\n// --- main -------------------------------------------------------------------\nconst request = $input.first().json;\n\n// Fail loudly instead of rejecting every call: without the variable the secret\n// would be an empty string and nothing would ever pass the guard, with no hint\n// anywhere as to why. Requires N8N_BLOCK_ENV_ACCESS_IN_NODE=false.\nconst secret = String($env.JOIN_NOTIFY_SECRET || '');\nif (secret === '') {\n  throw new Error('JOIN_NOTIFY_SECRET is not set on the container - see docs/n8n-setup.md section 9.');\n}\n\n// Header names arrive in lower case, whatever the client sent.\nconst headers = request.headers || {};\nif (String(headers['x-join-secret'] || '') !== secret) return reject('secret mismatch');\n\nconst body = request.body || {};\nconst taskId = readText(body.taskId);\nconst from = readText(body.from);\nconst to = readText(body.to);\nif (taskId === '' || from === '' || to === '') return reject('taskId, from or to missing');\nif (!VALID_STATUS.includes(from) || !VALID_STATUS.includes(to)) return reject('unknown status value');\nif (from === to) return reject('status did not change');\nif (!reserveSlot(taskId)) return reject('daily notification cap reached for ' + taskId);\n\nreturn emit('ok', { taskId, from, to });\n"
       },
-      "id": "ec7a2d94-8b13-4c67-a0f2-5e3d81b6c410",
+      "id": "48c6e72d-5c5f-4d69-b58a-f778c621524f",
       "name": "Guard: verify, throttle",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -780,
-        240
+        -1136,
+        192
       ],
       "notes": "Secret against $env.JOIN_NOTIFY_SECRET, required fields, the five valid status values, and a cap of 3 mails per ticket and day in /home/node/.n8n/join-notify-state.json. Everything that fails leaves as route=rejected."
     },
@@ -59,13 +59,13 @@
         },
         "options": {}
       },
-      "id": "55e0f7b1-2c48-4d90-b6a3-7f1e9d0c8a22",
+      "id": "bfb29f78-30c9-44ec-a30c-d242b340e8cd",
       "name": "Passed the guard?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -560,
-        240
+        -928,
+        192
       ],
       "notes": "route=ok reads the ticket, everything else answers 403. The throttled case lands here too - a caller that hammers the endpoint gets the same bare answer as a wrong secret."
     },
@@ -76,13 +76,13 @@
         "nodeCredentialType": "googleApi",
         "options": {}
       },
-      "id": "a1c94f30-6d72-4b85-91ce-0e5a7b3d2f18",
+      "id": "2f165483-6538-4b17-bf69-c446a61882b7",
       "name": "Fetch task",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -320,
-        144
+        -688,
+        96
       ],
       "credentials": {
         "googleApi": {
@@ -96,13 +96,13 @@
       "parameters": {
         "jsCode": "// Build mail — decides whether this column change is worth a mail and, if so,\n// writes it. Runs once for all items and emits exactly one item:\n//   ok       — `to`, `subject` and `text` are filled in\n//   skipped  — no mail: the ticket has no external creator with an address\n// The recipient comes from the record the previous node read out of the\n// database, never from the request. See the note on `Fetch task`.\n\n// Readable labels for the five board statuses. The raw values are how the\n// database spells them, not how a stakeholder should read them.\nconst STATUS_LABELS = {\n  triage: 'Triage',\n  todo: 'To do',\n  inprogress: 'In progress',\n  awaitfeedback: 'Await feedback',\n  done: 'Done',\n};\n\nconst change = $('Guard: verify, throttle').first().json;\n\n/**\n * Unwraps the answer of the task GET. n8n hands a JSON object through\n * unchanged but wraps a bare `null` body — an unknown ticket id — under `data`.\n * @param {any} response - The item of the HTTP node\n * @returns {Object} The task record, empty when the ticket does not exist\n */\nfunction resolveTask(response) {\n  const body = response && response.data !== undefined ? response.data : response;\n  return body && typeof body === 'object' ? body : {};\n}\n\n/**\n * Wraps a routing decision into the single item the workflow expects.\n * @param {string} route - Either ok or skipped\n * @param {Object} extra - Fields merged into the item\n * @returns {Array<Object>} The n8n item list\n */\nfunction emit(route, extra) {\n  return [{ json: { route, to: '', subject: '', text: '', ...extra } }];\n}\n\n/**\n * Reads the creator address, but only for external requesters. Internal\n * members work on the board and see the change there; the Lastenheft asks for\n * a mail to the stakeholder who filed the request, nobody else.\n * @param {Object} task - The task record from the database\n * @returns {string} The address, empty when no mail should go out\n */\nfunction resolveRecipient(task) {\n  const creator = task.createdBy || {};\n  if (creator.type !== 'extern') return '';\n  return String(creator.email || '').trim();\n}\n\n/**\n * Turns a stored status value into something a reader understands.\n * @param {string} status - The raw status value\n * @returns {string} The label, falling back to the raw value\n */\nfunction labelOf(status) {\n  return STATUS_LABELS[status] || status;\n}\n\n/**\n * Salutation line, using the creator's name when the record carries one.\n * @param {Object} task - The task record from the database\n * @returns {string} The greeting\n */\nfunction buildGreeting(task) {\n  const name = String((task.createdBy || {}).name || '').trim();\n  return name && name.indexOf('@') === -1 ? 'Hello ' + name + ',' : 'Hello,';\n}\n\n/**\n * The closing lines of every mail this workflow sends.\n * @returns {Array<string>} The signature lines\n */\nfunction buildSignature() {\n  return ['', 'Kind regards', 'The Join team'];\n}\n\n/**\n * The mail body: what moved, from where to where, and that no answer is due.\n * @param {Object} task - The task record from the database\n * @param {string} title - The ticket title\n * @returns {string} The plain text body\n */\nfunction buildText(task, title) {\n  return [\n    buildGreeting(task),\n    '',\n    'your request has moved to another column on the Join board.',\n    '',\n    'Ticket: ' + title,\n    'From:   ' + labelOf(change.from),\n    'To:     ' + labelOf(change.to),\n    '',\n    'This is an automatic status update. You do not need to reply to it.',\n  ]\n    .concat(buildSignature())\n    .join('\\n');\n}\n\n// --- main -------------------------------------------------------------------\nconst task = resolveTask($input.first().json);\nconst recipient = resolveRecipient(task);\nif (recipient === '') return emit('skipped', { reason: 'no external creator with an address' });\n\nconst title = String(task.title || change.taskId);\n\nreturn emit('ok', {\n  to: recipient,\n  subject: '[JOIN] ' + title + ' - now in ' + labelOf(change.to),\n  text: buildText(task, title),\n});\n"
       },
-      "id": "f2d8b053-7e19-4a26-83b4-5c1f0a9e6d34",
+      "id": "52d964ea-b596-4178-98eb-396ff7f9ab0e",
       "name": "Build mail",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -100,
-        144
+        -464,
+        96
       ],
       "notes": "Only an external creator with an address gets a mail; internal members see the change on the board (Lastenheft). Everything else leaves as route=skipped."
     },
@@ -130,13 +130,13 @@
         },
         "options": {}
       },
-      "id": "9ab3c1d7-4f60-42e8-b715-8d2e6c0a4b59",
+      "id": "b52c3308-7e30-4fbe-8f00-c8b30f3150ef",
       "name": "Notify creator?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        120,
-        144
+        -240,
+        96
       ],
       "notes": "route=ok sends the mail, route=skipped answers 200 without sending. A skipped notification is not an error - most tickets have an internal creator."
     },
@@ -150,14 +150,15 @@
           "appendAttribution": false
         }
       },
-      "id": "6c4e2a81-b937-4d05-8f6a-3b1c7e50d9a6",
+      "id": "3b2b6424-cb81-4066-826a-6364f4768e67",
       "name": "Send status mail",
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2,
       "position": [
-        360,
-        48
+        0,
+        0
       ],
+      "webhookId": "b5bc11f6-a003-47aa-a781-6c40606df2b4",
       "credentials": {
         "smtp": {
           "id": "bm03EIcbShHRPEb5",
@@ -174,13 +175,13 @@
           "responseCode": 200
         }
       },
-      "id": "0d7f5b26-91a4-4c38-a6e0-2f8b1d3c7e45",
+      "id": "e3e1893b-4efe-485b-8f61-56be09b88eaa",
       "name": "Respond: ok",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        580,
-        48
+        224,
+        0
       ],
       "notes": "The client ignores the answer - it fires the webhook and forgets it. These three responses exist for debugging by hand."
     },
@@ -192,13 +193,13 @@
           "responseCode": 200
         }
       },
-      "id": "4e9a0c13-8b52-4f76-9d21-7a6c3e0b5f82",
+      "id": "cf088fdc-75df-4201-b378-389d49e2d266",
       "name": "Respond: skipped",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        360,
-        256
+        0,
+        208
       ],
       "notes": "Not an error: the ticket has no external creator with an address, so no mail was due."
     },
@@ -210,13 +211,13 @@
           "responseCode": 403
         }
       },
-      "id": "b8f16d4a-3c07-49e2-85b3-1d9e7a2c6f30",
+      "id": "009a2afc-c080-4169-8873-550ad2661ef6",
       "name": "Respond: rejected",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        -320,
-        400
+        -688,
+        352
       ],
       "notes": "Wrong secret, missing or unknown fields, a non-change, or the daily cap. The reason stays in the execution log on purpose - the answer must not tell a caller which check it tripped."
     }
@@ -315,7 +316,7 @@
       ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate",
@@ -325,6 +326,11 @@
     "callerPolicy": "workflowsFromSameOwner",
     "executionTimeout": 80
   },
+  "versionId": "c9875e50-3aad-4c4f-9e3b-487b0983a5f8",
+  "meta": {
+    "instanceId": "8b442d749397e472868510460542576e7a4a897f453f0c6f4511e91f9f705916"
+  },
   "nodeGroups": [],
+  "id": "aqt5CWllGhcjnb0K",
   "tags": []
 }

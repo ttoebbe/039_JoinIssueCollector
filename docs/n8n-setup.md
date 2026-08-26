@@ -226,9 +226,11 @@ Caddy lässt `/webhook/*` bereits durch — für die Join-Pfade ist **nichts
 zusätzlich freizuschalten**. Die Caddy-Konfiguration wird für Join nicht
 angefasst.
 
-**CORS muss der jeweilige Workflow selbst setzen.** Caddy tut das nicht. Der
-„Respond to Webhook"-Node braucht die passenden Header für die Join-Subdomain,
-sonst blockt der Browser den Aufruf von der Landing Page.
+**CORS muss der jeweilige Workflow selbst setzen.** Caddy tut das nicht. Das
+erledigt der **Webhook-Node** über *Allowed Origins (CORS)* — er beantwortet
+damit auch den Preflight (`OPTIONS`) selbst. Am „Respond to Webhook"-Node sind
+**keine** CORS-Header von Hand zu setzen; eine frühere Fassung dieses Abschnitts
+behauptete das Gegenteil, der Live-Test hat es widerlegt (Abschnitt 9.6).
 
 ---
 
@@ -344,7 +346,7 @@ Log.
 
 ## 7. Vor dem ersten Import prüfen
 
-Sieben Punkte am Container. Die Zeilen 3 bis 7 sind gesetzt; 1 und 2 sind offen
+Acht Punkte am Container. Die Zeilen 3 bis 8 sind gesetzt; 1 und 2 sind offen
 und vor dem produktiven Betrieb zu klären.
 
 | # | Prüfpunkt | Warum |
@@ -356,12 +358,14 @@ und vor dem produktiven Betrieb zu klären.
 | 5 | `NODE_FUNCTION_ALLOW_EXTERNAL=imap` | seit dem 26.08.2026 gesetzt. Siehe Abschnitt 6.1. |
 | 6 | `JOIN_IMAP_USER` und `JOIN_IMAP_PASSWORD` | gesetzt — der Live-Test hat sich am Postfach angemeldet. Siehe Abschnitt 6.2. |
 | 7 | `N8N_BLOCK_ENV_ACCESS_IN_NODE=false` | seit dem Live-Test gesetzt, `docker-compose.yml` Zeile 52. Ohne den Eintrag scheitert `$env` im Code-Node. Siehe Abschnitt 6.3. |
+| 8 | `JOIN_NOTIFY_SECRET` | seit dem Live-Test des Status-Workflows gesetzt. Muss denselben Wert tragen wie `NOTIFY_CONFIG.SECRET` im Client; fehlt sie ganz, bricht der Guard-Node mit sprechendem Fehler ab. Siehe Abschnitt 9.1. |
 
 Prüfen lässt sich das so:
 
 ```bash
 cd /opt/code-a-cuisine
 docker compose exec n8n env | grep -E "WEBHOOK_URL|^TZ=|NODE_FUNCTION_ALLOW_|JOIN_IMAP_USER|N8N_BLOCK_ENV_ACCESS_IN_NODE"
+docker compose exec n8n env | grep -cE "^JOIN_NOTIFY_SECRET=."   # 1 = gesetzt
 docker compose config | grep -A5 volumes
 ```
 
@@ -503,6 +507,9 @@ Domain, schlägt der Aufruf im Browser fehl, während er per `curl` funktioniert
 ein Fehlerbild, das leicht in die Irre führt, weil der Workflow im Execution-Log
 sauber durchläuft und trotzdem nichts ankommt.
 
+Den Preflight beantwortet der Webhook-Node selbst, sobald das Feld gefüllt ist.
+Am Respond-Node ist dafür **nichts** nachzurüsten (Abschnitt 5.2).
+
 An Caddy ist nichts zu tun: `/webhook/*` ist bereits durchgelassen
 (Abschnitt 5.2).
 
@@ -520,3 +527,30 @@ Wie bei jedem Import (Abschnitt 8) von Hand nachziehen:
 Danach den Workflow aktivieren. Nach `JOIN_NOTIFY_SECRET` in `.env` und Compose
 muss der Container einmal neu starten (`docker compose up -d`), sonst kennt der
 Guard die Variable nicht.
+
+### 9.6 Am laufenden System geprüft
+
+Der Workflow ist importiert, aktiv und getestet;
+[`../n8n/status-notify.workflow.json`](../n8n/status-notify.workflow.json) ist
+der Export aus der laufenden Instanz. Vier Punkte, die am Entwurf noch offen
+waren, sind damit geklärt und beim nächsten Import **nicht erneut zu prüfen**:
+
+| Punkt | Ergebnis |
+|---|---|
+| `typeVersion` des Webhook-Nodes | passt. n8n zeigt am Node keinen Upgrade-Hinweis. |
+| Schlüssel `options.allowedOrigins` | richtig benannt. Die vier Domains aus Abschnitt 9.4 stehen nach dem Import im Feld *Allowed Origins (CORS)*. |
+| `typeVersion` der drei Respond-Nodes | passt. |
+| HTTP 403 an `Respond: rejected` | kommt beim Aufrufer an — der `responseCode` aus den Node-Optionen wird durchgereicht. |
+
+Der Preflight braucht nichts Zusätzliches: Der Webhook-Node beantwortet
+`OPTIONS` selbst, am Respond-Node sind keine CORS-Header nötig. Abschnitt 5.2
+sagte das Gegenteil und ist entsprechend korrigiert.
+
+**Live-Test am Board:**
+
+- Ein Statuswechsel an einem Ticket mit externem Ersteller löst **genau eine**
+  Mail aus.
+- Ab dem **vierten** Wechsel desselben Tickets am selben Tag greift die
+  Deckelung — keine Mail mehr, Antwort 403 (Abschnitt 9.2).
+- Ein Ticket mit internem Ersteller löst **keine** Mail aus; der Lauf endet an
+  `Notify creator?` mit `skipped`.
