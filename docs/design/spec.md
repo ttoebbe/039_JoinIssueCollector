@@ -151,7 +151,8 @@ Ermittelt aus **allen Text-Nodes**, nicht aus den Stilen. Das ist die Einkaufsli
 
 Alle sechs Familien sind auf Google Fonts frei verfuegbar. Es gibt keine kommerzielle Schrift in der Datei.
 Geladen wurden Inter, Open Sans, Poppins und Mulish nach `assets/fonts/` samt `assets/fonts/fonts.css`
-(Subsets `latin` + `latin-ext`, s. `assets/MANIFEST.md` Abschnitt 5).
+(Subsets `latin` + `latin-ext`, s. `assets/MANIFEST.md` Abschnitt 5). Poppins und Mulish sind in der
+Umsetzung ungenutzt geblieben und wieder aus dem Repo entfernt worden — ueber die Git-Historie erreichbar.
 
 Im Design vorkommende Schriftgroessen (px):
 `12, 13, 14, 16, 18, 19, 20, 21, 22, 23, 24, 27, 28, 32, 36, 40, 47, 54, 56, 61, 64` —
