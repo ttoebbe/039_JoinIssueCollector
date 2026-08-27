@@ -149,4 +149,5 @@ Notizen des Design-Teams vor, in keinem UI-Element. `Figtree` steht zusaetzlich 
 ## 6. Referenz-Screenshots
 
 `docs/design/reference/` - je Top-Level-Frame ein PNG in `scale=1`, Namensschema `<seite>__<frame>.png`.
-Das ist die Vergleichsbasis fuer die visuelle Verifikation in Phase 6.
+Das war die Vergleichsbasis fuer die visuelle Verifikation in Phase 6. Der Ordner ist nach
+Abschluss der Verifikation aus dem Repo entfernt worden und ueber die Git-Historie erreichbar.

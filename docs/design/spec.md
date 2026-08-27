@@ -826,4 +826,6 @@ Beide Seiten genannt, nichts stillschweigend entschieden.
 
 Alle Auswertungsskripte arbeiteten ausschliesslich gegen `.figma-cache/` und sind nach
 Abschluss der Extraktion aus dem Repo entfernt worden. Ein erneuter API-Aufruf ist fuer
-Nachfragen nicht noetig.
+Nachfragen nicht noetig. Dasselbe gilt fuer die Referenz-Screenshots unter
+`docs/design/reference/` — sie sind aus dem Repo entfernt und ueber die Git-Historie
+erreichbar.

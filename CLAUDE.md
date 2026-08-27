@@ -8,7 +8,7 @@ sie, klassifiziert und legt Tickets in der Triage-Spalte des Boards an.
 
 Anforderungen: Lastenheft der Developer Akademie — fremdes Material, liegt
 nur lokal und ist nicht im Repository. Was daraus für Design und Umsetzung
-folgt, steht in `docs/design/spec.md` und `docs/design/figma-extraktion-bericht.md`.
+folgt, steht in `docs/design/spec.md` und `docs/design/components.md`.
 Projektplan: siehe Claude-Projekt „Entwicklungshelferlein", `claude/plan-join-v2.md`
 
 ## Stack — nicht ändern
@@ -26,7 +26,8 @@ Projektplan: siehe Claude-Projekt „Entwicklungshelferlein", `claude/plan-join-
   Landing Page kommen aus Figma. Bestehende Screens werden **nicht** angeglichen.
 - Gemessene Werte stehen in `docs/design/spec.md` und `docs/design/components.md`
   — **dort nachsehen, nicht aus Screenshots schätzen.**
-- Referenzbilder: `docs/design/reference/`
+- Referenzbilder: `docs/design/reference/` — aus dem Repo entfernt, über die
+  Git-Historie erreichbar
 - Tokens: `css/core/tokens.css`. Keine Hex-Werte direkt in Komponenten-CSS.
 - Assets liegen bereits in `/assets/icons/`, `/assets/logos/`, `/assets/images/`
   — Herkunft je Datei in `docs/design/MANIFEST.md`. **Keine Icons neu zeichnen
