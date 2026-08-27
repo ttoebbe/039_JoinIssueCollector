@@ -151,7 +151,7 @@ Ermittelt aus **allen Text-Nodes**, nicht aus den Stilen. Das ist die Einkaufsli
 
 Alle sechs Familien sind auf Google Fonts frei verfuegbar. Es gibt keine kommerzielle Schrift in der Datei.
 Geladen wurden Inter, Open Sans, Poppins und Mulish nach `assets/fonts/` samt `assets/fonts/fonts.css`
-(Subsets `latin` + `latin-ext`, s. `assets/MANIFEST.md` Abschnitt 5). Poppins und Mulish sind in der
+(Subsets `latin` + `latin-ext`, s. `docs/design/MANIFEST.md` Abschnitt 5). Poppins und Mulish sind in der
 Umsetzung ungenutzt geblieben und wieder aus dem Repo entfernt worden — ueber die Git-Historie erreichbar.
 
 Im Design vorkommende Schriftgroessen (px):
@@ -823,10 +823,16 @@ Beide Seiten genannt, nichts stillschweigend entschieden.
 | `assets/fonts/*` | `fonts.googleapis.com/css2` + `fonts.gstatic.com` | Google Fonts, OFL 1.1 |
 | `docs/design/components.md` | Auswertungsskript gegen den Cache | — |
 | `docs/design/reference/*.png` | `GET /v1/images?format=png&scale=1` | Figma REST API |
-| `assets/MANIFEST.md` | Auswertungsskript gegen den Cache | — |
+| `docs/design/verification/*.png` | Playwright-Aufnahmen der umgesetzten Landing Page | lokaler Dev-Server |
+| `docs/design/MANIFEST.md` | Auswertungsskript gegen den Cache | — |
 
 Alle Auswertungsskripte arbeiteten ausschliesslich gegen `.figma-cache/` und sind nach
 Abschluss der Extraktion aus dem Repo entfernt worden. Ein erneuter API-Aufruf ist fuer
 Nachfragen nicht noetig. Dasselbe gilt fuer die Referenz-Screenshots unter
 `docs/design/reference/` — sie sind aus dem Repo entfernt und ueber die Git-Historie
 erreichbar.
+
+Die Abgleich-Screenshots unter `docs/design/verification/` zeigten die umgesetzte
+Landing Page im Stand vom 24.08.2026 gegenueber den Figma-Frames. Der Abgleich ist
+abgeschlossen, die Bilder geben den Code laengst nicht mehr wieder — sie sind aus dem
+Repo entfernt und ueber die Git-Historie erreichbar.
