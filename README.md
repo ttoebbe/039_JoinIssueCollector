@@ -215,11 +215,10 @@ Zustände der Landing Page ohne laufendes n8n testen:
 │   ├── components/         # Toast, Overlays
 │   └── templates/          # Template-Renderer
 ├── n8n/                    # Workflows als JSON (laufen in der bestehenden Instanz)
-├── docs/
-│   ├── design/             # Design-Spec, Komponenten-Inventar, Referenzbilder
-│   ├── n8n-setup.md        # Workflows einrichten und importieren
-│   └── deployment.md       # Secrets und Ablauf des Deployments
-└── tools/                  # Hilfsskripte (Demo-Kontakte seeden)
+└── docs/
+    ├── design/             # Design-Spec, Komponenten-Inventar, Referenzbilder
+    ├── n8n-setup.md        # Workflows einrichten und importieren
+    └── deployment.md       # Secrets und Ablauf des Deployments
 ```
 
 ---
