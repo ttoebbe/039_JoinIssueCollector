@@ -141,7 +141,11 @@ die Dateien heissen deshalb `*-var-*`.
 | `fonts/poppins-400-latin-ext.woff2` | Poppins | 400 | 6 KB |
 | `fonts/mulish-var-latin.woff2` | Mulish | 500, 700 | 29 KB |
 | `fonts/mulish-var-latin-ext.woff2` | Mulish | 500, 700 | 26 KB |
-| `fonts/fonts.css` | alle | @font-face inkl. `unicode-range` | 8 KB |
+| `fonts/fonts.css` | alle | @font-face inkl. `unicode-range` | 5 KB |
+
+**Aus dem Repo entfernt:** Poppins und Mulish tragen im umgesetzten UI keine einzige Textstelle.
+Die vier woff2-Dateien und ihre `@font-face`-Bloecke in `fonts/fonts.css` sind entfernt worden und
+ueber die Git-Historie erreichbar. Die Tabelle nennt weiterhin, was die Extraktion ergeben hat.
 
 **Nicht geladen:** `Patrick Hand` und `Figtree` kommen ausschliesslich in Canvas-Beschriftungen und in den
 Notizen des Design-Teams vor, in keinem UI-Element. `Figtree` steht zusaetzlich im Datei-Thumbnail auf Seite `TN`.
@@ -149,4 +153,5 @@ Notizen des Design-Teams vor, in keinem UI-Element. `Figtree` steht zusaetzlich 
 ## 6. Referenz-Screenshots
 
 `docs/design/reference/` - je Top-Level-Frame ein PNG in `scale=1`, Namensschema `<seite>__<frame>.png`.
-Das ist die Vergleichsbasis fuer die visuelle Verifikation in Phase 6.
+Das war die Vergleichsbasis fuer die visuelle Verifikation in Phase 6. Der Ordner ist nach
+Abschluss der Verifikation aus dem Repo entfernt worden und ueber die Git-Historie erreichbar.

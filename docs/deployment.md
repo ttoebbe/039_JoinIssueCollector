@@ -33,7 +33,7 @@ Das ist eine **Positivliste, keine Ausschlussliste** — und zwar bewusst:
 
 - Code a Cuisine spiegelt `dist/…/browser`, einen sauber abgegrenzten
   Build-Ordner. Join hat keinen. Ein Spiegeln des Wurzelverzeichnisses würde
-  `.git/`, `docs/`, `n8n/`, `tools/`, `database.rules.json`, `firebase.json`
+  `.git/`, `docs/`, `n8n/`, `database.rules.json`, `firebase.json`
   und `CLAUDE.md` mit auf den Webspace legen.
 - Eine Ausschlussliste altert schlecht: Was später im Repository dazukommt,
   wäre automatisch online, bis jemand daran denkt, es auszuschließen. Bei einer

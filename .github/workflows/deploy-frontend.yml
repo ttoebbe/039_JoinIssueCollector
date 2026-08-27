@@ -58,7 +58,7 @@ jobs:
           [ "$missing" -eq 0 ] || exit 1
 
       # Join has no build folder to mirror. Uploading the repository root would
-      # carry .git, docs/, n8n/, tools/, database.rules.json and CLAUDE.md onto
+      # carry .git, docs/, n8n/, database.rules.json and CLAUDE.md onto
       # the web space, so the five entries that actually make up the site are
       # copied out first. A positive list, not an exclude list — whatever the
       # repository gains later stays offline until it is named here.

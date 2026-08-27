@@ -215,11 +215,10 @@ Zustände der Landing Page ohne laufendes n8n testen:
 │   ├── components/         # Toast, Overlays
 │   └── templates/          # Template-Renderer
 ├── n8n/                    # Workflows als JSON (laufen in der bestehenden Instanz)
-├── docs/
-│   ├── design/             # Design-Spec, Komponenten-Inventar, Referenzbilder
-│   ├── n8n-setup.md        # Workflows einrichten und importieren
-│   └── deployment.md       # Secrets und Ablauf des Deployments
-└── tools/                  # Hilfsskripte (Demo-Kontakte seeden)
+└── docs/
+    ├── design/             # Design-Spec, Komponenten-Inventar, Asset-Herkunft
+    ├── n8n-setup.md        # Workflows einrichten und importieren
+    └── deployment.md       # Secrets und Ablauf des Deployments
 ```
 
 ---
@@ -231,7 +230,8 @@ extrahiert und dokumentiert wurde:
 
 - `docs/design/spec.md` — Foundations, Breakpoints, Frames, Komponenten
 - `docs/design/components.md` — vollständiges Komponenten-Inventar
-- `docs/design/reference/` — Referenz-Screenshots je Frame
+- `docs/design/reference/` — Referenz-Screenshots je Frame, aus dem Repo
+  entfernt und über die Git-Historie erreichbar
 - `docs/design/MANIFEST.md` — Herkunft jeder Asset-Datei mit Node-ID
 
 Bestehende Screens aus 024_Join wurden bewusst nicht angeglichen.
