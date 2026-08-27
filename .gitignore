@@ -16,6 +16,9 @@
 # Playwright / MCP output
 .playwright-mcp/
 
+# Lokale Arbeitsdateien und Backups
+scratchpad/
+
 # Python tooling
 __pycache__/
 *.pyc
