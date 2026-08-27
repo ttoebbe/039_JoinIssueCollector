@@ -823,6 +823,7 @@ Beide Seiten genannt, nichts stillschweigend entschieden.
 | `assets/fonts/*` | `fonts.googleapis.com/css2` + `fonts.gstatic.com` | Google Fonts, OFL 1.1 |
 | `docs/design/components.md` | Auswertungsskript gegen den Cache | — |
 | `docs/design/reference/*.png` | `GET /v1/images?format=png&scale=1` | Figma REST API |
+| `docs/design/verification/*.png` | Playwright-Aufnahmen der umgesetzten Landing Page | lokaler Dev-Server |
 | `docs/design/MANIFEST.md` | Auswertungsskript gegen den Cache | — |
 
 Alle Auswertungsskripte arbeiteten ausschliesslich gegen `.figma-cache/` und sind nach
@@ -830,3 +831,8 @@ Abschluss der Extraktion aus dem Repo entfernt worden. Ein erneuter API-Aufruf i
 Nachfragen nicht noetig. Dasselbe gilt fuer die Referenz-Screenshots unter
 `docs/design/reference/` — sie sind aus dem Repo entfernt und ueber die Git-Historie
 erreichbar.
+
+Die Abgleich-Screenshots unter `docs/design/verification/` zeigten die umgesetzte
+Landing Page im Stand vom 24.08.2026 gegenueber den Figma-Frames. Der Abgleich ist
+abgeschlossen, die Bilder geben den Code laengst nicht mehr wieder — sie sind aus dem
+Repo entfernt und ueber die Git-Historie erreichbar.
