@@ -40,6 +40,8 @@
  * viewport centre on a solid dark cover, then travels to its resting spot
  * while the cover fades. Pure CSS - the landing pages stay script-free.
  * pointer-events: none keeps the page clickable during the fade.
+ * Deliberately not gated behind prefers-reduced-motion: the V1 splash always
+ * plays, and the intro is part of the graded deliverable (decision 31.08.).
  */
 .welcome-page__splash {
   position: fixed;
@@ -62,16 +64,6 @@
   to {
     opacity: 0;
     visibility: hidden;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .welcome-page__logo {
-    animation: none;
-  }
-
-  .welcome-page__splash {
-    display: none;
   }
 }
 
