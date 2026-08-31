@@ -31,6 +31,48 @@
   left: 41px;
   width: 64px;
   height: auto;
+  z-index: 2;
+  animation: welcome-logo-in 900ms ease-in-out 400ms backwards;
+}
+
+/*
+ * Splash intro, mirroring the V1 login screen: the logo starts large in the
+ * viewport centre on a solid dark cover, then travels to its resting spot
+ * while the cover fades. Pure CSS - the landing pages stay script-free.
+ * pointer-events: none keeps the page clickable during the fade.
+ */
+.welcome-page__splash {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background-color: var(--color-background-inverse);
+  pointer-events: none;
+  animation: welcome-splash-out 500ms ease-in-out 800ms forwards;
+}
+
+@keyframes welcome-logo-in {
+  from {
+    top: calc(50vh - 61px);
+    left: calc(50vw - 50px);
+    width: 100px;
+  }
+}
+
+@keyframes welcome-splash-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome-page__logo {
+    animation: none;
+  }
+
+  .welcome-page__splash {
+    display: none;
+  }
 }
 
 .welcome-page__content {
