@@ -5,7 +5,7 @@
  */
 function createSubtaskProgress(task) {
   const stats = getSubtaskStats(task);
-  if (!stats || stats.done === 0) return null;
+  if (!stats) return null;
   return buildProgressWrap(stats);
 }
 
