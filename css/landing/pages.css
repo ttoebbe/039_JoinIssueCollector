@@ -19,6 +19,20 @@
   background-color: var(--color-background-inverse);
 }
 
+/*
+ * Logo: the mobile artboard 350522:9493 places "Capa 2" (64 x 78) at 41/45.
+ * The 1440 px artboard 350504:9300 carries no logo; it is kept on desktop
+ * anyway, sized and offset like the request page brand (46 px), so the two
+ * landing pages match. Deviation from the artboard documented in the commit.
+ */
+.welcome-page__logo {
+  position: absolute;
+  top: 45px;
+  left: 41px;
+  width: 64px;
+  height: auto;
+}
+
 .welcome-page__content {
   display: flex;
   flex: 1;
@@ -118,6 +132,12 @@
 @media (min-width: 768px) {
   .welcome-page {
     padding: var(--space-40) var(--space-56);
+  }
+
+  .welcome-page__logo {
+    top: 29px;
+    left: 40px;
+    width: 46px;
   }
 
   .welcome-page__signup {
