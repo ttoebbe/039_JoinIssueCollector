@@ -1,25 +1,25 @@
 # Deployment — Join Issue Collector
 
-Wie die Seite auf die Subdomain **`join.thomas-toebbe.de`** kommt: was
-hochgeladen wird, welche Secrets der Workflow braucht und was nach dem ersten
-Deploy zu prüfen ist.
+How the site gets onto the subdomain **`join.thomas-toebbe.de`**: what is
+uploaded, which secrets the workflow needs, and what to check after the first
+deploy.
 
-Der Workflow liegt in
+The workflow lives in
 [`../.github/workflows/deploy-frontend.yml`](../.github/workflows/deploy-frontend.yml)
-und lädt die Dateien per SFTP auf den Hetzner-Webspace. Es gibt **keinen
-Build-Step** — die Dateien im Repository sind die Dateien, die online gehen.
+and uploads the files to the Hetzner web space via SFTP. There is **no build
+step** — the files in the repository are the files that go online.
 
-Wie Webhosting, n8n-VPS und Firebase zusammenhängen, zeigt der Abschnitt
-[*Architektur*](../README.md#architektur) in der README. Diese Datei behandelt
-nur den Weg aufs Webhosting; der n8n-Teil steht in
+How web hosting, the n8n VPS and Firebase relate to each other is shown in the
+[*Architecture*](../README.md#architecture) section of the README. This file
+only covers the path to the web hosting; the n8n side is described in
 [`n8n-setup.md`](n8n-setup.md).
 
 ---
 
-## 1. Was deployt wird — und was nicht
+## 1. What gets deployed — and what does not
 
-Der Workflow spiegelt nicht das Repository, sondern kopiert vorher genau fünf
-Einträge in ein Staging-Verzeichnis und lädt **nur dieses** hoch:
+The workflow does not mirror the repository. It first copies exactly five
+entries into a staging directory and uploads **only that**:
 
 ```
 index.html
@@ -29,363 +29,357 @@ js/
 assets/
 ```
 
-Das ist eine **Positivliste, keine Ausschlussliste** — und zwar bewusst:
+This is an **allowlist, not an exclusion list** — deliberately:
 
-- Code a Cuisine spiegelt `dist/…/browser`, einen sauber abgegrenzten
-  Build-Ordner. Join hat keinen. Ein Spiegeln des Wurzelverzeichnisses würde
-  `.git/`, `docs/`, `n8n/`, `database.rules.json`, `firebase.json`
-  und `CLAUDE.md` mit auf den Webspace legen.
-- Eine Ausschlussliste altert schlecht: Was später im Repository dazukommt,
-  wäre automatisch online, bis jemand daran denkt, es auszuschließen. Bei einer
-  Positivliste ist es umgekehrt — Neues bleibt offline, bis es hier eingetragen
-  wird.
+- A build-based project would mirror its cleanly separated build folder. Join
+  has none. Mirroring the repository root would put `.git/`, `docs/`, `n8n/`,
+  `database.rules.json` and `firebase.json` onto the web space.
+- An exclusion list ages badly: whatever is added to the repository later would
+  automatically go online until someone remembers to exclude it. With an
+  allowlist it is the other way round — new things stay offline until they are
+  added here.
 
-**Kommt ein sechster Ordner dazu, der ausgeliefert werden soll, muss er in die
-Liste im Workflow.** Fehlt umgekehrt einer der fünf im Checkout, bricht der Lauf
-ab, statt eine unvollständige Seite hochzuladen. Zusätzlich wird nach dem
-Kopieren geprüft, dass `index.html` und `js/core/constants.js` wirklich im
-Staging liegen.
+**If a sixth folder is added that should be served, it must go into the list
+in the workflow.** Conversely, if one of the five is missing from the checkout,
+the run aborts instead of uploading an incomplete site. After copying, the
+workflow additionally verifies that `index.html` and `js/core/constants.js`
+really are in the staging directory.
 
-Hochgeladen wird mit `lftp mirror --reverse --delete`: Dateien, die im Staging
-fehlen, verschwinden auf dem Server. Das hält alte Stände sauber weg — und ist
-der Grund für die Schutzprüfung in Abschnitt 2.
+The upload runs with `lftp mirror --reverse --delete`: files missing from
+staging disappear from the server. That keeps old states cleanly out of the
+way — and is the reason for the safety check in section 2.
 
-### Keine `.htaccess`
+### No `.htaccess`
 
-Join ist **keine** Single-Page-Application. Es sind echte HTML-Dateien unter
-echten Pfaden, es gibt keine Client-Routen und damit nichts umzuschreiben. Die
-`.htaccess` aus dem Code-a-Cuisine-Deployment entfällt hier ersatzlos, der
-Workflow legt keine an.
+Join is **not** a single-page application. These are real HTML files under real
+paths, there are no client routes and therefore nothing to rewrite. No
+`.htaccess` is needed and the workflow does not create one.
 
-**Offen:** Ob ein HTTPS-Redirect nötig ist, entscheidet die Hosting-Verwaltung.
-Erzwingt der Hoster HTTPS bereits selbst, ist nichts zu tun. Falls nicht, wäre
-das der einzige Grund, doch eine `.htaccess` einzuführen — dann aber als Datei
-im Repository, damit der Mirror sie nicht beim nächsten Lauf löscht.
+The HTTPS question is settled: the hoster enforces HTTPS itself —
+`http://join.thomas-toebbe.de` answers `301 Moved Permanently` to the HTTPS
+URL (verified 2026-08-27). Should an `.htaccess` ever become necessary after
+all, it must live as a file in the repository **and** in the allowlist,
+otherwise the next `--delete` mirror removes it again.
 
 ---
 
-## 2. Die Secrets
+## 2. The secrets
 
-Alle als **Repository-Secrets** (kein GitHub-Environment).
+All of them as **repository secrets** (no GitHub environment).
 
-| Name | Pflicht | Form | Herkunft |
+| Name | Required | Form | Source |
 |---|---|---|---|
-| `SFTP_HOST` | ja | Hostname des Webspace — ohne `sftp://`, ohne Pfad | konsoleH → *Produktübersicht* → *FTP-Hauptbenutzer*, Feld **Server** |
-| `SFTP_USER` | ja | Loginname des FTP-Zugangs | konsoleH → *Produktübersicht* → *FTP-Hauptbenutzer*, Feld **Loginname** |
-| `SFTP_PORT` | nein | `22` | nur setzen, wenn der Hoster einen abweichenden Port nennt. Ohne das Secret nimmt der Workflow 22 |
-| `SFTP_REMOTE_DIR` | ja | `/public_html/join` — der Dokumentenstamm von `join.thomas-toebbe.de`, absoluter Pfad | konsoleH, per WebFTP-Breadcrumb bestätigt. Hintergrund unten |
-| `SFTP_PASSWORD` | eine von beiden | das Passwort des SFTP-Benutzers | Passwortmanager |
-| `SFTP_KEY` | eine von beiden | vollständiger privater Schlüssel inklusive `-----BEGIN …-----`/`-----END …-----`-Zeilen | Passwortmanager. Der öffentliche Teil muss beim Hoster hinterlegt sein |
+| `SFTP_HOST` | yes | hostname of the web space — no `sftp://`, no path | konsoleH → *Product overview* → *FTP main user*, field **Server** |
+| `SFTP_USER` | yes | login name of the FTP account | konsoleH → *Product overview* → *FTP main user*, field **Login name** |
+| `SFTP_PORT` | no | `22` | only set if the hoster specifies a different port. Without the secret the workflow uses 22 |
+| `SFTP_REMOTE_DIR` | yes | `/public_html/join` — the document root of `join.thomas-toebbe.de`, absolute path | konsoleH, confirmed via the WebFTP breadcrumb. Background below |
+| `SFTP_PASSWORD` | one of the two | the SFTP user's password | password manager |
+| `SFTP_KEY` | one of the two | complete private key including the `-----BEGIN …-----`/`-----END …-----` lines | password manager. The public part must be registered with the hoster |
 
-**`SFTP_HOST` und `SFTP_USER` stehen hier bewusst nicht im Klartext.** Dieses
-Repository ist öffentlich, und beide Werte sind Teil der SFTP-Anmeldung — zusammen
-mit dem Passwort ergäben sie einen vollständigen Zugang. Sie gehören in die
-Secrets, nicht in die Dokumentation; die Spalte *Herkunft* sagt stattdessen, wo
-sie zu finden sind.
+**`SFTP_HOST` and `SFTP_USER` are deliberately not spelled out here.** This
+repository is public, and both values are part of the SFTP login — together
+with the password they would form a complete set of credentials. They belong
+in the secrets, not in the documentation; the *Source* column says where to
+find them instead.
 
-Fehlt ein Pflicht-Secret, bricht der Lauf gleich im ersten Schritt ab und nennt
-**welches** fehlt. Ist weder `SFTP_PASSWORD` noch `SFTP_KEY` gesetzt, ebenso.
-Liegen beide vor, gewinnt der Schlüssel.
+If a required secret is missing, the run aborts in the very first step and
+names **which** one. The same happens if neither `SFTP_PASSWORD` nor
+`SFTP_KEY` is set. If both are present, the key wins.
 
-### `SFTP_REMOTE_DIR` — nie der Account-Root
+### `SFTP_REMOTE_DIR` — never the account root
 
-Der Wert muss auf das **Dokumentenverzeichnis der Subdomain** zeigen, also auf
-das Verzeichnis, in dem am Ende `index.html` liegen soll. Erkennbar ist es
-daran, dass es dem Namen der Subdomain entspricht oder in der Hosting-Verwaltung
-als deren Dokumentenstamm ausgewiesen ist — bei mehreren Subdomains auf einem
-Account liegen sie üblicherweise als Geschwisterverzeichnisse nebeneinander.
+The value must point to the **document directory of the subdomain**, i.e. the
+directory where `index.html` should end up. It is recognizable by matching the
+subdomain's name or by being listed as its document root in the hosting
+administration — with several subdomains on one account they usually sit next
+to each other as sibling directories.
 
-**Der Account-Root wäre falsch, und zwar folgenschwer:** Der Upload läuft mit
-`--delete`. Zeigt das Ziel auf die Ebene über den Subdomains, löscht der erste
-Lauf alles, was nicht zu Join gehört — also die anderen Subdomains desselben
-Accounts.
+**The account root would be wrong, with severe consequences:** the upload runs
+with `--delete`. If the target points to the level above the subdomains, the
+first run deletes everything that does not belong to Join — that is, the other
+subdomains of the same account.
 
-Deshalb prüft der Workflow den Wert, bevor er etwas hochlädt: Er muss ein
-absoluter Pfad mit mindestens einem Segment unterhalb des Roots sein. `/`,
-ein leerer Wert oder ein relativer Pfad brechen den Lauf ab. Diese Prüfung
-erkennt einen *offensichtlich* zu vagen Wert — sie kann nicht wissen, ob ein
-konkreter Pfad der richtige ist. **Den Pfad einmal in der Hosting-Verwaltung
-nachsehen, nicht raten.**
+That is why the workflow checks the value before uploading anything: it must
+be an absolute path with at least one segment below the root. `/`, an empty
+value or a relative path abort the run. This check catches an *obviously* too
+vague value — it cannot know whether a specific path is the right one. **Look
+the path up in the hosting administration once, do not guess.**
 
-### Das Secret aus Git Bash setzen — die MSYS-Falle
+### Setting the secret from Git Bash — the MSYS trap
 
-Wer den Wert per CLI setzt statt über die Weboberfläche, tritt unter Windows in
-eine stille Falle. **Git Bash (MSYS) wandelt Argumente, die wie Unix-Pfade
-aussehen, in Windows-Pfade um, bevor eine native `.exe` sie überhaupt sieht.**
-Aus
+Anyone setting the value via CLI instead of the web UI walks into a silent
+trap on Windows. **Git Bash (MSYS) converts arguments that look like Unix
+paths into Windows paths before a native `.exe` even sees them.** So
 
 ```bash
 gh secret set SFTP_REMOTE_DIR --body "/public_html/join"
 ```
 
-wird im Secret `C:/Program Files/Git/public_html/join`. `gh` meldet dabei
-**Exit 0**, und `gh secret list` zeigt nur Namen und Zeitstempel, keine Werte —
-der Fehler bleibt bis zum Workflow-Lauf unsichtbar.
+ends up as `C:/Program Files/Git/public_html/join` in the secret. `gh` reports
+**exit 0**, and `gh secret list` shows only names and timestamps, no values —
+the mistake stays invisible until the workflow runs.
 
-Sicher ist der Weg über stdin, dort greift keine Konvertierung:
+The safe route is via stdin, where no conversion applies:
 
 ```bash
 printf '%s' "/public_html/join" | gh secret set SFTP_REMOTE_DIR --repo ttoebbe/039_JoinIssueCollector
 ```
 
-Genau dieser Fall ist beim ersten Deploy eingetreten, und **die Schutzprüfung
-oben hat ihn abgefangen**: Der verbogene Wert beginnt mit `C:` statt mit `/`,
-der Lauf brach ab, bevor der erste `lftp`-Aufruf startete. Deshalb lief kein
-`--delete` gegen ein falsches Ziel — der Grund, warum die Prüfung im Workflow
-steht.
+Exactly this case occurred on the first deploy, and **the safety check above
+caught it**: the mangled value starts with `C:` instead of `/`, the run
+aborted before the first `lftp` call started. No `--delete` ever ran against a
+wrong target — which is why the check exists in the workflow.
 
-### Klickpfad zum Anlegen
+### Click path for creating secrets
 
-GitHub → Repository → *Settings* → *Secrets and variables* → *Actions* →
-*New repository secret*. Dort Name und Wert eintragen, *Add secret*. Für jedes
-Secret einmal.
+GitHub → repository → *Settings* → *Secrets and variables* → *Actions* →
+*New repository secret*. Enter name and value, *Add secret*. Once per secret.
 
-Der Name muss **exakt** so geschrieben sein wie in der Tabelle, Großschreibung
-eingeschlossen. Ein Tippfehler im Namen sieht aus wie ein fehlendes Secret.
+The name must be written **exactly** as in the table, including
+capitalization. A typo in the name looks like a missing secret.
 
 ---
 
-## 3. Wie man deployt
+## 3. How to deploy
 
-Der Workflow hat **nur** `workflow_dispatch` als Auslöser — kein Push-Trigger.
-Ein Commit auf `main` verändert die Live-Seite also nicht; ein Deployment ist
-eine Entscheidung, kein Nebeneffekt des Committens.
+The workflow has **only** `workflow_dispatch` as its trigger — no push
+trigger. A commit on `main` therefore does not change the live site; a
+deployment is a decision, not a side effect of committing.
 
-GitHub → Repository → Reiter *Actions* → links *Deploy frontend* → rechts
-*Run workflow* → Branch wählen (`main`) → *Run workflow*.
+GitHub → repository → *Actions* tab → *Deploy frontend* on the left →
+*Run workflow* on the right → choose branch (`main`) → *Run workflow*.
 
-Zwei gleichzeitige Läufe würden sich ins Gehege kommen. Sie warten deshalb
-aufeinander, statt sich gegenseitig abzubrechen — ein abgebrochener Mirror
-hinterlässt eine halb hochgeladene Seite.
+Two simultaneous runs would get in each other's way. They therefore wait for
+each other instead of cancelling one another — an aborted mirror leaves a
+half-uploaded site behind.
 
 ---
 
-## 4. Nach dem ersten Deploy prüfen
+## 4. Checks after the first deploy
 
-Auf `https://join.thomas-toebbe.de`, mit offener Browser-Konsole:
+On `https://join.thomas-toebbe.de`, with the browser console open:
 
-| Was | Erwartung |
+| What | Expectation |
 |---|---|
-| Landing Page | lädt mit Bildern und Schriften. Fehlen sie, ist `assets/` nicht mit hochgeladen |
-| Tageszähler | *Create request* zeigt den **echten** Stand, z. B. `1 of 10` — nicht stur `0 of 10` |
-| Board | Login, Board lädt die Tasks aus Firebase, Triage-Spalte ist da |
-| Legal-Seiten | *Legal notice* und *Privacy policy* sind erreichbar |
-| Konsole | keine 404 auf `/css/…`, `/js/…`, `/assets/…`; keine CORS-Meldung |
+| Landing page | loads with images and fonts. If they are missing, `assets/` was not uploaded |
+| Daily counter | *Create request* shows the **real** count, e.g. `1 of 10` — not a stubborn `0 of 10` |
+| Board | log in, board loads the tasks from Firebase, Triage column is present |
+| Legal pages | *Legal notice* and *Privacy policy* are reachable |
+| Console | no 404 on `/css/…`, `/js/…`, `/assets/…`; no CORS message |
 
-Alle Pfade im Projekt sind absolut (`/css/…`, `/js/…`, `/assets/…`). Das
-funktioniert nur, wenn die Seite im **Dokumentenstamm** der Subdomain liegt und
-nicht in einem Unterverzeichnis — ein falscher `SFTP_REMOTE_DIR` fällt hier als
-Seite ohne jedes Styling auf.
+All paths in the project are absolute (`/css/…`, `/js/…`, `/assets/…`). That
+only works if the site sits in the **document root** of the subdomain and not
+in a subdirectory — a wrong `SFTP_REMOTE_DIR` shows up here as a page without
+any styling.
 
-Der Zähler ist der einzige Punkt, der auch bei perfekt hochgeladenen Dateien
-scheitern kann: Er kommt aus n8n, siehe nächster Abschnitt.
+The counter is the only item that can fail even with perfectly uploaded
+files: it comes from n8n, see the next section.
 
 ---
 
-## 5. CORS — geprüft, nichts zu tun
+## 5. CORS — checked, nothing to do
 
-Zwei n8n-Workflows werden aus dem Browser heraus aufgerufen und tragen ihre
-Origin-Liste im Webhook-Node unter `options.allowedOrigins`. Steht die
-Live-Domain dort nicht drin, verwirft der Browser die Antwort, obwohl der Aufruf
-selbst durchläuft — lokal funktioniert dann alles, live nicht.
+Two n8n workflows are called from the browser and carry their origin list in
+the webhook node under `options.allowedOrigins`. If the live domain is not in
+there, the browser discards the response even though the call itself goes
+through — everything works locally, nothing works live.
 
-Beide Dateien wurden für dieses Deployment nachgeprüft:
+Both files were re-checked for this deployment:
 
-| Datei | `allowedOrigins` | `https://join.thomas-toebbe.de` enthalten |
+| File | `allowedOrigins` | `https://join.thomas-toebbe.de` included |
 |---|---|---|
-| [`../n8n/status-notify.workflow.json`](../n8n/status-notify.workflow.json) | `https://join.thomas-toebbe.de,http://127.0.0.1:5500,http://localhost:5500,http://localhost:8080` | **ja** |
-| [`../n8n/quota-status.workflow.json`](../n8n/quota-status.workflow.json) | dieselbe Liste | **ja** |
+| [`../n8n/status-notify.workflow.json`](../n8n/status-notify.workflow.json) | `https://join.thomas-toebbe.de,http://127.0.0.1:5500,http://localhost:5500,http://localhost:8080` | **yes** |
+| [`../n8n/quota-status.workflow.json`](../n8n/quota-status.workflow.json) | the same list | **yes** |
 
-**Es ist also nichts nachzutragen.** Die drei `localhost`-Einträge sind die
-lokalen Entwicklungsadressen und bleiben absichtlich stehen.
+**So there is nothing to add.** The three `localhost` entries are the local
+development addresses and stay in deliberately.
 
-Zu beachten: Die Liste im Repository ist der Export. Maßgeblich ist, was in der
-**laufenden** n8n-Instanz steht. Weicht der Zähler live ab, obwohl der Endpunkt
-per `curl` antwortet, ist das der erste Ort zum Nachsehen —
-[`n8n-setup.md`](n8n-setup.md), Abschnitte 9.4 und 10.4.
-
----
-
-## 6. Firebase — nichts nachzuziehen
-
-Der Projektplan nennt für diese Phase „Key-Referrer und autorisierte Domain für
-die Prod-Subdomain nachziehen". **Das trifft auf Join nicht zu.**
-
-[`../js/core/firebase-service.js`](../js/core/firebase-service.js) spricht die
-Realtime Database über REST an und baut die URL als
-`${API_CONFIG.BASE_URL}/${path}.json` — **ohne API-Key**. Es gibt weder einen
-Key mit Referrer-Beschränkung noch Firebase Auth mit einer Domain-Allowlist, die
-um die neue Subdomain zu ergänzen wäre. Der Punkt entfällt ersatzlos.
-
-Was den Zugriff tatsächlich begrenzt, sind die Regeln in
-[`../database.rules.json`](../database.rules.json); dazu
-[`n8n-setup.md`](n8n-setup.md), Abschnitt 4.
-
-Die Datenbank-URL steht in
-[`../js/core/constants.js`](../js/core/constants.js) und wird mit
-ausgeliefert — deshalb prüft der Workflow, dass diese Datei im Staging liegt.
+Note: the list in the repository is the export. What counts is what the
+**running** n8n instance holds. If the counter misbehaves live even though
+the endpoint answers via `curl`, this is the first place to look —
+[`n8n-setup.md`](n8n-setup.md), sections 9.4 and 10.4.
 
 ---
 
-## 7. Datenbank-Regeln einspielen
+## 6. Firebase — nothing to adjust
 
-[`../database.rules.json`](../database.rules.json) liegt im Repository, aber
-**kein Automatismus spielt sie ein**. Die Datei ist die Vorlage; wirksam wird
-sie erst, wenn ihr Inhalt in der Firebase-Konsole veröffentlicht wurde.
+The project plan lists "adjust key referrer and authorized domain for the
+production subdomain" for this phase. **That does not apply to Join.**
 
-### 7.1 Der Weg
+[`../js/core/firebase-service.js`](../js/core/firebase-service.js) talks to
+the Realtime Database via REST and builds the URL as
+`${API_CONFIG.BASE_URL}/${path}.json` — **without an API key**. There is
+neither a key with a referrer restriction nor Firebase Auth with a domain
+allowlist that would need the new subdomain. The item is dropped entirely.
 
-1. [console.firebase.google.com](https://console.firebase.google.com) öffnen
-   und anmelden.
-2. Das Projekt der V2-Datenbank wählen — es ist das, dessen Datenbank-URL in
-   [`../js/core/constants.js`](../js/core/constants.js) steht
-   (`joinv2withn8n-default-rtdb…`, Region `europe-west1`).
-3. Links **Build → Realtime Database** wählen. Hat das Projekt mehrere
-   Datenbank-Instanzen, oben die richtige auswählen — die URL muss zu
-   `API_CONFIG.BASE_URL` passen.
-4. Reiter **Regeln** (englisch *Rules*) öffnen.
-5. Den **kompletten** Inhalt von `database.rules.json` in den Editor einfügen
-   und das ersetzen, was dort steht. Kein Zusammenführen von Hand — die Datei
-   im Repository ist der maßgebliche Stand.
-6. **Veröffentlichen** (*Publish*) klicken. Der Editor meldet Syntaxfehler
-   vorher; wird der Knopf nicht aktiv, ist der eingefügte Text unvollständig.
-7. Danach die Prüfung aus 7.4 durchgehen.
+What actually limits access are the rules in
+[`../database.rules.json`](../database.rules.json); see
+[`n8n-setup.md`](n8n-setup.md), section 4.
 
-Die Regeln greifen sofort, ein Neuladen der Seite genügt. Ein Deploy des
-Frontends ist dafür **nicht** nötig — beides sind getrennte Wege.
+The database URL is set in
+[`../js/core/constants.js`](../js/core/constants.js) and ships with the
+site — which is why the workflow verifies that this file is in staging.
 
-### 7.2 Derselbe Weg über die CLI
+---
 
-Wer die Konsole nicht anfassen will, kann die Regeln auch lokal einspielen. Das
-ist **kein Ersatz** für 7.1, sondern die zweite Tür zur selben Datei — beide
-veröffentlichen exakt den Inhalt von `database.rules.json`.
+## 7. Publishing the database rules
+
+[`../database.rules.json`](../database.rules.json) lives in the repository,
+but **no automation publishes it**. The file is the template; it only takes
+effect once its content has been published in the Firebase console.
+
+### 7.1 The procedure
+
+1. Open [console.firebase.google.com](https://console.firebase.google.com)
+   and sign in.
+2. Choose the project of the V2 database — it is the one whose database URL
+   is set in [`../js/core/constants.js`](../js/core/constants.js)
+   (`joinv2withn8n-default-rtdb…`, region `europe-west1`).
+3. Choose **Build → Realtime Database** on the left. If the project has
+   several database instances, select the right one at the top — the URL must
+   match `API_CONFIG.BASE_URL`.
+4. Open the **Rules** tab.
+5. Paste the **complete** content of `database.rules.json` into the editor,
+   replacing what is there. No manual merging — the file in the repository is
+   the authoritative state.
+6. Click **Publish**. The editor reports syntax errors beforehand; if the
+   button does not become active, the pasted text is incomplete.
+7. Then run the checks from 7.4.
+
+The rules take effect immediately, reloading the page is enough. A frontend
+deploy is **not** required for this — the two are separate paths.
+
+### 7.2 The same procedure via the CLI
+
+Anyone who prefers not to touch the console can publish the rules locally.
+This is **no substitute** for 7.1 but the second door to the same file — both
+publish exactly the content of `database.rules.json`.
 
 ```bash
-npm install -g firebase-tools   # einmalig
-firebase login                  # interaktiv, kein Token nötig
+npm install -g firebase-tools   # once
+firebase login                  # interactive, no token needed
 firebase deploy --only database
 ```
 
-Die beiden Dateien, die die CLI dafür braucht, liegen im Wurzelverzeichnis und
-sind eingecheckt:
+The two files the CLI needs for this sit in the repository root and are
+checked in:
 
-- [`../firebase.json`](../firebase.json) — zeigt auf `database.rules.json`
-- [`../.firebaserc`](../.firebaserc) — trägt die Projekt-ID `joinv2withn8n`
+- [`../firebase.json`](../firebase.json) — points to `database.rules.json`
+- [`../.firebaserc`](../.firebaserc) — carries the project ID `joinv2withn8n`
 
-Beide enthalten nichts Geheimes: Die Projekt-ID steckt ohnehin in der
-Datenbank-URL in [`../js/core/constants.js`](../js/core/constants.js), die mit
-dem Frontend ausgeliefert wird. Auf den Webspace kommen sie trotzdem nicht —
-die Positivliste des Deploy-Workflows kennt nur die fünf Einträge aus
-Abschnitt 1.
+Neither contains anything secret: the project ID is part of the database URL
+in [`../js/core/constants.js`](../js/core/constants.js), which ships with the
+frontend anyway. They still never reach the web space — the deploy workflow's
+allowlist only knows the five entries from section 1.
 
-Nach dem Deploy dieselbe Prüfung wie nach dem Konsolenweg, Abschnitt 7.4.
+After the deploy, run the same checks as after the console route, section 7.4.
 
-### 7.2.1 Warum das nicht in die GitHub Action wandert
+### 7.2.1 Why this does not move into the GitHub Action
 
-`firebase login` ist interaktiv und funktioniert in einem CI-Lauf nicht. Die
-Action bräuchte stattdessen einen Firebase-Token mit Schreibrechten auf die
-Datenbank, abgelegt als Secret **in einem öffentlichen Repository** — für eine
-Datei, die sich praktisch nie ändert: Die Regeln hängen an den Statuswerten und
-am Prioritätsfeld, und die sind seit Phase 2 stabil.
+`firebase login` is interactive and does not work in a CI run. The action
+would instead need a Firebase token with write access to the database, stored
+as a secret **in a public repository** — for a file that practically never
+changes: the rules depend on the status values and the priority field, and
+those have been stable since phase 2.
 
-Der lokale Weg braucht kein Secret. Der Anmeldezustand liegt auf Thomas'
-Rechner, nicht im Repository. Kommt später ein zweiter Grund dazu, regelmäßig
-gegen Firebase zu deployen, ist die Entscheidung neu zu bewerten.
+The local route needs no secret. The login state lives on Thomas's machine,
+not in the repository. Should a second reason to deploy against Firebase
+regularly appear later, the decision is to be re-evaluated.
 
-### 7.3 Was die Regeln leisten — und was nicht
+### 7.3 What the rules do — and what they do not
 
-Der Kern in drei Sätzen; die Begründung im Detail steht in
-[`n8n-setup.md`](n8n-setup.md), Abschnitt 4.
+The core in three sentences; the detailed reasoning is in
+[`n8n-setup.md`](n8n-setup.md), section 4.
 
-**`.read` bleibt auf `true`.** Das Frontend spricht die Datenbank ohne
-Authentifizierung an — Join hat kein Firebase Auth, sondern prüft den Login
-selbst gegen den `users`-Knoten. Es gibt also kein `auth`-Objekt, gegen das eine
-Regel prüfen könnte; ein Leseverbot bräche die Anmeldung sofort. Das ist der
-dokumentierte Kompromiss, keine Nachlässigkeit.
+**`.read` stays `true`.** The frontend talks to the database without
+authentication — Join has no Firebase Auth and checks the login itself
+against the `users` node. There is no `auth` object a rule could test
+against; a read ban would break the login immediately. This is the
+documented compromise, not negligence.
 
-**`.write` steht nicht mehr global auf `true`, sondern pro Knoten.** `tasks` und
-`contacts` bleiben offen — beide werden aus dem unauthentifizierten Frontend
-geschrieben, daran ändert sich nichts. `users` bekommt eine engere Regel:
+**`.write` is no longer global but per node.** `tasks` and `contacts` stay
+open — both are written from the unauthenticated frontend, nothing changes
+there. `users` gets a tighter rule:
 
 ```
 "users": { "$userId": { ".write": "!data.exists() || !newData.exists()" } }
 ```
 
-Sie erlaubt das **Anlegen** eines Datensatzes (`!data.exists()`) und sein
-**Löschen** (`!newData.exists()`, damit Testkonten weiter aus der Konsole
-entfernt werden können), verbietet aber das **Ändern** eines bestehenden. Ein
-Angreifer, der die Datenbank-URL kennt — sie steht in `constants.js` und damit
-im öffentlichen Repository —, kann so kein fremdes Konto übernehmen, indem er
-dessen `pwHash` überschreibt.
+It allows **creating** a record (`!data.exists()`) and **deleting** it
+(`!newData.exists()`, so test accounts can still be removed from the
+console), but forbids **modifying** an existing one. An attacker who knows
+the database URL — it is in `constants.js` and therefore in the public
+repository — cannot take over someone else's account by overwriting its
+`pwHash`.
 
-**Das globale `.write: true` musste dafür weichen.** In der Realtime Database
-kaskadieren Schreibregeln nach unten: Ist der Zugriff auf einer höheren Ebene
-einmal erlaubt, werden die Regeln darunter gar nicht mehr ausgewertet. Ein
-`.write` an der Wurzel hätte die `users`-Regel wirkungslos gemacht. Deshalb
-hängt die Schreiberlaubnis jetzt an `tasks` und `contacts` einzeln.
+**The global `.write: true` had to go for this.** In the Realtime Database,
+write rules cascade downwards: once access is granted at a higher level, the
+rules below are not evaluated at all. A `.write` at the root would have made
+the `users` rule ineffective. That is why the write permission now hangs on
+`tasks` and `contacts` individually.
 
-Der Sign-up bleibt davon unberührt: `UserService.create` schreibt per `PUT` auf
-`users/<id>` mit einer frisch vergebenen ID, dort existiert noch nichts —
-`!data.exists()` trifft zu. Eine Nebenwirkung gibt es doch: Läuft die ID-Vergabe
-in `generateNextUserId` einmal auf eine bereits belegte ID, schlägt die
-Registrierung jetzt fehl, statt den fremden Datensatz stillschweigend zu
-überschreiben. Das ist die gewollte Richtung.
+Sign-up is unaffected: `UserService.create` writes via `PUT` to `users/<id>`
+with a freshly assigned ID, where nothing exists yet — `!data.exists()`
+matches. There is one side effect after all: should the ID assignment in
+`generateNextUserId` ever land on an already taken ID, registration now fails
+instead of silently overwriting the foreign record. That is the intended
+direction.
 
-Die Feld-`.validate`-Regeln auf `users` begrenzen `name` und `email` in der
-Länge und verlangen für `pwHash` und `pwSalt` Zeichenketten — dieselbe
-Datenmüll-Bremse wie auf `tasks`.
+The field-level `.validate` rules on `users` limit `name` and `email` in
+length and require strings for `pwHash` and `pwSalt` — the same garbage brake
+as on `tasks`.
 
-**Die `.validate`-Regeln fangen fehlerhafte Schreibvorgänge aus dem Browser
-ab** — falsche Statuswerte, eine unbekannte Priorität, ein `createdAt` als Text.
-Sie sind eine Datenmüll-Bremse, kein Zugriffsschutz.
+**The `.validate` rules catch faulty writes from the browser** — wrong status
+values, an unknown priority, a `createdAt` as text. They are a garbage brake,
+not access control.
 
-**Auf n8n wirken sie nicht.** Der Workflow schreibt mit einem
-Service-Account-Token, und der gilt in der Realtime Database als Admin-Zugriff,
-der alle Regeln übergeht. Was aus dem Automaten kommt, prüft allein der
-Code-Node `Map AI answer` in
+**They have no effect on n8n.** The workflow writes with a service account
+token, which the Realtime Database treats as admin access that bypasses all
+rules. What comes out of the automation is checked solely by the code node
+`Map AI answer` in
 [`../n8n/issue-collector.workflow.json`](../n8n/issue-collector.workflow.json).
 
-### 7.4 Der Test nach dem Einspielen
+### 7.4 The test after publishing
 
-Auf `https://join.thomas-toebbe.de`, mit offener Browser-Konsole. Vier Schritte,
-weil sie zusammen jedes validierte Feld einmal schreiben:
+On `https://join.thomas-toebbe.de`, with the browser console open. Four
+steps, because together they write every validated field once:
 
-| Schritt | Prüft |
+| Step | Verifies |
 |---|---|
-| Einloggen | `.read` auf `users` ist offen |
-| Task anlegen (*Add task*) | `status`, `prio`, `source`, `aiGenerated`, `createdAt` in einem Rutsch |
-| Task in eine andere Spalte ziehen | `status` beim Zurückschreiben des ganzen Tasks |
-| Kontakt anlegen | Schreibzugriff außerhalb von `tasks` |
+| Log in | `.read` on `users` is open |
+| Create a task (*Add task*) | `status`, `prio`, `source`, `aiGenerated`, `createdAt` in one go |
+| Drag a task to another column | `status` when the whole task is written back |
+| Create a contact | write access outside of `tasks` |
 
-Sichtbar wird ein Verstoß als roter Toast „Connection error. Try again." und in
-der Konsole als `Firebase Error (400)` mit dem Text der abgelehnten Regel —
-[`../js/core/firebase-service.js`](../js/core/firebase-service.js) protokolliert
-die Antwort, bevor der Toast erscheint.
+A violation shows up as a red toast "Connection error. Try again." and in the
+console as `Firebase Error (400)` with the text of the rejected rule —
+[`../js/core/firebase-service.js`](../js/core/firebase-service.js) logs the
+response before the toast appears.
 
-**Bricht etwas, ist eine `.validate`-Regel zu streng.** Dann die betroffene
-Regel **entfernen** und den Fall melden — nicht das Muster aufweichen, bis es
-gerade so durchgeht. Eine Regel, die nur noch fast stimmt, ist schlimmer als
-keine: Sie erweckt den Eindruck einer Prüfung, die es nicht mehr gibt.
+**If something breaks, a `.validate` rule is too strict.** Then **remove**
+the affected rule and report the case — do not water the pattern down until
+it barely passes. A rule that is only almost right is worse than none: it
+creates the impression of a check that no longer exists.
 
-### 7.5 Die bekannte Stolperstelle: `prio` und die Alt-Werte
+### 7.5 The known pitfall: `prio` and the legacy values
 
-Zwei Stellen im Frontend fangen bis heute die V1-Werte `high` und `alta` ab:
+Two places in the frontend still catch the V1 values `high` and `alta`:
 
 - [`../js/features/board/render-cards-prio.js`](../js/features/board/render-cards-prio.js),
-  Zeilen 82–83
+  lines 82–83
 - [`../js/features/summary/summary.js`](../js/features/summary/summary.js),
-  Zeile 40
+  line 40
 
-Beide Werte sind laut Regel **nicht** erlaubt — `prio` lässt nur `urgent`,
-`medium` und `low` zu. Für einen Bestandstask mit `prio: "high"` hieße das:
-Anzeigen geht, **Verschieben nicht.** Das Board schreibt beim Spaltenwechsel
-über `TaskService.update` den **ganzen** Task per `PUT` zurück (siehe
+Both values are **not** allowed by the rule — `prio` only permits `urgent`,
+`medium` and `low`. For a legacy task with `prio: "high"` that would mean:
+displaying works, **moving does not.** On a column change the board writes
+the **whole** task back via `TaskService.update` with a `PUT` (see
 `persistStatusChange` in
 [`../js/features/board/draganddrop.js`](../js/features/board/draganddrop.js)),
-also auch das unveränderte `prio` — und Firebase lehnt die gesamte Operation ab,
-nicht nur das eine Feld.
+including the unchanged `prio` — and Firebase rejects the entire operation,
+not just the one field.
 
-**In der V2-Datenbank gibt es solche Tasks nicht**, die V1-Daten wurden bewusst
-nicht importiert. Der Punkt steht hier trotzdem, weil er genau dann zuschlägt,
-wenn jemand später V1-Tasks nachzieht: Der Import selbst liefe durch, das
-Verschieben scheiterte erst hinterher.
+**There are no such tasks in the V2 database**; the V1 data was deliberately
+not imported. The item is still documented here because it strikes exactly
+when someone later imports V1 tasks: the import itself would go through, the
+moving would only fail afterwards.

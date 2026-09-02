@@ -1,12 +1,13 @@
 # docs/design
 
-| Datei | Inhalt |
+| File | Content |
 |---|---|
-| `spec.md` | Design Spec: Foundations, Breakpoints, Frames, Komponenten, Notizen, offene Punkte |
-| `components.md` | Vollstaendiges Komponenten-Inventar, generiert aus dem Cache |
-| `reference/` | Referenz-Screenshots je Top-Level-Frame, `scale=1` — aus dem Repo entfernt, ueber die Git-Historie erreichbar |
-| `verification/` | Abgleich-Screenshots der umgesetzten Landing Page, Stand 24.08.2026 — aus dem Repo entfernt, ueber die Git-Historie erreichbar |
+| `spec.md` | Design spec: foundations, breakpoints, frames, components, notes, open items |
+| `components.md` | Complete component inventory, generated from the cache |
+| `MANIFEST.md` | Provenance of every asset file with its Figma node ID |
+| `reference/` | Reference screenshots per top-level frame, `scale=1` — removed from the repo, reachable through the git history |
+| `verification/` | Comparison screenshots of the implemented landing page, as of 2026-08-24 — removed from the repo, reachable through the git history |
 
-Der Rohdaten-Cache liegt lokal in `.figma-cache/` und ist in `.gitignore`
-eingetragen. Die Skripte, die ihn ausgewertet haben, sind nach Abschluss der
-Extraktion aus dem Repo entfernt worden.
+The raw-data cache lives locally in `.figma-cache/` and is listed in
+`.gitignore`. The scripts that processed it were removed from the repo after
+the extraction was completed.
