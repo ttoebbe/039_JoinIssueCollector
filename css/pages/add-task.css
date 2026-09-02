@@ -273,9 +273,9 @@
 
 .field-error {
   color: #ff3d00;
-  font-size: 12px;
+  font-size: 14px;
   margin-top: 4px;
-  min-height: 14px;
+  min-height: 17px;
   visibility: hidden;
 }
 
@@ -285,7 +285,7 @@
 
 .field-counter {
   color: #8a8a8a;
-  font-size: 12px;
+  font-size: 14px;
   margin-top: 2px;
   text-align: right;
 }

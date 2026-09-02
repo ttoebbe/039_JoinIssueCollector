@@ -294,7 +294,7 @@ input::placeholder {
 
 .error-msg {
     color: red;
-    font-size: 0.85rem;
+    font-size: 14px;
     display: none;
     margin-top: 8px;
     word-wrap: break-word;
@@ -541,7 +541,6 @@ footer a:hover {
     }
 
     .error-msg {
-        font-size: 0.75rem;
         word-wrap: break-word;
     }
 }

@@ -274,9 +274,9 @@
 
 .field-error {
   color: #ff3d00;
-  font-size: 12px;
+  font-size: 14px;
   margin: 0;
-  min-height: 14px;
+  min-height: 17px;
   visibility: hidden;
 }
 
@@ -286,7 +286,7 @@
 
 .field-counter {
   color: #8a8a8a;
-  font-size: 12px;
+  font-size: 14px;
   margin-top: 0;
   text-align: right;
 }
@@ -965,11 +965,6 @@ main {
     gap: 2px;
   }
 
-  .field-error,
-  .field-counter {
-    font-size: 11px;
-  }
-
   .overlay-actions {
     margin-top: 6px;
   }
@@ -1044,11 +1039,6 @@ main {
 
   .field-group {
     gap: 2px;
-  }
-
-  .field-error,
-  .field-counter {
-    font-size: 11px;
   }
 }
 
