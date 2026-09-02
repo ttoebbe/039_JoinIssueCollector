@@ -1,12 +1,15 @@
-/**
- * Initializes the components after DOM ready.
- */
 document.addEventListener("DOMContentLoaded", handleComponentsReady);
 
+/**
+ * Initializes the shared components once the page is ready.
+ */
 function handleComponentsReady() {
   withPageReady(runComponentsInit);
 }
 
+/**
+ * Renders navigation, header and user menu for the current page.
+ */
 function runComponentsInit() {
   if (shouldHideNavForGuest()) return applyGuestMode();
   renderNavBar();
@@ -38,6 +41,9 @@ function isPolicyPage() {
   );
 }
 
+/**
+ * Renders the reduced navigation and header shown to guests.
+ */
 function applyGuestMode() {
   document.body.classList.add("guest-mode");
   const nav = document.getElementById("nav-bar-placeholder");
@@ -46,18 +52,27 @@ function applyGuestMode() {
   if (header) header.innerHTML = getGuestHeaderTemplate();
 }
 
+/**
+ * Renders the navigation bar into its placeholder.
+ */
 function renderNavBar() {
   const host = document.getElementById("nav-bar-placeholder");
   if (!host) return;
   host.innerHTML = getNavBarTemplate();
 }
 
+/**
+ * Renders the header into its placeholder.
+ */
 function renderHeader() {
   const host = document.getElementById("header-placeholder");
   if (!host) return;
   host.innerHTML = getHeaderTemplate();
 }
 
+/**
+ * Marks the navigation link that matches the current page.
+ */
 function setActiveNavLink() {
   const nav = document.querySelector(".nav-links nav");
   if (!nav) return;
@@ -89,6 +104,9 @@ function findActiveNavLink(nav) {
   });
 }
 
+/**
+ * Writes the current user's initials into the header badge.
+ */
 function renderUserInitials() {
   const el = document.getElementById("user-initials");
   if (!el) return;
@@ -98,6 +116,9 @@ function renderUserInitials() {
   el.textContent = getInitials(label);
 }
 
+/**
+ * Wires the user menu dropdown in the header.
+ */
 function initUserMenu() {
   const parts = getUserMenuParts();
   if (!parts) return;

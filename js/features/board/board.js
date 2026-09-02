@@ -4,13 +4,19 @@ const boardState = {
   draggingTaskId: null,
 };
 
-// Initialize board when the DOM is ready.
 document.addEventListener("DOMContentLoaded", handleBoardReady);
 
+/**
+ * Initializes the board once the page is ready.
+ */
 function handleBoardReady() {
   withPageReady(initBoard);
 }
 
+/**
+ * Wires the board UI and renders the stored tasks.
+ * @returns {Promise<void>}
+ */
 async function initBoard() {
   wireBoardUi();
   wireDragAndDrop();
@@ -18,6 +24,9 @@ async function initBoard() {
   renderBoard();
 }
 
+/**
+ * Wires the search field, the add buttons and the move menus.
+ */
 function wireBoardUi() {
   const input = document.getElementById("boardSearchInput");
   if (input) {
@@ -32,6 +41,9 @@ function wireBoardUi() {
   wireMoveMenus();
 }
 
+/**
+ * Wires the move menu toggles and the outside click that closes them.
+ */
 function wireMoveMenus() {
   const board = document.querySelector(".board-columns");
   if (!board) return;
@@ -147,6 +159,9 @@ function toggleMoveMenu(menu) {
   menu.setAttribute("aria-hidden", "false");
 }
 
+/**
+ * Closes every open move menu on the board.
+ */
 function closeAllMoveMenus() {
   document.querySelectorAll(".board-move-menu.is-open").forEach((menu) => {
     menu.classList.remove("is-open");
@@ -154,6 +169,10 @@ function closeAllMoveMenus() {
   });
 }
 
+/**
+ * Loads the tasks, drops the ones without a title and keeps the rest in state.
+ * @returns {Promise<void>}
+ */
 async function loadTasks() {
   try {
     const raw = await TaskService.getAll();
@@ -207,6 +226,9 @@ async function deleteInvalidTasks(tasks) {
   );
 }
 
+/**
+ * Renders every column from the current state and search query.
+ */
 function renderBoard() {
   const filtered = filterTasks(boardState.tasks, boardState.query);
   renderNoResults(boardState.query.length > 0 && filtered.length === 0);
