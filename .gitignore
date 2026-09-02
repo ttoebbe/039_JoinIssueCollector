@@ -1,7 +1,7 @@
 # Figma personal access token - never commit
 .figma-token
 
-# Env und Secrets
+# Env and secrets
 .env
 .env*
 *.local
@@ -10,37 +10,38 @@
 *service-account*.json
 *serviceaccount*.json
 
-# Figma raw cache (16 MB) - lokal halten
+# Figma raw cache (16 MB) - keep local
 .figma-cache/
 
 # Playwright / MCP output
 .playwright-mcp/
 
-# Lokale Arbeitsdateien und Backups
+# Local working files and backups
 scratchpad/
 
 # Python tooling
 __pycache__/
 *.pyc
 
-# Dependencies und Build
+# Dependencies and build
 node_modules/
 /dist/
 /build/
 
-# Editor und System
+# Editor and system
 .vscode/
 .DS_Store
 Thumbs.db
 
-# Claude Code - lokale Settings raus, CLAUDE.md bleibt im Repo
+# Claude Code - project rules and local settings stay out of the repo
+CLAUDE.md
 .claude/settings.local.json
 
-# ACHTUNG: .github/ wurde in der V1-.gitignore ausgeschlossen.
-# Das ist hier bewusst NICHT der Fall - dort liegen die Actions-Workflows.
+# NOTE: the V1 .gitignore excluded .github/ - deliberately NOT the case here,
+# the Actions workflows live there.
 
-# Arbeitsanweisungen, gehoeren nicht ins Repo
+# Work instructions - do not belong in the repo
 _bootstrap/
 
-# Aufgabenstellung der Akademie - fremdes Material, bleibt lokal
+# Academy assignment - third-party material, stays local
 docs/Join - Issue Collector_Lastenheft.*
