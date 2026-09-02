@@ -233,11 +233,22 @@
   place-items: center;
   cursor: pointer;
   padding: 0;
+  position: relative;
 }
 
 .board-move-btn img {
   width: 18px;
   height: 18px;
+}
+
+.board-move-btn::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
 }
 
 .board-move-menu {
@@ -278,6 +289,9 @@
   font-size: 16px;
   padding: 6px 8px;
   border-radius: 10px;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
   cursor: pointer;
 }
 
