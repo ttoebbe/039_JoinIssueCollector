@@ -1,220 +1,218 @@
-# n8n-Setup — Join Issue Collector
+# n8n setup — Join Issue Collector
 
-Wie die Join-Workflows in die laufende n8n-Instanz kommen, wie sie nach Firebase
-schreiben und was neben Code a Cuisine zu beachten ist.
+How the Join workflows get into the running n8n instance, how they write to
+Firebase, and what to watch out for next to Code a Cuisine.
 
-Diese Datei beschreibt den Weg. Sie führt ihn nicht aus: Service Account anlegen,
-Rules einspielen, Credential erzeugen und der Schreibtest sind Handarbeit an der
-laufenden Umgebung.
+This file describes the procedure. It does not execute it: creating the
+service account, publishing the rules, creating the credential and the write
+test are manual work on the running environment.
 
-Den Klickweg zum Einspielen der Rules beschreibt
-[`deployment.md`](deployment.md#7-datenbank-regeln-einspielen), Abschnitt 7.
-Das Gesamtbild — Webhosting, VPS, Firebase — steht im Abschnitt
-[*Architektur*](../README.md#architektur) der README.
+The click path for publishing the rules is described in
+[`deployment.md`](deployment.md#7-publishing-the-database-rules), section 7.
+The big picture — web hosting, VPS, Firebase — is in the
+[*Architecture*](../README.md#architecture) section of the README.
 
 ---
 
-## 1. Ausgangslage
+## 1. Starting point
 
-Die Join-Workflows bekommen **keinen eigenen Server**. Sie laufen in der
-bestehenden n8n-Instanz unter `n8n.thomas-toebbe.de` auf dem
-Code-a-Cuisine-VPS, gemeinsam mit den dortigen Workflows.
+The Join workflows get **no server of their own**. They run in the existing
+n8n instance at `n8n.thomas-toebbe.de` on the Code a Cuisine VPS, alongside
+the workflows already there.
 
 | | |
 |---|---|
 | Host | Hetzner CPX12, Ubuntu 26.04 |
 | Stack | `/opt/code-a-cuisine/` — Caddy + n8n via Docker Compose |
-| n8n-UI | **nicht öffentlich** — Caddy lässt nur `/webhook/*` durch, Port 5678 bindet auf Loopback |
-| Zugriff auf die UI | ausschließlich über SSH-Tunnel |
+| n8n UI | **not public** — Caddy only lets `/webhook/*` through, port 5678 binds to loopback |
+| UI access | exclusively via SSH tunnel |
 
-Befehle am Container immer aus `/opt/code-a-cuisine/` und immer über Compose:
+Commands against the container always from `/opt/code-a-cuisine/` and always
+via Compose:
 
 ```bash
 cd /opt/code-a-cuisine
-docker compose exec n8n <befehl>
+docker compose exec n8n <command>
 ```
 
-Das nackte `docker exec n8n …` schlägt dort fehl — der Container heißt anders,
-Compose setzt den Namen aus Projekt- und Servicename zusammen.
+A bare `docker exec n8n …` fails there — the container has a different name,
+Compose builds it from project and service name.
 
-SSH-Tunnel auf die UI:
+SSH tunnel to the UI:
 
 ```bash
 ssh -L 5680:localhost:5678 root@<vps>
-# danach im Browser: http://localhost:5680
+# then in the browser: http://localhost:5680
 ```
 
-Ein eigenes `n8n/deploy/` mit `docker-compose.yml` und `Caddyfile` gibt es für
-Join bewusst **nicht**. Es gäbe einen zweiten Stack neben dem bestehenden — zwei
-n8n-Instanzen, zwei Caddy-Konfigurationen, ein Port-Konflikt. Der Projektplan
-sah das ursprünglich vor und hat sich später für die Weiternutzung des
-bestehenden VPS entschieden; diese Doku ersetzt die Deploy-Struktur.
+There is deliberately **no** separate `n8n/deploy/` with `docker-compose.yml`
+and `Caddyfile` for Join. It would mean a second stack next to the existing
+one — two n8n instances, two Caddy configurations, a port conflict. The
+project plan originally envisaged that and later decided to keep using the
+existing VPS; this documentation replaces the deploy structure.
 
 ---
 
-## 2. Schreibzugriff auf Firebase
+## 2. Write access to Firebase
 
-n8n schreibt die Tickets per REST in die Realtime Database. Der Zugriff läuft
-über einen **Google Service Account**, dessen Token n8n selbst holt und
-erneuert. Kein JWT-Basteln in einem Code-Node, kein langlebiges Secret in der
-Workflow-JSON.
+n8n writes the tickets to the Realtime Database via REST. Access runs through
+a **Google service account** whose token n8n fetches and renews itself. No
+JWT crafting in a code node, no long-lived secret in the workflow JSON.
 
-### 2.1 Service Account anlegen
+### 2.1 Creating the service account
 
-Im Google-Cloud-Projekt der V2-Datenbank einen Service Account erzeugen und den
-JSON-Schlüssel herunterladen.
+Create a service account in the Google Cloud project of the V2 database and
+download the JSON key.
 
-> **Die JSON-Datei gehört nirgendwo ins Repo** — nicht als Datei, nicht als
-> Textblock in dieser Doku, auch nicht auszugsweise. Sie lebt ausschließlich im
-> Credential-Store von n8n, also im Docker-Volume. `.gitignore` fängt die
-> üblichen Dateinamen ab, aber darauf ist kein Verlass: Der Schlüssel wird
-> außerhalb des Repo-Ordners abgelegt.
+> **The JSON file does not belong anywhere in the repo** — not as a file, not
+> as a text block in this documentation, not even in excerpts. It lives
+> exclusively in n8n's credential store, i.e. in the Docker volume.
+> `.gitignore` catches the usual file names, but that is nothing to rely on:
+> the key is stored outside the repo folder.
 
-### 2.2 Credential in n8n anlegen
+### 2.2 Creating the credential in n8n
 
-Typ **Google Service Account**.
+Type **Google Service Account**.
 
-1. `client_email` und `private_key` aus der heruntergeladenen JSON eintragen.
-   Der Key enthält `\n`-Sequenzen — so übernehmen, wie n8n sie im Feld erwartet.
-2. **„Set up for use in HTTP Request node" aktivieren.** Ohne diesen Schalter
-   taucht das Credential im HTTP-Request-Node nicht auf.
-3. Beide Scopes eintragen — Firebase verlangt genau diese zwei:
+1. Enter `client_email` and `private_key` from the downloaded JSON. The key
+   contains `\n` sequences — paste them the way n8n expects them in the field.
+2. **Enable "Set up for use in HTTP Request node".** Without this switch the
+   credential does not appear in the HTTP request node.
+3. Enter both scopes — Firebase requires exactly these two:
 
 ```
 https://www.googleapis.com/auth/userinfo.email
 https://www.googleapis.com/auth/firebase.database
 ```
 
-### 2.3 Im Workflow verwenden
+### 2.3 Using it in the workflow
 
-Im HTTP-Request-Node:
+In the HTTP request node:
 
 **Authentication → Predefined Credential Type → Google Service Account**
 
-n8n hängt den Token als `Authorization: Bearer <token>` an und erneuert ihn
-selbstständig, wenn er abläuft.
+n8n attaches the token as `Authorization: Bearer <token>` and renews it on
+its own when it expires.
 
-Ziel-URL und Methode für ein Ticket:
+Target URL and method for a ticket:
 
 ```
 PUT https://joinv2withn8n-default-rtdb.europe-west1.firebasedatabase.app/tasks/<id>.json
 ```
 
-`PUT` schreibt den Datensatz unter der selbst vergebenen ID vollständig. Das ist
-gewollt — der Workflow kennt alle Felder des neuen Tickets.
+`PUT` writes the record completely under the self-assigned ID. That is
+intended — the workflow knows all fields of the new ticket.
 
 ---
 
-## 3. Warum nicht das Database Secret
+## 3. Why not the database secret
 
-Die Realtime Database kennt einen zweiten Weg: das Legacy Database Secret als
-Query-Parameter, `?auth=SECRET`. Der ist kürzer und hier trotzdem falsch.
+The Realtime Database knows a second route: the legacy database secret as a
+query parameter, `?auth=SECRET`. It is shorter and still wrong here.
 
-Firebase führt die Database Secrets ausdrücklich als **veraltet** und rät von
-ihnen ab: Es sind langlebige Zugangsdaten ohne Ablauf und ohne Einschränkung —
-wer eines hat, hat Vollzugriff auf die gesamte Datenbank, bis es manuell
-widerrufen wird. Es stünde außerdem in der URL und damit im Klartext in jedem
-Log und in jedem Workflow-Export.
+Firebase explicitly lists database secrets as **deprecated** and advises
+against them: they are long-lived credentials without expiry and without
+restriction — whoever has one has full access to the entire database until
+it is manually revoked. It would also sit in the URL and therefore in plain
+text in every log and every workflow export.
 
-Der Service-Account-Token läuft nach einer Stunde ab und wird von n8n neu geholt.
-Fällt er einem Log zum Opfer, ist der Schaden zeitlich begrenzt.
+The service account token expires after an hour and is re-fetched by n8n. If
+it falls victim to a log, the damage is limited in time.
 
-Quelle: Firebase-Dokumentation, *Database Secrets* (deprecated) sowie
+Source: Firebase documentation, *Database Secrets* (deprecated) and
 *Authenticate REST Requests with a Service Account*.
 
 ---
 
-## 4. Der Rules-Kompromiss
+## 4. The rules compromise
 
-**Die Rules bleiben weitgehend offen.** `.read` steht in
-[`../database.rules.json`](../database.rules.json) auf `true`, `.write` ist auf
-`tasks` und `contacts` offen. Wie die Datei in die Datenbank kommt, steht in
-[`deployment.md`](deployment.md#7-datenbank-regeln-einspielen), Abschnitt 7.
+**The rules stay largely open.** `.read` is `true` in
+[`../database.rules.json`](../database.rules.json), `.write` is open on
+`tasks` and `contacts`. How the file gets into the database is described in
+[`deployment.md`](deployment.md#7-publishing-the-database-rules), section 7.
 
-Der Grund ist unangenehm und gehört ausgesprochen: Das Frontend spricht die
-Realtime Database **ohne Authentifizierung** an — der Login von Join ist eine
-Eigenbau-Prüfung gegen den `users`-Knoten, kein Firebase Auth. Es gibt also kein
-`auth`-Objekt, gegen das eine Regel prüfen könnte. Würde `.read` geschlossen,
-brächen Login, Board und Kontakte sofort und vollständig.
+The reason is uncomfortable and deserves to be said out loud: the frontend
+talks to the Realtime Database **without authentication** — Join's login is a
+home-grown check against the `users` node, not Firebase Auth. So there is no
+`auth` object a rule could test against. Closing `.read` would break login,
+board and contacts immediately and completely.
 
-**Eine Ausnahme gibt es:** Auf `users` erlaubt die Regel nur noch Anlegen und
-Löschen, nicht das Ändern eines bestehenden Datensatzes — sonst könnte jeder,
-der die Datenbank-URL kennt, ein fremdes Konto durch Überschreiben des
-`pwHash` übernehmen. Die Begründung im Detail steht in
-[`deployment.md`](deployment.md), Abschnitt 7.3.
+**There is one exception:** on `users` the rule now only allows creating and
+deleting, not modifying an existing record — otherwise anyone who knows the
+database URL could take over someone else's account by overwriting its
+`pwHash`. The detailed reasoning is in [`deployment.md`](deployment.md),
+section 7.3.
 
-Der Service Account ändert daran **nichts**. Er ist der saubere Weg für den
-Server-Pfad und die Vorbereitung darauf, die Rules später zu schließen — aber
-solange das Frontend unauthentifiziert schreibt, bringt er **keinen
-Zugriffsschutz**. Das ist ein bewusster Demo-Kompromiss, kein gelöstes
-Sicherheitsproblem.
+The service account changes **nothing** about this. It is the clean route for
+the server path and the preparation for closing the rules later — but as long
+as the frontend writes unauthenticated, it provides **no access control**.
+This is a deliberate demo compromise, not a solved security problem.
 
-### Was die Rules trotzdem leisten
+### What the rules still accomplish
 
-**Datenmüll aus dem Browser abwehren.** Validiert werden auf jedem Task:
+**Fending off garbage from the browser.** Validated on every task:
 
-| Feld | erlaubt |
+| Field | allowed |
 |---|---|
 | `status` | `triage`, `todo`, `inprogress`, `awaitfeedback`, `done` |
 | `prio` | `urgent`, `medium`, `low` |
 | `source` | `manual`, `email` |
-| `aiGenerated` | Boolean |
-| `createdAt` | Number |
+| `aiGenerated` | boolean |
+| `createdAt` | number |
 
-Die Statuswerte sind Zeichen für Zeichen dieselben wie `TASK_STATUS` in
-[`../js/core/constants.js`](../js/core/constants.js). Weichen sie ab, lehnt
-Firebase die Schreibvorgänge der Seite kommentarlos ab — bei jeder Änderung an
-einer der beiden Stellen die andere mitziehen.
+The status values are character for character the same as `TASK_STATUS` in
+[`../js/core/constants.js`](../js/core/constants.js). If they diverge,
+Firebase silently rejects the page's writes — whenever one of the two places
+changes, update the other.
 
-**Auf die Schreibvorgänge des Workflows greifen sie dagegen nicht.** n8n
-authentifiziert sich mit einem Service-Account-Token, und der gilt in der
-Realtime Database als Admin-Zugriff, der alle Regeln übergeht — auch die
-`.validate`-Regeln. Was der Automat schreibt, prüft allein der Code-Node
-`Map AI answer` in
+**They have no effect on the workflow's writes.** n8n authenticates with a
+service account token, which the Realtime Database treats as admin access
+that bypasses all rules — including the `.validate` rules. What the
+automation writes is checked solely by the code node `Map AI answer` in
 [`../n8n/issue-collector.workflow.json`](../n8n/issue-collector.workflow.json).
-Das ist kein Versehen, sondern die Kehrseite von Abschnitt 3: derselbe Token,
-der kurzlebig und widerrufbar ist, bringt eben auch volle Rechte mit.
+That is not an oversight but the flip side of section 3: the same token that
+is short-lived and revocable also comes with full rights.
 
-### Wirkungsweise
+### How it takes effect
 
-`.validate` greift **nur auf Feldern, die tatsächlich geschrieben werden**.
-Fehlt `prio` an einem Bestandstask, stört das nicht; die Regel wird für dieses
-Feld schlicht nicht ausgewertet. Ein Schreibvorgang mit `status: "backlog"` wird
-dagegen abgelehnt — die gesamte Operation, nicht nur das eine Feld.
+`.validate` only applies **to fields that are actually written**. If `prio`
+is missing on a legacy task, that does not matter; the rule is simply not
+evaluated for that field. A write with `status: "backlog"`, however, is
+rejected — the entire operation, not just the one field.
 
-### Was den Kompromiss auflösen würde
+### What would resolve the compromise
 
-Echtes Firebase Auth im Frontend (anonyme Anmeldung würde genügen, um ein
-`auth`-Objekt zu bekommen) und ein eigenes Firebase-Projekt für Join. Beides ist
-**nicht Teil dieser Ausbaustufe** und wäre ein Eingriff in bestehende Screens,
-die laut Projektregeln unangetastet bleiben.
+Real Firebase Auth in the frontend (anonymous sign-in would suffice to get an
+`auth` object) and a dedicated Firebase project for Join. Both are **not part
+of this stage** and would touch existing screens, which the project rules say
+stay untouched.
 
 ---
 
-## 5. Betrieb neben Code a Cuisine
+## 5. Operating next to Code a Cuisine
 
-Zwei Stellen, an denen sich die beiden Projekte sonst in die Quere kommen.
+Two places where the two projects would otherwise get in each other's way.
 
-### 5.1 Eigene Quota-Datei
+### 5.1 Its own quota file
 
-Code a Cuisine schreibt seinen Tageszähler bereits nach
-`/home/node/.n8n/quota-state.json`. Join darf diese Datei **nicht mitbenutzen** —
-sonst teilen sich beide Projekte ein Kontingent und blockieren sich gegenseitig.
+Code a Cuisine already writes its daily counter to
+`/home/node/.n8n/quota-state.json`. Join must **not** share this file —
+otherwise both projects share one quota and block each other.
 
-Join verwendet im selben Volume:
+Join uses, in the same volume:
 
 ```
 /home/node/.n8n/join-quota-state.json
 ```
 
-Aufbau der Datei — `system` ist der Tageszähler aus dem Lastenheft (10),
-`perSender` begrenzt zusätzlich einen einzelnen Absender auf 3 Anfragen:
+Structure of the file — `system` is the daily counter from the requirements
+(10), `perSender` additionally limits a single sender to 3 requests:
 
 ```json
 { "day": "2026-08-26", "system": 4, "perSender": { "stakeholder@example.com": 2 } }
 ```
 
-Zurücksetzen, analog zum bestehenden Zähler von Code a Cuisine:
+Resetting, analogous to Code a Cuisine's existing counter:
 
 ```bash
 cd /opt/code-a-cuisine
@@ -222,54 +220,52 @@ docker compose exec n8n rm -f /home/node/.n8n/join-quota-state.json
 docker compose exec n8n sh -c 'ls /home/node/.n8n/ | grep -c join-quota-state.json'   # 0 = reset
 ```
 
-Der Zähler wird **vor** dem KI-Aufruf hochgezählt, nicht nach dem erfolgreichen
-Schreiben des Tickets. Eine Mail, an der das Modell scheitert, kostet ihren Slot
-trotzdem — sonst wäre das Limit kein Kostenschutz, sondern nur eine Erfolgsstatistik.
+The counter is incremented **before** the AI call, not after the ticket has
+been written successfully. A mail the model fails on still costs its slot —
+otherwise the limit would not be a cost guard but merely a success statistic.
 
-**Bekannte Schwäche: der Zähler ist Read-Modify-Write ohne Sperre.** Der
-Code-Node liest die Datei, erhöht den Wert und schreibt sie zurück. Treffen zwei
-Mails so dicht hintereinander ein, dass zwei Workflow-Läufe sich überlappen,
-lesen beide denselben Stand und schreiben denselben erhöhten Wert — ein Slot
-zählt dann nur einmal. Bei zehn Anfragen am Tag in einer Demo ist das
-hinnehmbar; als stiller Fehler soll es trotzdem nicht dastehen. Sauber wäre eine
-Datei-Sperre oder ein Zähler in der Datenbank statt im Dateisystem.
+**Known weakness: the counter is read-modify-write without a lock.** The code
+node reads the file, increments the value and writes it back. If two mails
+arrive so close together that two workflow runs overlap, both read the same
+state and write the same incremented value — one slot then counts only once.
+With ten requests a day in a demo that is acceptable; it still should not sit
+here as a silent flaw. The clean solution would be a file lock or a counter
+in the database instead of the file system.
 
-### 5.2 Eigene Webhook-Pfade
+### 5.2 Its own webhook paths
 
 ```
-/webhook/join-status    — Statusbenachrichtigung beim Spaltenwechsel
-/webhook/join-quota     — Tageslimit für die Landing Page
+/webhook/join-status    — status notification on column change
+/webhook/join-quota     — daily limit for the landing page
 ```
 
-Das Präfix `join-` hält sie von den Code-a-Cuisine-Pfaden getrennt.
+The `join-` prefix keeps them apart from the Code a Cuisine paths.
 
-Caddy lässt `/webhook/*` bereits durch — für die Join-Pfade ist **nichts
-zusätzlich freizuschalten**. Die Caddy-Konfiguration wird für Join nicht
-angefasst.
+Caddy already lets `/webhook/*` through — **nothing additional** needs to be
+opened for the Join paths. The Caddy configuration is not touched for Join.
 
-**CORS muss der jeweilige Workflow selbst setzen.** Caddy tut das nicht. Das
-erledigt der **Webhook-Node** über *Allowed Origins (CORS)* — er beantwortet
-damit auch den Preflight (`OPTIONS`) selbst. Am „Respond to Webhook"-Node sind
-**keine** CORS-Header von Hand zu setzen; eine frühere Fassung dieses Abschnitts
-behauptete das Gegenteil, der Live-Test hat es widerlegt (Abschnitt 9.6).
+**CORS must be set by each workflow itself.** Caddy does not do it. The
+**webhook node** handles it via *Allowed Origins (CORS)* — it thereby also
+answers the preflight (`OPTIONS`) itself. **No** CORS headers are to be set
+manually on the "Respond to Webhook" node; an earlier version of this section
+claimed the opposite, the live test disproved it (section 9.6).
 
 ---
 
-## 6. Was der Issue Collector zusätzlich am Container braucht
+## 6. What the issue collector additionally needs on the container
 
-Vier Punkte, die nur der Issue Collector benötigt und die nicht im Workflow
-stehen können. Alle vier sind am laufenden System verifiziert, nicht vermutet.
+Four items only the issue collector needs and that cannot live in the
+workflow. All four are verified on the running system, not assumed.
 
 ### 6.1 `NODE_FUNCTION_ALLOW_EXTERNAL=imap`
 
-Der IMAP-Trigger kann eine Mail **nicht verschieben**. Sein Feld *Action* kennt
-genau zwei Werte, „None" und „Mark as Read"; einen Zielordner gibt es dort
-nicht. Das Lastenheft verlangt das Verschieben aber zweimal ausdrücklich — nach
-`erledigt` bei erfolgreicher Verarbeitung, nach `zu-bearbeiten` im Fehlerfall.
-Also erledigt es ein Code-Node, der sich selbst per `require('imap')` mit dem
-Postfach verbindet.
+The IMAP trigger **cannot move** a mail. Its *Action* field knows exactly two
+values, "None" and "Mark as Read"; there is no target folder. The
+requirements, however, explicitly demand moving twice — to `erledigt` on
+successful processing, to `zu-bearbeiten` on failure. So a code node does it,
+connecting to the mailbox itself via `require('imap')`.
 
-n8n lädt in Code-Nodes nur Module, die ausdrücklich freigegeben sind:
+n8n only loads modules in code nodes that are explicitly allowed:
 
 ```yaml
 # /opt/code-a-cuisine/docker-compose.yml
@@ -277,36 +273,36 @@ environment:
   - NODE_FUNCTION_ALLOW_EXTERNAL=imap
 ```
 
-`imap@0.8.19` liegt bereits im n8n-Image, es ist also nichts nachzuinstallieren.
-Die Variable ist seit dem 26.08.2026 gesetzt und am Container geprüft:
-`require('imap')` liefert dort `typeof === "function"`.
+`imap@0.8.19` is already in the n8n image, so nothing needs to be installed.
+The variable has been set since 2026-08-26 and verified on the container:
+`require('imap')` returns `typeof === "function"` there.
 
-Ohne die Freigabe scheitern die drei `Move mail to …`-Nodes bei jedem Lauf. Weil
-sie auf `continueOnFail` stehen, fällt das nicht als roter Workflow auf — die
-Mails bleiben einfach in der INBOX liegen. Der Ordnername `zu-bearbeiten` trägt
-übrigens einen **Bindestrich**; im Postfach heißt er so, auch wenn das
-Lastenheft „zu bearbeiten" schreibt.
+Without the allowance, the three `Move mail to …` nodes fail on every run.
+Because they are set to `continueOnFail`, this does not show up as a red
+workflow — the mails simply stay in the INBOX. Note that the folder name
+`zu-bearbeiten` carries a **hyphen**; that is its name in the mailbox, even
+though the requirements write "zu bearbeiten".
 
-**Die Zielordner brauchen das Namespace-Präfix `INBOX.`** Auf diesem Mailserver
-heißen sie `INBOX.erledigt` und `INBOX.zu-bearbeiten` — nicht `erledigt` und
-`zu-bearbeiten`. Ohne Präfix bricht der Move ab:
+**The target folders need the namespace prefix `INBOX.`** On this mail server
+they are called `INBOX.erledigt` and `INBOX.zu-bearbeiten` — not `erledigt`
+and `zu-bearbeiten`. Without the prefix the move aborts:
 
 ```
 Client tried to access nonexistent namespace
 ```
 
-Der Server legt die Unterordner unterhalb von `INBOX` an; ein Name ohne Präfix
-zeigt für ihn in einen Namespace, den es nicht gibt. Die drei
-`Move mail to …`-Nodes tragen das Präfix in ihrem `TARGET_FOLDER` bereits.
+The server creates the subfolders below `INBOX`; a name without the prefix
+points into a namespace that does not exist for it. The three
+`Move mail to …` nodes already carry the prefix in their `TARGET_FOLDER`.
 
-### 6.2 `JOIN_IMAP_USER` und `JOIN_IMAP_PASSWORD`
+### 6.2 `JOIN_IMAP_USER` and `JOIN_IMAP_PASSWORD`
 
-Dieselben Code-Nodes brauchen Zugangsdaten. Ein n8n-Credential können sie nicht
-verwenden — Credentials stehen nur konfigurierten Nodes zur Verfügung, nicht dem
-Code darin. Sie kämen also als Klartext in den Code-Node, und der Code-Node
-steht im Workflow-Export, und der Export liegt im Repository.
+The same code nodes need credentials. They cannot use an n8n credential —
+credentials are only available to configured nodes, not to the code inside
+them. They would therefore end up as plain text in the code node, and the
+code node is in the workflow export, and the export is in the repository.
 
-Deshalb kommen sie aus der Umgebung des Containers:
+So they come from the container's environment:
 
 ```yaml
 # /opt/code-a-cuisine/docker-compose.yml
@@ -315,127 +311,125 @@ environment:
   - JOIN_IMAP_PASSWORD=${JOIN_IMAP_PASSWORD}
 ```
 
-Die Werte selbst in die `.env` neben der Compose-Datei — nie ins Repository.
-Nach der Änderung `docker compose up -d` aus `/opt/code-a-cuisine`.
+The values themselves go into the `.env` next to the Compose file — never
+into the repository. After the change, `docker compose up -d` from
+`/opt/code-a-cuisine`.
 
-Die Nodes lesen sie über `$env.JOIN_IMAP_USER` und `$env.JOIN_IMAP_PASSWORD` und
-werfen einen sprechenden Fehler, wenn eine der beiden fehlt. Voraussetzung ist
-`N8N_BLOCK_ENV_ACCESS_IN_NODE=false`, und zwar ausdrücklich gesetzt — siehe
-Abschnitt 6.3.
+The nodes read them via `$env.JOIN_IMAP_USER` and `$env.JOIN_IMAP_PASSWORD`
+and throw a descriptive error if either is missing. The prerequisite is
+`N8N_BLOCK_ENV_ACCESS_IN_NODE=false`, explicitly set — see section 6.3.
 
 ### 6.3 `N8N_BLOCK_ENV_ACCESS_IN_NODE=false`
 
-Die Variable muss **ausdrücklich in der Compose-Datei stehen**. Fehlt sie,
-scheitert jeder `$env`-Zugriff im Code-Node:
+The variable must be **explicitly present in the Compose file**. If it is
+missing, every `$env` access in a code node fails:
 
 ```
 access to env vars denied
 ```
 
-Die drei `Move mail to …`-Nodes fallen damit aus, bevor sie überhaupt eine
-Verbindung aufbauen — sie kommen nicht an `JOIN_IMAP_USER` und
-`JOIN_IMAP_PASSWORD` heran.
+The three `Move mail to …` nodes then fail before they even open a
+connection — they cannot reach `JOIN_IMAP_USER` and `JOIN_IMAP_PASSWORD`.
 
 ```yaml
-# /opt/code-a-cuisine/docker-compose.yml, Zeile 52
+# /opt/code-a-cuisine/docker-compose.yml, line 52
 environment:
   - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
 ```
 
-Dass n8n die Variable von Haus aus auf `false` führt, half hier nicht: Ohne den
-Eintrag war der Zugriff im laufenden Container blockiert. Die Zeile steht seit
-dem Live-Test drin.
+That n8n nominally defaults the variable to `false` did not help here:
+without the entry, access in the running container was blocked. The line has
+been in place since the live test.
 
-### 6.4 SMTP nur über Port 587
+### 6.4 SMTP only via port 587
 
-**Hetzner Cloud sperrt ausgehend die Ports 25 und 465.** Offen ist allein
-**587**. Das SMTP-Credential läuft deshalb auf 587 mit **STARTTLS**:
+**Hetzner Cloud blocks outgoing ports 25 and 465.** Only **587** is open. The
+SMTP credential therefore runs on 587 with **STARTTLS**:
 
-| Feld im Credential | Wert |
+| Credential field | Value |
 |---|---|
 | Port | `587` |
-| SSL/TLS | **aus** |
-| STARTTLS | an |
+| SSL/TLS | **off** |
+| STARTTLS | on |
 
-Mit Port 465 gibt es keine Fehlermeldung, an der man das erkennen könnte: Der
-Versand **hängt**, bis der Execution-Timeout des Workflows zuschlägt. Der
-betroffene `Send …`-Node steht bis dahin auf „running", und der Lauf bricht
-zuletzt am Timeout ab statt an der Verbindung — die Ursache steht nirgends im
-Log.
+With port 465 there is no error message to recognize this by: the send
+**hangs** until the workflow's execution timeout strikes. The affected
+`Send …` node shows "running" until then, and the run finally aborts at the
+timeout rather than at the connection — the cause appears nowhere in the log.
 
 ---
 
-## 7. Vor dem ersten Import prüfen
+## 7. Checks before the first import
 
-Acht Punkte am Container. Alle acht sind gesetzt und am 26.08.2026 am
-laufenden Container nachgewiesen.
+Eight items on the container. All eight are set and were verified on the
+running container on 2026-08-26.
 
-| # | Prüfpunkt | Warum |
+| # | Check | Why |
 |---|---|---|
-| 1 | Volume für `/home/node/.n8n` vorhanden | erledigt. `docker inspect code-a-cuisine-n8n-1` zeigt `volume code-a-cuisine_n8n_data … -> /home/node/.n8n`; der Container hat seither vier Neustarts überstanden, ohne Credentials oder Workflows zu verlieren. Ohne Volume wären Workflows, Credentials und der Quota-Stand nach jedem Neustart weg. |
-| 2 | `WEBHOOK_URL` gesetzt | erledigt. `printenv` im Container liefert `https://n8n.thomas-toebbe.de/`. Ohne die Variable baut n8n die Webhook-URLs gegen `localhost:5678` — die Landing Page bekäme eine unbrauchbare Adresse. |
-| 3 | `TZ=UTC` | bereits gesetzt. Der Tageszähler rechnet auf UTC-Mitternacht; eine andere Zeitzone verschiebt den Reset. |
-| 4 | `NODE_FUNCTION_ALLOW_BUILTIN=fs` | bereits gesetzt. Ohne das kann der Quota-Guard die Zählerdatei nicht schreiben. |
-| 5 | `NODE_FUNCTION_ALLOW_EXTERNAL=imap` | seit dem 26.08.2026 gesetzt. Siehe Abschnitt 6.1. |
-| 6 | `JOIN_IMAP_USER` und `JOIN_IMAP_PASSWORD` | gesetzt — der Live-Test hat sich am Postfach angemeldet. Siehe Abschnitt 6.2. |
-| 7 | `N8N_BLOCK_ENV_ACCESS_IN_NODE=false` | seit dem Live-Test gesetzt, `docker-compose.yml` Zeile 52. Ohne den Eintrag scheitert `$env` im Code-Node. Siehe Abschnitt 6.3. |
-| 8 | `JOIN_NOTIFY_SECRET` | seit dem Live-Test des Status-Workflows gesetzt. Muss denselben Wert tragen wie `NOTIFY_CONFIG.SECRET` im Client; fehlt sie ganz, bricht der Guard-Node mit sprechendem Fehler ab. Siehe Abschnitt 9.1. |
+| 1 | Volume for `/home/node/.n8n` present | done. `docker inspect code-a-cuisine-n8n-1` shows `volume code-a-cuisine_n8n_data … -> /home/node/.n8n`; the container has since survived four restarts without losing credentials or workflows. Without a volume, workflows, credentials and the quota state would be gone after every restart. |
+| 2 | `WEBHOOK_URL` set | done. `printenv` in the container returns `https://n8n.thomas-toebbe.de/`. Without the variable, n8n builds webhook URLs against `localhost:5678` — the landing page would get a useless address. |
+| 3 | `TZ=UTC` | already set. The daily counter calculates against UTC midnight; a different timezone shifts the reset. |
+| 4 | `NODE_FUNCTION_ALLOW_BUILTIN=fs` | already set. Without it the quota guard cannot write the counter file. |
+| 5 | `NODE_FUNCTION_ALLOW_EXTERNAL=imap` | set since 2026-08-26. See section 6.1. |
+| 6 | `JOIN_IMAP_USER` and `JOIN_IMAP_PASSWORD` | set — the live test logged into the mailbox. See section 6.2. |
+| 7 | `N8N_BLOCK_ENV_ACCESS_IN_NODE=false` | set since the live test, `docker-compose.yml` line 52. Without the entry, `$env` fails in code nodes. See section 6.3. |
+| 8 | `JOIN_NOTIFY_SECRET` | set since the live test of the status workflow. Must carry the same value as `NOTIFY_CONFIG.SECRET` in the client; if it is missing entirely, the guard node aborts with a descriptive error. See section 9.1. |
 
-Prüfen lässt sich das so:
+This can be verified like so:
 
 ```bash
 cd /opt/code-a-cuisine
 docker compose exec n8n env | grep -E "WEBHOOK_URL|^TZ=|NODE_FUNCTION_ALLOW_|JOIN_IMAP_USER|N8N_BLOCK_ENV_ACCESS_IN_NODE"
-docker compose exec n8n env | grep -cE "^JOIN_NOTIFY_SECRET=."   # 1 = gesetzt
+docker compose exec n8n env | grep -cE "^JOIN_NOTIFY_SECRET=."   # 1 = set
 docker compose config | grep -A5 volumes
 ```
 
 ---
 
-## 8. Import-Weg
+## 8. Import route
 
-Über den **n8n-Editor**, per SSH-Tunnel erreichbar (siehe Abschnitt 1):
-*Workflow → Import from File*, JSON aus `../n8n/` auswählen.
+Via the **n8n editor**, reachable through the SSH tunnel (see section 1):
+*Workflow → Import from File*, choose the JSON from `../n8n/`.
 
-**Nicht über die CLI.** `n8n import:workflow` setzt importierte Workflows
-inaktiv; sie müssten anschließend ohnehin einzeln in der UI aktiviert werden,
-und stille Fehlschläge fallen dabei leicht durch.
+**Not via the CLI.** `n8n import:workflow` sets imported workflows to
+inactive; they would have to be activated individually in the UI anyway, and
+silent failures slip through easily.
 
-Nach **jedem** Import die Workflow-Settings im Editor von Hand nachziehen — der
-Import übernimmt sie nicht und lässt die Standardwerte der Instanz stehen:
+After **every** import, adjust the workflow settings by hand in the editor —
+the import does not carry them over and leaves the instance defaults in
+place:
 
-| Setting | Wert | Warum |
+| Setting | Value | Why |
 |---|---|---|
-| **Timeout** | `80` Sekunden | Der Issue Collector wartet auf die KI-Antwort; der Standardwert ist dafür zu knapp. |
-| **Timezone** | `UTC` | Der Tageszähler rechnet auf UTC-Mitternacht, eine andere Zeitzone verschiebt den Reset. |
-| **Error Workflow** | — | Sonst schlägt ein Fehler still fehl. |
+| **Timeout** | `80` seconds | The issue collector waits for the AI answer; the default is too tight for that. |
+| **Timezone** | `UTC` | The daily counter calculates against UTC midnight, a different timezone shifts the reset. |
+| **Error workflow** | — | Otherwise an error fails silently. |
 
-Timeout und Timezone **stehen in der JSON** — `settings.executionTimeout: 80`
-und `settings.timezone: "Etc/UTC"`. Der Import liest sie trotzdem nicht ein.
-Deshalb beide nach jedem Import einzeln kontrollieren, statt sich auf die Datei
-zu verlassen.
+Timeout and timezone **are in the JSON** — `settings.executionTimeout: 80`
+and `settings.timezone: "Etc/UTC"`. The import still does not read them. So
+check both individually after every import instead of relying on the file.
 
-Ebenfalls nach dem Import zu setzen, weil es nicht in der JSON steckt:
+Also to be set after the import, because it is not in the JSON:
 
-- **Credentials neu zuordnen.** Der Export enthält Credential-Referenzen
-  (ID und Name). Stimmen die IDs der Zielinstanz nicht überein, hängen die Nodes
-  ohne Zugangsdaten in der Luft.
-- **Webhook-Pfade prüfen**, damit sie nach dem Import noch `join-` tragen.
-- **Workflow aktivieren.**
+- **Re-assign credentials.** The export contains credential references (ID
+  and name). If the target instance's IDs do not match, the nodes hang in the
+  air without credentials.
+- **Check the webhook paths** so they still carry `join-` after the import.
+- **Activate the workflow.**
 
 ---
 
-## 9. Der Status-Workflow
+## 9. The status workflow
 
-`n8n/status-notify.workflow.json`, Webhook `POST /webhook/join-status`. Das
-Board meldet dorthin jeden Spaltenwechsel, den es tatsächlich gespeichert hat;
-der Workflow entscheidet allein, ob daraus eine Mail wird.
+`n8n/status-notify.workflow.json`, webhook `POST /webhook/join-status`. The
+board reports every column change there that it has actually saved; the
+workflow alone decides whether that becomes an email.
 
 ### 9.1 `JOIN_NOTIFY_SECRET`
 
-Die dritte Env-Variable neben `JOIN_IMAP_USER` und `JOIN_IMAP_PASSWORD`. Der
-Guard-Node liest sie über `$env.JOIN_NOTIFY_SECRET` und vergleicht sie mit dem
-Header `x-join-secret` der Anfrage.
+The third env variable next to `JOIN_IMAP_USER` and `JOIN_IMAP_PASSWORD`. The
+guard node reads it via `$env.JOIN_NOTIFY_SECRET` and compares it with the
+request's `x-join-secret` header.
 
 ```yaml
 # /opt/code-a-cuisine/docker-compose.yml
@@ -443,60 +437,62 @@ environment:
   - JOIN_NOTIFY_SECRET=${JOIN_NOTIFY_SECRET}
 ```
 
-Der Wert selbst in die `.env` neben der Compose-Datei. Er muss **denselben Wert
-haben wie `NOTIFY_CONFIG.SECRET`** in [`../js/core/constants.js`](../js/core/constants.js) —
-sonst weist der Guard jede Anfrage des Boards ab.
+The value itself goes into the `.env` next to the Compose file. It must carry
+**the same value as `NOTIFY_CONFIG.SECRET`** in
+[`../js/core/constants.js`](../js/core/constants.js) — otherwise the guard
+rejects every request from the board.
 
-Voraussetzung ist wie bei den IMAP-Variablen `N8N_BLOCK_ENV_ACCESS_IN_NODE=false`
-(Abschnitt 6.3). Fehlt die Variable ganz, wirft der Guard-Node einen sprechenden
-Fehler statt still alles abzulehnen — sonst wäre der Zustand „Secret nicht
-gesetzt" vom Zustand „Secret falsch" nicht zu unterscheiden.
+As with the IMAP variables, the prerequisite is
+`N8N_BLOCK_ENV_ACCESS_IN_NODE=false` (section 6.3). If the variable is
+missing entirely, the guard node throws a descriptive error instead of
+silently rejecting everything — otherwise the state "secret not set" would be
+indistinguishable from "secret wrong".
 
-### 9.2 Warum das Secret keine Sicherheit ist
+### 9.2 Why the secret is not security
 
-`NOTIFY_CONFIG.SECRET` steht im ausgelieferten Client-Code. Jeder, der das Board
-im Browser öffnet, kann es aus den Dev-Tools lesen. Es hält Zufallsanfragen und
-Scanner ab, mehr nicht — als Zugangsschutz taugt es nicht, und es soll auch nicht
-als solcher gelesen werden.
+`NOTIFY_CONFIG.SECRET` sits in the shipped client code. Anyone who opens the
+board in a browser can read it from the dev tools. It keeps out random
+requests and scanners, nothing more — it is no access control and must not be
+read as one.
 
-Was den Endpunkt tatsächlich schützt, sind drei Eigenschaften des Workflows:
+What actually protects the endpoint are three properties of the workflow:
 
-| Schutz | Wirkung |
+| Protection | Effect |
 |---|---|
-| **Empfänger aus der Datenbank** | Der Node `Fetch task` holt den Ticket-Datensatz und nimmt die Adresse aus `createdBy.email`. Käme sie aus dem Request-Body, wäre der Webhook ein offener Mailversender: Wer das Secret aus dem Client-Code hat, könnte an beliebige Adressen schicken lassen. So kann der Workflow nur den Ersteller eines **existierenden** Tickets anschreiben. |
-| **Statusprüfung** | `from` und `to` müssen zwei **verschiedene** der fünf gültigen Statuswerte sein. Erfundene Werte und Nicht-Wechsel fliegen raus, bevor irgendetwas gelesen wird. |
-| **Deckelung** | Höchstens **3 Mails pro Ticket und Tag**. Wer eine Karte zwanzigmal hin und her schiebt, schreibt den Absender nicht zwanzigmal an. |
+| **Recipient from the database** | The `Fetch task` node loads the ticket record and takes the address from `createdBy.email`. If it came from the request body, the webhook would be an open mail sender: anyone with the secret from the client code could have mails sent to arbitrary addresses. This way the workflow can only write to the creator of an **existing** ticket. |
+| **Status check** | `from` and `to` must be two **different** ones of the five valid status values. Invented values and non-changes are thrown out before anything is read. |
+| **Cap** | At most **3 mails per ticket per day**. Someone dragging a card back and forth twenty times does not write to the sender twenty times. |
 
-Der Guard prüft in genau dieser Reihenfolge: erst das Secret, dann die Felder,
-dann die Statuswerte, zuletzt die Deckelung. So rührt eine Anfrage ohne Secret
-die Zählerdatei nicht an.
+The guard checks in exactly this order: first the secret, then the fields,
+then the status values, last the cap. A request without the secret thus never
+touches the counter file.
 
-Alles, was durchfällt, bekommt dieselbe nackte Antwort — HTTP 403 mit
-`{ "status": "rejected" }`. Der Grund steht nur im Execution-Log, nicht in der
-Antwort: Ein Aufrufer soll nicht erfahren, an welcher Prüfung er gescheitert ist.
+Everything that fails gets the same bare answer — HTTP 403 with
+`{ "status": "rejected" }`. The reason only appears in the execution log, not
+in the response: a caller should not learn which check they failed.
 
-**Der Client wertet die Antwort ohnehin nicht aus.** `notifyStatusChange` feuert
-und vergisst — schlägt der Aufruf fehl, weil n8n aus ist, merkt das Board davon
-nichts. Die drei Antworten sind zum Debuggen von Hand da.
+**The client does not evaluate the response anyway.** `notifyStatusChange`
+fires and forgets — if the call fails because n8n is down, the board never
+notices. The three responses exist for manual debugging.
 
-### 9.3 Eigene Zählerdatei
+### 9.3 Its own counter file
 
 ```
 /home/node/.n8n/join-notify-state.json
 ```
 
-Die **dritte** Zählerdatei im selben Volume, getrennt von den beiden anderen:
-`quota-state.json` gehört Code a Cuisine, `join-quota-state.json` dem Issue
-Collector (Abschnitt 5.1). Sie zusammenzulegen hieße, dass eingehende Mails und
-ausgehende Statusmails sich ein Kontingent teilen.
+The **third** counter file in the same volume, separate from the other two:
+`quota-state.json` belongs to Code a Cuisine, `join-quota-state.json` to the
+issue collector (section 5.1). Merging them would mean incoming mails and
+outgoing status mails share one quota.
 
-Aufbau — `perTask` zählt pro Ticket-ID, `day` ist der UTC-Tag:
+Structure — `perTask` counts per ticket ID, `day` is the UTC day:
 
 ```json
 { "day": "2026-08-26", "perTask": { "t2": 2, "t7": 1 } }
 ```
 
-Zurücksetzen:
+Resetting:
 
 ```bash
 cd /opt/code-a-cuisine
@@ -504,84 +500,85 @@ docker compose exec n8n rm -f /home/node/.n8n/join-notify-state.json
 docker compose exec n8n sh -c 'ls /home/node/.n8n/ | grep -c join-notify-state.json'   # 0 = reset
 ```
 
-Die **bekannte Schwäche aus Abschnitt 5.1 gilt hier genauso**: Read-Modify-Write
-ohne Sperre. Zwei Spaltenwechsel im selben Moment lesen denselben Stand und
-zählen zusammen nur einen Slot. Bei drei Mails pro Ticket und Tag ist das
-hinnehmbar.
+The **known weakness from section 5.1 applies here just the same**:
+read-modify-write without a lock. Two column changes in the same instant read
+the same state and together count only one slot. With three mails per ticket
+per day that is acceptable.
 
 ### 9.4 CORS
 
-Der Aufruf kommt aus dem Browser, nicht vom Server. Der Webhook-Node trägt
-deshalb unter *Allowed Origins (CORS)* die Domains, von denen das Board
-ausgeliefert wird:
+The call comes from the browser, not from a server. The webhook node
+therefore lists, under *Allowed Origins (CORS)*, the domains the board is
+served from:
 
 ```
 https://join.thomas-toebbe.de,http://127.0.0.1:5500,http://localhost:5500,http://localhost:8080
 ```
 
-Die letzten drei sind die lokalen Entwicklungsadressen: Live Server (5500, je
-nach Einstellung unter `127.0.0.1` oder `localhost`) und `python -m http.server
-8080` aus der [`../README.md`](../README.md).
+The last three are the local development addresses: Live Server (5500, under
+`127.0.0.1` or `localhost` depending on its settings) and
+`python -m http.server 8080` from the [`../README.md`](../README.md).
 
-**Diese Liste ist gegen das echte Deployment zu prüfen.** Steht dort die falsche
-Domain, schlägt der Aufruf im Browser fehl, während er per `curl` funktioniert —
-ein Fehlerbild, das leicht in die Irre führt, weil der Workflow im Execution-Log
-sauber durchläuft und trotzdem nichts ankommt.
+**This list must be checked against the real deployment.** With the wrong
+domain in there, the call fails in the browser while it works via `curl` — a
+failure picture that easily misleads, because the workflow runs cleanly in
+the execution log and still nothing arrives.
 
-Den Preflight beantwortet der Webhook-Node selbst, sobald das Feld gefüllt ist.
-Am Respond-Node ist dafür **nichts** nachzurüsten (Abschnitt 5.2).
+The webhook node answers the preflight itself once the field is filled. There
+is **nothing** to retrofit on the respond node (section 5.2).
 
-An Caddy ist nichts zu tun: `/webhook/*` ist bereits durchgelassen
-(Abschnitt 5.2).
+Nothing to do on Caddy: `/webhook/*` is already allowed through
+(section 5.2).
 
-### 9.5 Nach dem Import
+### 9.5 After the import
 
-Wie bei jedem Import (Abschnitt 8) von Hand nachziehen:
+As with every import (section 8), adjust by hand:
 
-| Was | Wert |
+| What | Value |
 |---|---|
-| Timeout | `80` Sekunden |
+| Timeout | `80` seconds |
 | Timezone | `UTC` |
-| Credentials | `Join V2 - Firebase RTDB (Service Account)` an `Fetch task`, `Join V2 - issues (SMTP)` an `Send status mail` |
-| Webhook-Pfad | `join-status` |
+| Credentials | `Join V2 - Firebase RTDB (Service Account)` on `Fetch task`, `Join V2 - issues (SMTP)` on `Send status mail` |
+| Webhook path | `join-status` |
 
-Danach den Workflow aktivieren. Nach `JOIN_NOTIFY_SECRET` in `.env` und Compose
-muss der Container einmal neu starten (`docker compose up -d`), sonst kennt der
-Guard die Variable nicht.
+Then activate the workflow. After adding `JOIN_NOTIFY_SECRET` to `.env` and
+Compose, the container must restart once (`docker compose up -d`), otherwise
+the guard does not know the variable.
 
-### 9.6 Am laufenden System geprüft
+### 9.6 Verified on the running system
 
-Der Workflow ist importiert, aktiv und getestet;
-[`../n8n/status-notify.workflow.json`](../n8n/status-notify.workflow.json) ist
-der Export aus der laufenden Instanz. Vier Punkte, die am Entwurf noch offen
-waren, sind damit geklärt und beim nächsten Import **nicht erneut zu prüfen**:
+The workflow is imported, active and tested;
+[`../n8n/status-notify.workflow.json`](../n8n/status-notify.workflow.json) is
+the export from the running instance. Four items that were still open in the
+draft are thereby settled and need **not be re-checked** on the next import:
 
-| Punkt | Ergebnis |
+| Item | Result |
 |---|---|
-| `typeVersion` des Webhook-Nodes | passt. n8n zeigt am Node keinen Upgrade-Hinweis. |
-| Schlüssel `options.allowedOrigins` | richtig benannt. Die vier Domains aus Abschnitt 9.4 stehen nach dem Import im Feld *Allowed Origins (CORS)*. |
-| `typeVersion` der drei Respond-Nodes | passt. |
-| HTTP 403 an `Respond: rejected` | kommt beim Aufrufer an — der `responseCode` aus den Node-Optionen wird durchgereicht. |
+| `typeVersion` of the webhook node | fine. n8n shows no upgrade hint on the node. |
+| Key `options.allowedOrigins` | correctly named. The four domains from section 9.4 appear in the *Allowed Origins (CORS)* field after the import. |
+| `typeVersion` of the three respond nodes | fine. |
+| HTTP 403 on `Respond: rejected` | reaches the caller — the `responseCode` from the node options is passed through. |
 
-Der Preflight braucht nichts Zusätzliches: Der Webhook-Node beantwortet
-`OPTIONS` selbst, am Respond-Node sind keine CORS-Header nötig. Abschnitt 5.2
-sagte das Gegenteil und ist entsprechend korrigiert.
+The preflight needs nothing extra: the webhook node answers `OPTIONS` itself,
+no CORS headers are needed on the respond node. Section 5.2 used to say the
+opposite and has been corrected accordingly.
 
-**Live-Test am Board:**
+**Live test on the board:**
 
-- Ein Statuswechsel an einem Ticket mit externem Ersteller löst **genau eine**
-  Mail aus.
-- Ab dem **vierten** Wechsel desselben Tickets am selben Tag greift die
-  Deckelung — keine Mail mehr, Antwort 403 (Abschnitt 9.2).
-- Ein Ticket mit internem Ersteller löst **keine** Mail aus; der Lauf endet an
-  `Notify creator?` mit `skipped`.
+- A status change on a ticket with an external creator triggers **exactly
+  one** mail.
+- From the **fourth** change of the same ticket on the same day the cap
+  kicks in — no more mail, response 403 (section 9.2).
+- A ticket with an internal creator triggers **no** mail; the run ends at
+  `Notify creator?` with `skipped`.
 
 ---
 
-## 10. Der Quota-Workflow
+## 10. The quota workflow
 
-`n8n/quota-status.workflow.json`, Webhook `GET /webhook/join-quota`. Er liefert
-der Landing Page den Stand des Tageslimits — mehr nicht. Drei Nodes:
+`n8n/quota-status.workflow.json`, webhook `GET /webhook/join-quota`. It
+serves the landing page the state of the daily limit — nothing more. Three
+nodes:
 
 ```
 Receive quota request                       [Webhook GET /webhook/join-quota]
@@ -589,112 +586,111 @@ Receive quota request                       [Webhook GET /webhook/join-quota]
        └─ Respond: counter                  [200, {"used": n, "limit": 10}]
 ```
 
-### 10.1 Dieselbe Zählerdatei, nur lesend
+### 10.1 The same counter file, read-only
 
 ```
 /home/node/.n8n/join-quota-state.json
 ```
 
-Das ist die Datei aus Abschnitt 5.1, die der **Issue Collector schreibt**. Der
-Quota-Workflow liest sie und schreibt sie nie. Daraus folgen zwei Dinge:
+This is the file from section 5.1 that the **issue collector writes**. The
+quota workflow reads it and never writes it. Two things follow:
 
-- Ein Aufruf des Endpunkts **verbraucht keinen Slot**. Wer die Adresse im
-  Sekundentakt abruft, sperrt damit niemanden aus.
-- Die Zahl kann nur **hinterherhinken**, nie vorlaufen. Zwischen Abruf und
-  einer eintreffenden Mail liegt das übliche Rennen; bei zehn Anfragen am Tag
-  ist das ohne Bedeutung.
+- A call to the endpoint **consumes no slot**. Polling the address every
+  second locks nobody out.
+- The number can only **lag behind**, never run ahead. Between a poll and an
+  arriving mail lies the usual race; with ten requests a day that does not
+  matter.
 
-Fehlt die Datei — noch keine Mail an diesem Tag, oder der Zähler wurde
-zurückgesetzt —, antwortet der Workflow `used: 0`. Steht darin ein **früherer**
-UTC-Tag, ebenfalls `used: 0`: `Read counter` verwendet dafür dieselbe Funktion
-`resetWhenNewDay` wie der Guard des Issue Collectors, Zeichen für Zeichen. Beide
-sehen damit dieselbe Tagesgrenze, und der Zähler springt auf der Landing Page
-zur selben Minute auf null, in der die Mailverarbeitung wieder Slots vergibt.
+If the file is missing — no mail yet that day, or the counter was reset —
+the workflow answers `used: 0`. If it contains an **earlier** UTC day,
+likewise `used: 0`: `Read counter` uses the same `resetWhenNewDay` function
+as the issue collector's guard, character for character. Both therefore see
+the same day boundary, and the counter on the landing page jumps to zero in
+the same minute the mail processing hands out slots again.
 
-### 10.2 `limit` steht an zwei Stellen
+### 10.2 `limit` lives in two places
 
-`SYSTEM_LIMIT = 10` im Node `Read counter` und `SYSTEM_LIMIT = 10` im Guard des
-Issue Collectors. **n8n kennt keine geteilten Konstanten zwischen Workflows** —
-die beiden Stellen sind zusammen zu ändern.
+`SYSTEM_LIMIT = 10` in the `Read counter` node and `SYSTEM_LIMIT = 10` in the
+issue collector's guard. **n8n has no shared constants between workflows** —
+the two places must be changed together.
 
-Läuft die Zahl auseinander, entsteht der unangenehme Fall lautlos: Die Seite
-meldet „Limit erreicht", während das Postfach weiter Tickets anlegt, oder
-umgekehrt. Ein dritter Ort trägt dieselbe Zahl, ist aber unkritisch —
+If the number drifts apart, the unpleasant case happens silently: the page
+reports "limit reached" while the mailbox keeps creating tickets, or the
+other way round. A third place carries the same number but is uncritical —
 `data-request-limit="10"` in
-[`../html/pages/request.html`](../html/pages/request.html) dient nur als
-Rückfallwert, solange der Endpunkt nicht antwortet; die Antwort überschreibt ihn.
+[`../html/pages/request.html`](../html/pages/request.html) serves only as the
+fallback while the endpoint does not answer; the response overrides it.
 
-### 10.3 Der Endpunkt ist bewusst offen
+### 10.3 The endpoint is deliberately open
 
-Kein Secret, kein Token. Er gibt zwei Zahlen preis: wie viele der täglichen
-Anfragen verbraucht sind und wie viele es gibt. Dieselben zwei Zahlen stehen
-sichtbar auf der Landing Page.
+No secret, no token. It reveals two numbers: how many of the daily requests
+are used and how many exist. The same two numbers are visible on the landing
+page.
 
-Ein Secret würde daran nichts verbessern, sondern nur so aussehen: Es müsste im
-ausgelieferten Client-Code stehen, und damit hielte es jeder in der Hand, der
-den Seitenquelltext öffnet — genau die Begründung aus Abschnitt 9.2, nur ohne
-den Schaden, den ein missbrauchter Statuswebhook anrichten könnte. Der
-Quota-Endpunkt schreibt nichts, verschickt nichts und kostet nichts.
+A secret would not improve anything, it would only look like it: it would
+have to sit in the shipped client code, putting it in the hands of anyone who
+opens the page source — exactly the reasoning from section 9.2, just without
+the damage a misused status webhook could do. The quota endpoint writes
+nothing, sends nothing and costs nothing.
 
 ### 10.4 CORS
 
-Der Webhook-Node trägt **dieselbe** Liste wie der Status-Workflow
-(Abschnitt 9.4):
+The webhook node carries **the same** list as the status workflow
+(section 9.4):
 
 ```
 https://join.thomas-toebbe.de,http://127.0.0.1:5500,http://localhost:5500,http://localhost:8080
 ```
 
-Die beiden Listen sind zusammen zu pflegen. Kommt eine Domain dazu und nur
-einer der beiden Workflows erfährt davon, fällt das erst im Browser auf: Der
-Aufruf läuft per `curl` sauber durch, im Browser verwirft ihn die
-Same-Origin-Prüfung.
+The two lists must be maintained together. If a domain is added and only one
+of the two workflows learns of it, this only shows up in the browser: the
+call runs cleanly via `curl`, the browser's same-origin check discards it.
 
-### 10.5 Nach dem Import
+### 10.5 After the import
 
-| Was | Wert |
+| What | Value |
 |---|---|
-| Timeout | `80` Sekunden |
+| Timeout | `80` seconds |
 | Timezone | `UTC` |
-| Credentials | keine — der Workflow spricht weder Firebase noch SMTP an |
-| Webhook-Pfad | `join-quota` |
-| HTTP-Methode | `GET` |
+| Credentials | none — the workflow talks to neither Firebase nor SMTP |
+| Webhook path | `join-quota` |
+| HTTP method | `GET` |
 
-Danach aktivieren und im Browser aufrufen:
+Then activate and call it in the browser:
 
 ```
 https://n8n.thomas-toebbe.de/webhook/join-quota
 ```
 
-Erwartet wird `{"used":0,"limit":10}` beziehungsweise der Stand des Tages.
+Expected is `{"used":0,"limit":10}` or the current state of the day.
 
-### 10.6 Was die Landing Page daraus macht
+### 10.6 What the landing page does with it
 
 [`../js/features/landing/request-limit.js`](../js/features/landing/request-limit.js)
-holt die Zahlen beim Laden der Seite, mit **3 Sekunden Timeout** über
-`AbortSignal`. Drei Verhaltensweisen sind Absicht:
+fetches the numbers on page load, with a **3-second timeout** via
+`AbortSignal`. Three behaviors are intentional:
 
-- **Endpunkt tot, langsam oder mit Fehler:** `used = 0`, die Seite zeigt den
-  verfügbaren Zustand. Der umgekehrte Fehler wäre der schlimmere — eine
-  ausgefallene n8n-Instanz würde Stakeholdern grundlos den Weg versperren.
-- **`?used=` in der URL gewinnt** über die Antwort des Endpunkts. Das ist der
-  Testschalter für beide UI-Zustände (`?used=4`, `?used=10`) und bleibt es.
-- **`limit` aus der Antwort** übernimmt die Seite, wenn es eine Zahl größer
-  null ist; sonst bleibt `data-request-limit`.
+- **Endpoint dead, slow or erroring:** `used = 0`, the page shows the
+  available state. The opposite failure would be the worse one — a downed
+  n8n instance would block stakeholders for no reason.
+- **`?used=` in the URL wins** over the endpoint's answer. That is the test
+  switch for both UI states (`?used=4`, `?used=10`) and remains so.
+- **`limit` from the response** is adopted by the page if it is a number
+  greater than zero; otherwise `data-request-limit` stays.
 
-### 10.7 Am laufenden System geprüft
+### 10.7 Verified on the running system
 
-Der Workflow ist importiert, aktiv und getestet;
-[`../n8n/quota-status.workflow.json`](../n8n/quota-status.workflow.json) ist der
-Export aus der laufenden Instanz. Was am Entwurf noch offen war, ist damit
-geklärt und beim nächsten Import **nicht erneut zu prüfen**:
+The workflow is imported, active and tested;
+[`../n8n/quota-status.workflow.json`](../n8n/quota-status.workflow.json) is
+the export from the running instance. What was still open in the draft is
+thereby settled and need **not be re-checked** on the next import:
 
-| Punkt | Ergebnis |
+| Item | Result |
 |---|---|
-| `respondWith: "json"` zusammen mit `={{ JSON.stringify(…) }}` | richtig so. Der Aufruf von `https://n8n.thomas-toebbe.de/webhook/join-quota` liefert `{"limit":10,"used":1}` — ein echtes JSON-Objekt, keinen String und kein doppelt kodiertes JSON. Der Ausdruck erzeugt den Text, der Node setzt den `Content-Type`; zusammen ergibt das genau **eine** Kodierung. |
-| `httpMethod` im Webhook-Node | steht nicht mehr im Export. `GET` ist der Vorgabewert des Nodes, und Vorgabewerte schreibt n8n nicht mit. Der Endpunkt antwortet weiterhin auf `GET` — der Wert fehlt im JSON, nicht am Node. Abschnitt 10.5 bleibt damit gültig. |
-| CORS im Browser | die Liste aus Abschnitt 10.4 stimmt. `request.html` von `http://127.0.0.1:5500` bekommt die Antwort, der Browser verwirft sie nicht. Ein `curl`-Test allein hätte das nicht gezeigt. |
+| `respondWith: "json"` together with `={{ JSON.stringify(…) }}` | correct as is. Calling `https://n8n.thomas-toebbe.de/webhook/join-quota` returns `{"limit":10,"used":1}` — a real JSON object, no string and no double-encoded JSON. The expression produces the text, the node sets the `Content-Type`; together that is exactly **one** encoding. |
+| `httpMethod` in the webhook node | no longer in the export. `GET` is the node's default value, and n8n does not write defaults. The endpoint still answers `GET` — the value is missing from the JSON, not from the node. Section 10.5 remains valid. |
+| CORS in the browser | the list from section 10.4 is right. `request.html` served from `http://127.0.0.1:5500` receives the answer, the browser does not discard it. A `curl` test alone would not have shown that. |
 
-**Live-Test an der Seite:** `request.html` zeigt den echten Stand des Tages —
-`1 of 10` bei einer verbrauchten Anfrage. Die Zahl kommt aus dem Endpunkt, nicht
-aus `data-request-limit` und nicht aus `?used=`.
+**Live test on the page:** `request.html` shows the real state of the day —
+`1 of 10` with one request used. The number comes from the endpoint, not
+from `data-request-limit` and not from `?used=`.
