@@ -1,26 +1,26 @@
-# n8n-Workflows
+# n8n workflows
 
-Hier liegen die Workflow-JSONs des Issue Collectors. **Alle drei sind Exporte
-aus der laufenden Instanz** — importiert, aktiv und getestet, keine von Hand
-geschriebenen Entwürfe mehr.
+This is where the issue collector's workflow JSONs live. **All three are
+exports from the running instance** — imported, active and tested, no
+hand-written drafts anymore.
 
-## Die drei Workflows
+## The three workflows
 
-| Datei | Aufgabe |
+| File | Job |
 |---|---|
-| `issue-collector.workflow.json` | Holt die Mails aus dem Postfach, prüft den Tageszähler, lässt die Mail von der KI analysieren (Kategorie, Titel, Priorität, Deadline), legt das Ticket in der Triage-Spalte an und bestätigt dem Absender den Eingang. |
-| `status-notify.workflow.json` | Webhook `/webhook/join-status`. Das Board meldet einen Spaltenwechsel; der Workflow schickt dem Ersteller eine Statusmail. |
-| `quota-status.workflow.json` | Webhook `/webhook/join-quota`. Liefert der Landing Page den aktuellen Stand des Tageslimits (verbraucht / maximal). |
+| `issue-collector.workflow.json` | Fetches the mails from the mailbox, checks the daily counter, has the AI analyze the mail (category, title, priority, deadline), creates the ticket in the Triage column and confirms receipt to the sender. |
+| `status-notify.workflow.json` | Webhook `/webhook/join-status`. The board reports a column change; the workflow sends the creator a status mail. |
+| `quota-status.workflow.json` | Webhook `/webhook/join-quota`. Serves the landing page the current state of the daily limit (used / maximum). |
 
 ## `issue-collector.workflow.json`
 
-> **Diese Datei ist der Export** aus der laufenden Instanz — importiert, aktiv
-> und getestet. Der Testlauf hat die Zielordner der drei `Move mail to …`-Nodes
-> korrigiert: Der Mailserver legt sie unterhalb von `INBOX` an, ohne das Präfix
-> bricht der Move mit „nonexistent namespace" ab. Siehe
-> [`../docs/n8n-setup.md`](../docs/n8n-setup.md), Abschnitt 6.1.
+> **This file is the export** from the running instance — imported, active
+> and tested. The test run corrected the target folders of the three
+> `Move mail to …` nodes: the mail server creates them below `INBOX`, without
+> the prefix the move aborts with "nonexistent namespace". See
+> [`../docs/n8n-setup.md`](../docs/n8n-setup.md), section 6.1.
 
-### Die Node-Kette
+### The node chain
 
 ```
 Email Trigger (IMAP)
@@ -40,54 +40,54 @@ Email Trigger (IMAP)
             └─ false → Notify sender?             [IF]
                          ├─ true  → Send guard notice   [Send Email]
                          │            └─ Move mail to zu-bearbeiten (guard)  [Code]
-                         └─ false → Ende ohne Antwort
+                         └─ false → end without a reply
 ```
 
-Der `false`-Zweig des Guards trägt drei Fälle: Tageslimit erreicht,
-Verarbeitungsfehler und „keine `[JOIN]`-Mail". Die ersten beiden unterscheiden
-sich nur im Feld `notice`, das der Guard mit dem fertigen Antworttext füllt.
-Der dritte hat ein leeres `notice` — `Notify sender?` schickt ihn ins Leere, und
-genau deshalb bekommt eine Spam-Mail **keine** Antwort, wird nicht verschoben
-und verbraucht keinen Quota-Slot.
+The guard's `false` branch carries three cases: daily limit reached,
+processing error, and "not a `[JOIN]` mail". The first two differ only in the
+`notice` field, which the guard fills with the finished reply text. The third
+has an empty `notice` — `Notify sender?` sends it into the void, and exactly
+that is why a spam mail gets **no** reply, is not moved and consumes no quota
+slot.
 
-### Die vier Credentials
+### The four credentials
 
-Die Datei enthält keine Zugangsdaten. Nach dem Import zuzuordnen:
+The file contains no credentials. To assign after the import:
 
-| Node | Credential-Typ | Anmerkung |
+| Node | Credential type | Note |
 |---|---|---|
-| `Email Trigger (IMAP)` | IMAP | `mail.your-server.de`, SSL/TLS, Benutzername ist die volle Adresse |
-| `Send confirmation`, `Send failure notice`, `Send guard notice` | SMTP | dasselbe Postfach |
-| `Fetch task ids`, `Write ticket` | Google Service Account API | `Join V2 - Firebase RTDB (Service Account)`, siehe [`../docs/n8n-setup.md`](../docs/n8n-setup.md) |
-| `Google Gemini Chat Model` | Google Gemini (PaLM) API | bereits vorhanden, wird mit Code a Cuisine geteilt |
+| `Email Trigger (IMAP)` | IMAP | `mail.your-server.de`, SSL/TLS, the username is the full address |
+| `Send confirmation`, `Send failure notice`, `Send guard notice` | SMTP | the same mailbox |
+| `Fetch task ids`, `Write ticket` | Google Service Account API | `Join V2 - Firebase RTDB (Service Account)`, see [`../docs/n8n-setup.md`](../docs/n8n-setup.md) |
+| `Google Gemini Chat Model` | Google Gemini (PaLM) API | already present, shared with Code a Cuisine |
 
-### Die zwei Env-Variablen
+### The two env variables
 
-Die drei `Move mail to …`-Nodes bauen ihre eigene IMAP-Verbindung auf und
-lesen die Zugangsdaten aus der Umgebung des Containers:
+The three `Move mail to …` nodes open their own IMAP connection and read the
+credentials from the container's environment:
 
 ```
 JOIN_IMAP_USER
 JOIN_IMAP_PASSWORD
 ```
 
-Sie stehen **nicht** im Workflow, weil diese Datei im Repository liegt. Warum
-die Nodes überhaupt nötig sind und was sonst noch am Container zu setzen ist,
-steht in [`../docs/n8n-setup.md`](../docs/n8n-setup.md).
+They are **not** in the workflow, because this file lives in the repository.
+Why the nodes are needed at all and what else has to be set on the container
+is described in [`../docs/n8n-setup.md`](../docs/n8n-setup.md).
 
 ## `status-notify.workflow.json`
 
-> **Diese Datei ist der Export** aus der laufenden Instanz — importiert, aktiv
-> und getestet. Was am Entwurf noch offen war, ist in
-> [`../docs/n8n-setup.md`](../docs/n8n-setup.md), Abschnitt 9.6, abgehakt.
+> **This file is the export** from the running instance — imported, active
+> and tested. What was still open in the draft is checked off in
+> [`../docs/n8n-setup.md`](../docs/n8n-setup.md), section 9.6.
 
-Das Board ruft den Webhook aus `persistStatusChange`
+The board calls the webhook from `persistStatusChange`
 ([`../js/features/board/draganddrop.js`](../js/features/board/draganddrop.js))
-auf — **nach** dem erfolgreichen Schreiben, also nur für einen Wechsel, der
-wirklich in der Datenbank steht. Der Aufruf ist „fire and forget": Ist n8n aus,
-merkt das Board nichts davon.
+— **after** the successful write, i.e. only for a change that really is in
+the database. The call is fire and forget: if n8n is down, the board never
+notices.
 
-### Die Node-Kette
+### The node chain
 
 ```
 Receive status change                       [Webhook POST /webhook/join-status]
@@ -102,57 +102,57 @@ Receive status change                       [Webhook POST /webhook/join-status]
             └─ false → Respond: rejected          [403]
 ```
 
-Der Guard prüft in dieser Reihenfolge: Secret, Pflichtfelder, die fünf gültigen
-Statuswerte (`from` und `to` müssen verschieden sein), zuletzt die Deckelung von
-**3 Mails pro Ticket und Tag**. Alles, was durchfällt, wird zu `rejected` — der
-Grund steht nur im Execution-Log, nicht in der Antwort.
+The guard checks in this order: secret, required fields, the five valid
+status values (`from` and `to` must differ), and finally the cap of
+**3 mails per ticket per day**. Everything that fails becomes `rejected` —
+the reason only appears in the execution log, not in the response.
 
-`Build mail` schickt nur an einen Ersteller mit `type: "extern"` und einer
-Adresse. Interne Mitglieder sehen den Wechsel auf dem Board und bekommen laut
-Lastenheft keine Mail; dieser Fall ist `skipped` und kein Fehler.
+`Build mail` only sends to a creator with `type: "extern"` and an address.
+Internal members see the change on the board and, per the requirements, get
+no mail; that case is `skipped` and not an error.
 
-**Die Empfängeradresse kommt aus dem Ticket-Datensatz, nie aus dem Request.**
-Das ist der Grund für den Node `Fetch task`: Käme sie aus dem Body, wäre der
-Webhook ein offener Mailversender. Warum das Secret allein nichts schützt, steht
-in [`../docs/n8n-setup.md`](../docs/n8n-setup.md), Abschnitt 9.2.
+**The recipient address comes from the ticket record, never from the
+request.** That is the reason for the `Fetch task` node: if it came from the
+body, the webhook would be an open mail sender. Why the secret alone protects
+nothing is explained in [`../docs/n8n-setup.md`](../docs/n8n-setup.md),
+section 9.2.
 
-### Die zwei Credentials
+### The two credentials
 
-| Node | Credential-Typ | Anmerkung |
+| Node | Credential type | Note |
 |---|---|---|
-| `Fetch task` | Google Service Account API | `Join V2 - Firebase RTDB (Service Account)`, dasselbe wie im Issue Collector |
-| `Send status mail` | SMTP | `Join V2 - issues (SMTP)`, Port 587 mit STARTTLS |
+| `Fetch task` | Google Service Account API | `Join V2 - Firebase RTDB (Service Account)`, the same as in the issue collector |
+| `Send status mail` | SMTP | `Join V2 - issues (SMTP)`, port 587 with STARTTLS |
 
-### Die eine Env-Variable
+### The one env variable
 
 ```
 JOIN_NOTIFY_SECRET
 ```
 
-Gleicher Wert wie `NOTIFY_CONFIG.SECRET` in
-[`../js/core/constants.js`](../js/core/constants.js). Steht **nicht** im
-Workflow — der Guard liest sie über `$env`. Details in
-[`../docs/n8n-setup.md`](../docs/n8n-setup.md), Abschnitt 9.
+Same value as `NOTIFY_CONFIG.SECRET` in
+[`../js/core/constants.js`](../js/core/constants.js). It is **not** in the
+workflow — the guard reads it via `$env`. Details in
+[`../docs/n8n-setup.md`](../docs/n8n-setup.md), section 9.
 
 ### CORS
 
-Der Webhook-Node trägt unter *Allowed Origins (CORS)* die Domains, von denen das
-Board ausgeliefert wird. **Die Liste ist gegen das echte Deployment zu prüfen**
-— steht dort die falsche Domain, scheitert der Aufruf im Browser, während er per
-`curl` durchläuft. Siehe [`../docs/n8n-setup.md`](../docs/n8n-setup.md),
-Abschnitt 9.4.
+The webhook node lists, under *Allowed Origins (CORS)*, the domains the board
+is served from. **The list must be checked against the real deployment** —
+with the wrong domain in there, the call fails in the browser while it works
+via `curl`. See [`../docs/n8n-setup.md`](../docs/n8n-setup.md), section 9.4.
 
 ## `quota-status.workflow.json`
 
-> **Diese Datei ist der Export** aus der laufenden Instanz — importiert, aktiv
-> und getestet. Was am Entwurf noch offen war, ist in
-> [`../docs/n8n-setup.md`](../docs/n8n-setup.md), Abschnitt 10.7, abgehakt.
+> **This file is the export** from the running instance — imported, active
+> and tested. What was still open in the draft is checked off in
+> [`../docs/n8n-setup.md`](../docs/n8n-setup.md), section 10.7.
 
-Die Landing Page ruft den Webhook beim Laden auf
+The landing page calls the webhook on load
 ([`../js/features/landing/request-limit.js`](../js/features/landing/request-limit.js))
-und zeigt daraus den Tageszähler „n von 10 requests used".
+and renders the daily counter "n of 10 requests used" from it.
 
-### Die Node-Kette
+### The node chain
 
 ```
 Receive quota request                       [Webhook GET /webhook/join-quota]
@@ -160,77 +160,76 @@ Receive quota request                       [Webhook GET /webhook/join-quota]
        └─ Respond: counter                  [200]
 ```
 
-Drei Nodes, kein IF: Es gibt nichts zu entscheiden. `Read counter` liest
-`/home/node/.n8n/join-quota-state.json` — **dieselbe Datei, die der Issue
-Collector schreibt** — und antwortet mit `{"used": n, "limit": 10}`. Fehlende
-Datei oder ein Stand vom Vortag ergeben beide `used: 0`; die Prüfung der
-UTC-Tagesgrenze ist zeichengleich aus dem Guard des Issue Collectors
-übernommen, damit beide dieselbe Grenze sehen.
+Three nodes, no IF: there is nothing to decide. `Read counter` reads
+`/home/node/.n8n/join-quota-state.json` — **the same file the issue
+collector writes** — and answers with `{"used": n, "limit": 10}`. A missing
+file or a state from the previous day both yield `used: 0`; the UTC day
+boundary check is taken character for character from the issue collector's
+guard, so both see the same boundary.
 
-**Der Workflow schreibt nie.** Ein Aufruf verbraucht deshalb keinen Quota-Slot,
-und ein im Sekundentakt abgerufener Endpunkt sperrt niemanden aus.
+**The workflow never writes.** A call therefore consumes no quota slot, and
+an endpoint polled every second locks nobody out.
 
-### Keine Credentials
+### No credentials
 
-Der einzige der drei Workflows ohne: weder Firebase noch SMTP noch IMAP werden
-angesprochen. Nach dem Import sind nur Timeout, Timezone und der Webhook-Pfad
-zu kontrollieren.
+The only one of the three workflows without any: neither Firebase nor SMTP
+nor IMAP is used. After the import, only timeout, timezone and the webhook
+path need checking.
 
-### Das Limit steht an zwei Stellen
+### The limit lives in two places
 
-`SYSTEM_LIMIT = 10` hier im Node `Read counter` und `SYSTEM_LIMIT = 10` im Guard
-des Issue Collectors. n8n kennt keine geteilten Konstanten zwischen Workflows —
-**beide Stellen sind zusammen zu ändern.** Laufen sie auseinander, meldet die
-Seite ein Limit, das das Postfach nicht kennt, oder umgekehrt. Details in
-[`../docs/n8n-setup.md`](../docs/n8n-setup.md), Abschnitt 10.2.
+`SYSTEM_LIMIT = 10` here in the `Read counter` node and `SYSTEM_LIMIT = 10`
+in the issue collector's guard. n8n has no shared constants between
+workflows — **both places must be changed together.** If they drift apart,
+the page reports a limit the mailbox does not know, or vice versa. Details in
+[`../docs/n8n-setup.md`](../docs/n8n-setup.md), section 10.2.
 
-### Bewusst ohne Secret
+### Deliberately without a secret
 
-Der Endpunkt ist öffentlich. Er gibt zwei Zahlen preis, die ohnehin sichtbar auf
-der Landing Page stehen. Ein Secret müsste im ausgelieferten Client-Code
-mitgeliefert werden und schützte damit nichts — siehe
-[`../docs/n8n-setup.md`](../docs/n8n-setup.md), Abschnitt 10.3.
+The endpoint is public. It reveals two numbers that are visible on the
+landing page anyway. A secret would have to ship with the client code and
+would therefore protect nothing — see
+[`../docs/n8n-setup.md`](../docs/n8n-setup.md), section 10.3.
 
 ### CORS
 
-**Dieselbe** Liste wie im Status-Workflow, Zeichen für Zeichen. Kommt eine
-Domain dazu, muss sie in **beide** Webhook-Nodes. Siehe
-[`../docs/n8n-setup.md`](../docs/n8n-setup.md), Abschnitt 10.4.
+**The same** list as in the status workflow, character for character. If a
+domain is added, it must go into **both** webhook nodes. See
+[`../docs/n8n-setup.md`](../docs/n8n-setup.md), section 10.4.
 
-## Wo die Workflows laufen
+## Where the workflows run
 
-In der **bestehenden** n8n-Instanz unter `n8n.thomas-toebbe.de` — gemeinsam mit
-den Workflows von Code a Cuisine. Join bekommt keinen eigenen Server und keine
-eigene Deploy-Struktur. Daraus folgen zwei Dinge, die in
-[`../docs/n8n-setup.md`](../docs/n8n-setup.md) ausführlich stehen: eine eigene
-Quota-Datei und eigene Webhook-Pfade, damit sich beide Projekte nicht in die
-Quere kommen.
+In the **existing** n8n instance at `n8n.thomas-toebbe.de` — together with
+the Code a Cuisine workflows. Join gets no server of its own and no deploy
+structure of its own. Two things follow, described in detail in
+[`../docs/n8n-setup.md`](../docs/n8n-setup.md): a dedicated quota file and
+dedicated webhook paths, so the two projects cannot get in each other's way.
 
-## Vor jedem Commit prüfen
+## Check before every commit
 
-n8n schreibt beim Export normalerweise nur Credential-**Referenzen** (ID und
-Name) in die JSON, keine Werte. Verlass dich nicht darauf: Ein Export kann durch
-einen Code-Node, einen hart eingetragenen Header oder eine URL mit Query-Parameter
-trotzdem ein Geheimnis enthalten.
+On export, n8n normally writes only credential **references** (ID and name)
+into the JSON, no values. Do not rely on it: an export can still contain a
+secret through a code node, a hard-coded header or a URL with a query
+parameter.
 
-Deshalb jeden Export vor dem Commit durchsehen:
+So review every export before committing:
 
 ```bash
 grep -nE "private_key|BEGIN PRIVATE KEY|client_email|password|apiKey|Bearer |auth=" n8n/*.json
 ```
 
-Treffer prüfen und entfernen. Ein Service-Account-Schlüssel gehört unter keinen
-Umständen ins Repo — weder als Datei noch als Textausschnitt.
+Check and remove any hits. A service account key must never end up in the
+repo under any circumstances — neither as a file nor as a text excerpt.
 
-## Weiterführend
+## Further reading
 
-- [Abschnitt *Architektur*](../README.md#architektur) in der README — wie
-  Webhosting, VPS und Firebase zusammenhängen, plus das Ablaufdiagramm von der
-  Mail zum Ticket
-- [`../docs/n8n-setup.md`](../docs/n8n-setup.md) — Schreibzugriff auf Firebase,
-  Betrieb neben Code a Cuisine, Import-Weg, Prüfliste vor dem ersten Import
-- [`../docs/deployment.md`](../docs/deployment.md#7-datenbank-regeln-einspielen)
-  — wie `database.rules.json` in die Datenbank kommt
-- [`../database.rules.json`](../database.rules.json) — Validierungsregeln für
-  Schreibvorgänge **aus dem Browser**. Der Service-Account-Token der Workflows
-  gilt als Admin-Zugriff und übergeht sie
+- [*Architecture*](../README.md#architecture) section in the README — how web
+  hosting, VPS and Firebase relate, plus the mail-to-ticket sequence diagram
+- [`../docs/n8n-setup.md`](../docs/n8n-setup.md) — write access to Firebase,
+  operating next to Code a Cuisine, import route, checklist before the first
+  import
+- [`../docs/deployment.md`](../docs/deployment.md#7-publishing-the-database-rules)
+  — how `database.rules.json` gets into the database
+- [`../database.rules.json`](../database.rules.json) — validation rules for
+  writes **from the browser**. The workflows' service account token counts as
+  admin access and bypasses them
