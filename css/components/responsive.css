@@ -27,7 +27,6 @@
   .topbar-inner{
     padding: 0 8px 0 16px;
     grid-template-columns: auto 1fr auto;
-    max-width: 100%;
   }
 
   .topbar-help{
@@ -42,6 +41,15 @@
     background: url("/assets/img/homepage-join.svg") no-repeat center / contain;
   }
 
+  /* Node 332:1588 draws 40 px; 44 px keeps the minimum touch target. */
+  .topbar-user{
+    width: 44px;
+    height: 44px;
+  }
+
+  .user-dropdown{
+    top: 56px;
+  }
 
   #nav-bar-placeholder{
     flex: 0 0 auto;

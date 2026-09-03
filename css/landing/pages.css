@@ -436,12 +436,26 @@
   }
 }
 
-/* Widescreen: keep the content column where it is, per node 353021:9422. */
+/*
+ * Widescreen, per note 353017:10360: "For the login screen, keep everything centered
+ * within the same bounds as in the normal desktop version." The bound is the 1440 px
+ * desktop artboard, so the logo stays inside that column instead of sticking to the
+ * viewport edge.
+ *
+ * The request page carries the document background, so capping the page itself leaves
+ * no seam. The welcome page paints a dark panel that has no widescreen artboard; it
+ * stays full-bleed and only its absolutely positioned logo moves into the column.
+ * `welcome-logo-in` animates towards the computed `left`, so the intro still lands the
+ * logo on its resting spot.
+ */
 @media (min-width: 1440px) {
-  .request-page__main,
-  .welcome-card {
-    margin-left: auto;
-    margin-right: auto;
+  .request-page {
+    max-width: 1440px;
+    margin-inline: auto;
+  }
+
+  .welcome-page__logo {
+    left: calc((100% - 1440px) / 2 + 40px);
   }
 }
 
