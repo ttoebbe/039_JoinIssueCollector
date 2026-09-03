@@ -41,6 +41,16 @@ function isUrgent(task) {
 }
 
 /**
+ * Checks whether a task was raised by email through the issue collector.
+ * The n8n workflow stamps `source` on every ticket it creates.
+ * @param {Object} task - Task object
+ * @returns {boolean} True if the task came in by email
+ */
+function isEmailRequest(task) {
+  return String(task?.source || "").toLowerCase().trim() === "email";
+}
+
+/**
  * Parses a task due date into a Date object.
  * @param {Object} task - Task object
  * @returns {Date|null} Parsed due date or null
@@ -98,6 +108,7 @@ function initKpi(tasks) {
     awaiting: 0,
     done: 0,
     urgentOpen: 0,
+    emailRequests: 0,
     nextUrgentDeadline: null,
   };
 }
@@ -112,6 +123,7 @@ function updateKpiForTask(kpiData, task, urgentOpenDates) {
   const status = normalizeStatus(task?.status);
   incrementStatusCount(kpiData, status);
   trackUrgentOpen(kpiData, task, status, urgentOpenDates);
+  if (isEmailRequest(task)) kpiData.emailRequests++;
 }
 
 /**
@@ -165,6 +177,15 @@ function renderUser(user) {
 }
 
 /**
+ * Renders the KPI card grid into its placeholder.
+ */
+function renderKpiGrid() {
+  const host = getById("summary-kpis");
+  if (!host) return;
+  host.innerHTML = getSummaryKpisTemplate();
+}
+
+/**
  * Renders KPI counters on the summary page.
  * @param {Object} kpiData - KPI data to render
  */
@@ -174,6 +195,7 @@ function renderKPIs(kpiData) {
   setText("count-in-progress", String(kpiData.inProgress));
   setText("count-awaiting", String(kpiData.awaiting));
   setText("count-urgent", String(kpiData.urgentOpen));
+  setText("count-email", String(kpiData.emailRequests));
   if (getById("count-board")) setText("count-board", String(kpiData.board));
   setText(
     "next-deadline-date",
@@ -188,6 +210,7 @@ function renderKPIs(kpiData) {
 async function initSummary() {
   const user = loadCurrentUser();
   if (!user) return redirectToLogin();
+  renderKpiGrid();
   renderUser(user);
   runMobileGreeting(user);
   await reloadSummaryData();
