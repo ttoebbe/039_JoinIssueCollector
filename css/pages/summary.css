@@ -491,7 +491,6 @@ body {
   }
 
   .kpi-wide {
-    grid-column: 1 / -1;
     height: auto;
     padding: 18px 18px;
     border-radius: 26px;
@@ -499,7 +498,6 @@ body {
   }
 
   .kpi-square {
-    grid-column: 1 / -1;
     height: auto;
     padding: 16px 12px;
     border-radius: 26px;
@@ -725,6 +723,29 @@ body {
 
   .content {
     padding-bottom: 92px;
+  }
+}
+
+@media (min-width: 360px) and (max-width: 519px) {
+  .kpi-wide {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .kpi-wide-right {
+    gap: 2px;
+  }
+
+  .kpi-divider {
+    display: none;
+  }
+}
+
+@media (max-width: 359px) {
+  .kpi-wide,
+  .kpi-square {
+    grid-column: 1 / -1;
   }
 }
 
