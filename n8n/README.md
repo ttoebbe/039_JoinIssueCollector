@@ -8,7 +8,7 @@ hand-written drafts anymore.
 
 | File | Job |
 |---|---|
-| `issue-collector.workflow.json` | Fetches the mails from the mailbox, checks the daily counter, has the AI analyze the mail (category, title, priority, deadline), creates the ticket in the Triage column and confirms receipt to the sender. |
+| `issue-collector.workflow.json` | Fetches the mails from the mailbox, checks the daily counter, has the AI analyze the mail (category, title, priority, deadline, subtasks), creates the ticket in the Triage column and confirms receipt to the sender. |
 | `status-notify.workflow.json` | Webhook `/webhook/join-status`. The board reports a column change; the workflow sends the creator a status mail. |
 | `quota-status.workflow.json` | Webhook `/webhook/join-quota`. Serves the landing page the current state of the daily limit (used / maximum). |
 
@@ -49,6 +49,35 @@ processing error, and "not a `[JOIN]` mail". The first two differ only in the
 has an empty `notice` — `Notify sender?` sends it into the void, and exactly
 that is why a spam mail gets **no** reply, is not moved and consumes no quota
 slot.
+
+### The language of a ticket
+
+Title, summary and subtasks are written in the language the sender used —
+`buildSystemPrompt` in the guard node says so, and nothing downstream
+translates. Only the ticket text follows the sender; every label around it and
+every reply mail stay English. That is why the guard does not detect a
+language: the model sees the mail and answers in kind.
+
+The description carries **no** AI hint sentence. The
+`Ai-generated ticket` badge in the task detail
+([`../js/features/board/create-task-detail.js`](../js/features/board/create-task-detail.js))
+is the only place the flag shows, and it does not need a second, hard-coded
+German sentence in front of every summary.
+
+### Subtasks
+
+The model returns `subtasks` as an array of strings — only the sub-steps the
+mail names, at most five, each at most 60 characters, and an empty array when
+the mail names none. `Map AI answer` checks that list the same way it checks
+every other field, and `Build task payload` turns each title into
+`{ title, done: false }`, the shape `normalizeSubtasksFromTask` in
+[`../js/features/board/add-task-form-subtasks-normalize.js`](../js/features/board/add-task-form-subtasks-normalize.js)
+produces for a manually created ticket.
+
+**The two caps live in three places** — `MAX_SUBTASKS` / `MAX_SUBTASK_LENGTH`
+in `Map AI answer`, the rule line in the guard's `buildOutputRules`, and
+`maxItems` / `maxLength` in the output parser's schema. n8n shares no
+constants between nodes; all three have to move together.
 
 ### The four credentials
 
