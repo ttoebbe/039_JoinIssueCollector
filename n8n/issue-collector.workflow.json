@@ -88,14 +88,17 @@
         -848,
         112
       ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
       "onError": "continueErrorOutput",
-      "notes": "At most two Gemini calls (maxIterations 2); the shape of the answer is asked for by the Structured Output Parser and checked again in Map AI answer. Errors continue on the error output and end up in the same map node."
+      "notes": "At most two Gemini calls per try (maxIterations 2), at most two tries (retryOnFail) — retry must sit here, on the agent node; on the chat model sub-node it never fires. The shape of the answer is asked for by the Structured Output Parser and checked again in Map AI answer. Errors continue on the error output and end up in the same map node."
     },
     {
       "parameters": {
         "modelName": "models/gemini-3.5-flash",
         "options": {
-          "maxOutputTokens": 2048
+          "maxOutputTokens": 8192
         }
       },
       "id": "7561e65f-7f01-4b93-b225-c1e1ff492521",
@@ -106,9 +109,6 @@
         -880,
         352
       ],
-      "retryOnFail": true,
-      "maxTries": 3,
-      "waitBetweenTries": 3000,
       "credentials": {
         "googlePalmApi": {
           "id": "ZLxjCB6nGcW2enHx",
