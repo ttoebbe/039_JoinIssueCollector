@@ -257,9 +257,10 @@ body {
 }
 
 .kpi-number--ai {
+  line-height: 1.15;
   background: linear-gradient(
     var(--color-ai-gradient-from),
-    var(--color-ai-gradient-to)
+    var(--color-ai-gradient-to) 160%
   );
   -webkit-background-clip: text;
   background-clip: text;
