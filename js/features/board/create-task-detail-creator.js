@@ -1,6 +1,6 @@
 /**
- * Creates the creator block for the task detail overlay: the member/extern
- * badge on its own line, followed by the "Creator:" row. Returns null for
+ * Creates the creator row for the task detail overlay: label, member/extern
+ * badge, name and the follow-up action on a single line. Returns null for
  * legacy tasks that carry no creator record.
  * @param {Object} task
  * @returns {HTMLElement|null}
@@ -8,23 +8,10 @@
 function createCreatorRow(task) {
   const creator = task?.createdBy;
   if (!creator?.name) return null;
-  const wrap = document.createElement("div");
-  wrap.className = "task-detail-creator";
-  wrap.appendChild(createCreatorBadge(creator));
-  wrap.appendChild(createCreatorLine(creator));
-  return wrap;
-}
-
-/**
- * Creates the row holding the label, the creator name and the follow-up
- * action.
- * @param {Object} creator
- * @returns {HTMLElement}
- */
-function createCreatorLine(creator) {
   const row = document.createElement("div");
-  row.className = "task-detail-creator-row";
+  row.className = "task-detail-creator";
   row.appendChild(createCreatorLabel());
+  row.appendChild(createCreatorBadge(creator));
   row.appendChild(createCreatorName(creator));
   const action = createCreatorAction(creator);
   if (action) row.appendChild(action);
@@ -80,7 +67,8 @@ function getCreatorTypeLabel(type) {
 }
 
 /**
- * Creates the creator name element.
+ * Creates the creator name element. The title keeps the full name reachable
+ * where the row is too narrow and the name gets truncated.
  * @param {Object} creator
  * @returns {HTMLElement}
  */
@@ -88,6 +76,7 @@ function createCreatorName(creator) {
   const name = document.createElement("span");
   name.className = "task-detail-creator-name";
   name.textContent = creator?.name || "";
+  name.title = creator?.name || "";
   return name;
 }
 
@@ -107,8 +96,21 @@ function createCreatorAction(creator) {
   link.dataset.type = isExtern ? "extern" : "member";
   link.href = isExtern ? "mailto:" + creator.email : "/html/pages/contacts.html";
   link.appendChild(createCreatorActionIcon());
-  link.appendChild(document.createTextNode(isExtern ? "E-mail" : "Profil"));
+  link.appendChild(createCreatorActionText(isExtern ? "E-mail" : "Profil"));
   return link;
+}
+
+/**
+ * Creates the label of the creator action. It sits in its own element so the
+ * narrow layout can hide it visually while keeping the accessible name.
+ * @param {string} label
+ * @returns {HTMLElement}
+ */
+function createCreatorActionText(label) {
+  const text = document.createElement("span");
+  text.className = "task-detail-creator-action-text";
+  text.textContent = label;
+  return text;
 }
 
 /**
