@@ -10,28 +10,44 @@
 
 /* ---------- Welcome screen (350504:9300 desktop / 350522:9493 mobile) ---------- */
 
+/*
+ * Logo metrics are the single source of truth for the header: the page reserves
+ * exactly `--welcome-logo-top` above the logo, the logo itself is the first item
+ * in the flow, and the splash keyframe is derived from the same values. Keeping
+ * the logo in the flow is what stops the sign-up line and the card from running
+ * underneath it on short viewports such as the iPhone SE (issue #7).
+ *
+ * Width and offset shrink with the viewport height: the mobile artboard
+ * 350522:9493 (428 x 926) places "Capa 2" (64 x 78) at 41/45, and 6.91vh / 4.86vh
+ * reproduce those two values at 926 px while smaller phones get a smaller logo.
+ */
 .welcome-page {
+  --welcome-logo-top: clamp(24px, 4.86vh, 45px);
+  --welcome-logo-left: 41px;
+  --welcome-logo-width: clamp(48px, 6.91vh, 64px);
+  --welcome-logo-height: calc(var(--welcome-logo-width) * 78 / 64);
+  --welcome-page-inline: var(--space-16);
+
   position: relative;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  padding: var(--space-40) var(--space-16);
+  padding: var(--welcome-logo-top) var(--welcome-page-inline) var(--space-40);
   background-color: var(--color-background-inverse);
 }
 
 /*
- * Logo: the mobile artboard 350522:9493 places "Capa 2" (64 x 78) at 41/45.
- * The 1440 px artboard 350504:9300 carries no logo; it is kept on desktop
- * anyway, sized and offset like the request page brand (46 px), so the two
- * landing pages match. Deviation from the artboard documented in the commit.
+ * The 1440 px artboard 350504:9300 carries no logo; it is kept on desktop anyway,
+ * sized and offset like the request page brand (46 px), so the two landing pages
+ * match. Deviation from the artboard documented in the commit.
  */
 .welcome-page__logo {
-  position: absolute;
-  top: 45px;
-  left: 41px;
-  width: 64px;
-  height: auto;
+  position: relative;
   z-index: 2;
+  align-self: flex-start;
+  width: var(--welcome-logo-width);
+  height: var(--welcome-logo-height);
+  margin-left: calc(var(--welcome-logo-left) - var(--welcome-page-inline));
   animation: welcome-logo-in 900ms ease-in-out 400ms backwards;
 }
 
@@ -52,11 +68,19 @@
   animation: welcome-splash-out 500ms ease-in-out 800ms forwards;
 }
 
+/*
+ * The travel runs on `transform` rather than on top/left/width: the logo sits in
+ * the document flow, and a transform moves it without touching the layout. The
+ * offset puts the logo centre on the viewport centre at the start, whatever
+ * resting spot the current breakpoint gives it.
+ */
 @keyframes welcome-logo-in {
   from {
-    top: calc(50vh - 61px);
-    left: calc(50vw - 50px);
-    width: 100px;
+    transform: translate(
+        calc(50vw - var(--welcome-logo-left) - var(--welcome-logo-width) / 2),
+        calc(50vh - var(--welcome-logo-top) - var(--welcome-logo-height) / 2)
+      )
+      scale(1.5625); /* 100 px splash width over the 64 px artboard logo */
   }
 }
 
@@ -76,21 +100,6 @@
   gap: var(--space-16);
 }
 
-/*
- * On the artboard the card sits in the exact vertical centre (350504:9200 at
- * y 310 of 1024) while the legal links sit 40 px above the bottom edge. The
- * links are therefore taken out of the flow - but only when the viewport is
- * tall enough that they cannot collide with the card.
- */
-@media (min-height: 560px) {
-  .welcome-page__footer {
-    position: absolute;
-    right: 0;
-    bottom: var(--space-40);
-    left: 0;
-  }
-}
-
 .welcome-page__signup {
   display: flex;
   align-items: baseline;
@@ -103,13 +112,21 @@
   font-size: var(--font-size-19);
 }
 
+/*
+ * Vertical rhythm of the card. The mobile artboard is 428 x 926; an iPhone SE is
+ * 259 px shorter, which the artboard spacing alone does not survive - the card
+ * pushed the logo and the legal links out of the viewport (issue #7). Each gap
+ * therefore interpolates linearly between the measured artboard value at 926 px
+ * and a compact value at 667 px, and is clamped outside that range:
+ *   padding 64 -> 24   gap 56 -> 24   options 70 -> 32   intro 24 -> 16
+ */
 .welcome-card {
   display: flex;
   flex-direction: column;
-  gap: var(--space-56);
+  gap: clamp(var(--space-24), calc(12.36vh - 58.4px), var(--space-56));
   width: 100%;
   max-width: var(--layout-card-max);
-  padding: var(--space-64) 28px;
+  padding: clamp(var(--space-24), calc(15.44vh - 79px), var(--space-64)) 28px;
   border-radius: var(--radius-dialog);
   background-color: var(--color-surface);
   box-shadow: var(--shadow-panel);
@@ -119,7 +136,7 @@
 .welcome-card__intro {
   display: flex;
   flex-direction: column;
-  gap: var(--space-24);
+  gap: clamp(var(--space-16), calc(3.09vh - 4.6px), var(--space-24));
   align-items: center;
 }
 
@@ -152,10 +169,17 @@
 .welcome-card__options {
   display: flex;
   flex-direction: column;
-  gap: var(--space-70);
+  gap: clamp(var(--space-32), calc(14.67vh - 65.9px), var(--space-70));
   align-items: center;
 }
 
+/*
+ * On the artboard the card sits in the exact vertical centre (350504:9200 at y 310
+ * of 1024) while the legal links sit 40 px above the bottom edge. The links used to
+ * be taken out of the flow to hit that centre exactly; they now stay in it, pushed
+ * down by `flex: 1` on the content. That trades a few pixels of offset - 5 px on
+ * desktop - for a card that can no longer collide with them on short viewports.
+ */
 .welcome-page__footer {
   display: flex;
   flex-shrink: 0;
@@ -165,13 +189,10 @@
 
 @media (min-width: 768px) {
   .welcome-page {
-    padding: var(--space-40) var(--space-56);
-  }
-
-  .welcome-page__logo {
-    top: 29px;
-    left: 40px;
-    width: 46px;
+    --welcome-logo-top: 29px;
+    --welcome-logo-left: 40px;
+    --welcome-logo-width: 46px;
+    --welcome-page-inline: var(--space-56);
   }
 
   .welcome-page__signup {
@@ -181,6 +202,10 @@
   .welcome-card {
     gap: var(--space-56);
     padding: var(--space-56) 72px;
+  }
+
+  .welcome-card__intro {
+    gap: var(--space-24);
   }
 
   .welcome-card__title {
@@ -444,9 +469,10 @@
  *
  * The request page carries the document background, so capping the page itself leaves
  * no seam. The welcome page paints a dark panel that has no widescreen artboard; it
- * stays full-bleed and only its absolutely positioned logo moves into the column.
- * `welcome-logo-in` animates towards the computed `left`, so the intro still lands the
- * logo on its resting spot.
+ * stays full-bleed and only its logo moves into the column. `welcome-logo-in` is built
+ * from `--welcome-logo-left`, so the intro still lands the logo on its resting spot.
+ * The column is measured against `100vw` because the resting spot is a viewport offset,
+ * not one inside the page's content box.
  */
 @media (min-width: 1440px) {
   .request-page {
@@ -454,8 +480,8 @@
     margin-inline: auto;
   }
 
-  .welcome-page__logo {
-    left: calc((100% - 1440px) / 2 + 40px);
+  .welcome-page {
+    --welcome-logo-left: calc((100vw - 1440px) / 2 + 40px);
   }
 }
 
