@@ -17,6 +17,9 @@ function wireLoginErrorHandlers({ emailInput, passwordInput }) {
   );
 }
 
+/**
+ * Wires the login form when its elements are present.
+ */
 function initLogin() {
   const state = getLoginState();
   if (!state) return;

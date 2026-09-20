@@ -1,4 +1,8 @@
-﻿async function initContactsPage() {
+﻿/**
+ * Loads the contacts and renders the contacts page.
+ * @returns {Promise<void>}
+ */
+async function initContactsPage() {
   const listElement = document.querySelector(".contact-list");
   if (!listElement) {
     return;
@@ -23,6 +27,9 @@ async function reloadContactsData(listElement) {
   }
 }
 
+/**
+ * Starts the contacts page init once the page is ready.
+ */
 function handleContactsReady() {
   withPageReady(initContactsPage);
 }

@@ -36,6 +36,9 @@ function skipAnimation(img, bg) {
   bg.style.display = "none";
 }
 
+/**
+ * Plays the intro animation once per session.
+ */
 function initAnimation() {
   const img = document.getElementById("img-animation");
   const bg = document.getElementById("bg");
@@ -49,6 +52,9 @@ function initAnimation() {
   setTimeout(() => startAnimation(img, bg), 200);
 }
 
+/**
+ * Shows the signup success overlay.
+ */
 function showSuccessOverlay() {
   const overlay = document.getElementById("success-overlay");
   if (overlay) overlay.style.display = "flex";
@@ -57,10 +63,16 @@ function showSuccessOverlay() {
 // DOMContentLoaded listener for auth init.
 document.addEventListener("DOMContentLoaded", handleAuthReady);
 
+/**
+ * Starts the auth init once the page is ready.
+ */
 function handleAuthReady() {
   withPageReady(runAuthInit);
 }
 
+/**
+ * Initialises animation, login and signup.
+ */
 function runAuthInit() {
   initAnimation();
   initLogin();

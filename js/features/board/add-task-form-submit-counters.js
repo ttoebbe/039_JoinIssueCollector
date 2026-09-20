@@ -1,5 +1,6 @@
 /**
  * Wires create button state updates.
+ * @param {Object} state
  */
 function wireCreateButtonState(state) {
   const handler = function () {
@@ -10,6 +11,8 @@ function wireCreateButtonState(state) {
 
 /**
  * Attaches listeners for create button state.
+ * @param {Object} state
+ * @param {Function} handler
  */
 function attachCreateButtonListeners(state, handler) {
   state.titleInput?.addEventListener("input", handler);

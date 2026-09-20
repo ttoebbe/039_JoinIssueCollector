@@ -116,6 +116,9 @@ function selectContactById(contactId) {
   selectContact(contact, element);
 }
 
+/**
+ * Clears the active state from every contact entry.
+ */
 function removeActiveStates() {
   document.querySelectorAll(".contact-entry").forEach((entry) => {
     entry.classList.remove("is-active");

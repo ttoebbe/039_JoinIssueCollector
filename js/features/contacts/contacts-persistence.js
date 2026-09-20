@@ -120,12 +120,18 @@ async function deleteContact(contactId) {
   }
 }
 
+/**
+ * Re-renders the contact list from the current contact data.
+ */
 function updateContactList() {
   const listElement = document.querySelector(".contact-list");
   if (!listElement) return;
   renderContactList(listElement, getContactData());
 }
 
+/**
+ * Empties the contact detail panel and clears the related UI state.
+ */
 function clearContactDetail() {
   const container = document.getElementById("contact-detail-injection");
   if (container) container.innerHTML = "";

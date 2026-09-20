@@ -68,6 +68,9 @@ function setupMobileDetailButtons(contactId) {
   });
 }
 
+/**
+ * Wires the mobile header back button to close the detail view.
+ */
 function setupHeaderBackButton() {
   const headerBackButton = document.querySelector(
     ".contacts-header .contact-back-button",
@@ -94,10 +97,16 @@ function setMobileDetailState(isActive) {
   page.classList.toggle("is-detail-open", isActive);
 }
 
+/**
+ * Opens the contact detail view on mobile layouts.
+ */
 function openMobileDetailView() {
   if (isMobileLayout()) setMobileDetailState(true);
 }
 
+/**
+ * Closes the contact detail view on mobile layouts.
+ */
 function closeMobileDetailView() {
   if (isMobileLayout()) setMobileDetailState(false);
 }

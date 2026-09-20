@@ -1,3 +1,6 @@
+/**
+ * Wires the board buttons that open the add task overlay.
+ */
 function wireAddTaskButtons() {
   const mainBtn = document.getElementById("boardAddTaskBtn");
   mainBtn?.addEventListener("click", () => openOverlayWithStatus(TASK_STATUS.TRIAGE));

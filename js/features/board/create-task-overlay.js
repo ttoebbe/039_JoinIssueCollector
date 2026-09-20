@@ -24,6 +24,9 @@ function openTaskOverlayRoot() {
   return root;
 }
 
+/**
+ * Hides the task overlay and clears its content.
+ */
 function closeTaskOverlay() {
   const root = document.getElementById("overlayRoot");
   if (!root) return;

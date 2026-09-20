@@ -97,6 +97,9 @@ function setSignupBusy(state, busy) {
   setSignupButtonState(state);
 }
 
+/**
+ * Wires the signup form when its elements are present.
+ */
 function initSignup() {
   const state = getSignupState();
   if (!state) return;
@@ -230,6 +233,9 @@ async function buildNewUser(users, name, email, password) {
   };
 }
 
+/**
+ * Wires the password visibility toggles of the signup form.
+ */
 function wireSignupToggles() {
   setupPasswordToggle(
     "sign-up-password",

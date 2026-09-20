@@ -121,6 +121,9 @@ function getOverlayAvatarCircle() {
   return document.querySelector(".overlay-avatar .avatar-circle");
 }
 
+/**
+ * Resets the overlay avatar to its default icon.
+ */
 function setOverlayAvatarDefault() {
   const avatar = getOverlayAvatarCircle();
   if (!avatar) return;
