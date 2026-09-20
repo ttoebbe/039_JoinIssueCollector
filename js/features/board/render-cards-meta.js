@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Creates the category pill element.
  * @param {Object} task
  * @returns {HTMLElement}

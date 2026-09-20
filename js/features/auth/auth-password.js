@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Sets up a password toggle.
  * @param {string} inputId
  * @param {string} lockId

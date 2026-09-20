@@ -1,4 +1,4 @@
-﻿let lastOverlayFocus = null;
+let lastOverlayFocus = null;
 
 /**
  * Opens the overlay and sets focus state.

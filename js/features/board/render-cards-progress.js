@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Creates the subtask progress element.
  * @param {Object} task
  * @returns {HTMLElement|null}

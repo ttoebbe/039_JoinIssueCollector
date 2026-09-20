@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Renders the contact list and wires entries.
  * @param {HTMLElement} container
  * @param {Array} data

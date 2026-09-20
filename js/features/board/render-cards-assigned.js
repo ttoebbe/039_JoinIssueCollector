@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Creates the assigned avatars container.
  * @param {Object} task
  * @returns {HTMLElement}

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Sets the minimum due date on the input.
  * @param {HTMLInputElement} input
  */

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Starts the intro animation.
  * @param {HTMLElement} img
  * @param {HTMLElement} bg

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Saves the current user.
  * @param {Object} user
  */

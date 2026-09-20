@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Creates a task card element.
  * @param {Object} task
  * @returns {HTMLElement}

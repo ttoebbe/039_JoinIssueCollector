@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Shows the login error state.
  * @param {HTMLInputElement} emailInput
  * @param {HTMLInputElement} passwordInput

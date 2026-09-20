@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Creates the priority block.
  * @param {Object} task
  * @returns {HTMLElement}

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Wires signup error handlers.
  * @param {Object} fields
  */

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Wires login error handlers.
  * @param {Object} fields
  */

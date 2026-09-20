@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Loads the contacts and renders the contacts page.
  * @returns {Promise<void>}
  */

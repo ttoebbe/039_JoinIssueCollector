@@ -1,4 +1,4 @@
-﻿let currentEditId = null;
+let currentEditId = null;
 let contacts = [];
 
 /**

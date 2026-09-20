@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Sets up the add-contact overlay wiring.
  * @param {HTMLElement} listElement
  */

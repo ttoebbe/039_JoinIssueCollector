@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Renders the contact detail view.
  * @param {Object} contact
  */
