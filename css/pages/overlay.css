@@ -41,6 +41,16 @@
   place-items: center;
 }
 
+.overlay-close::after{
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+}
+
 .overlay-panel--detail {
   width: min(520px, calc(100vw - 40px));
   padding: 28px 28px 20px;

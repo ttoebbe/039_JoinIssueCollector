@@ -562,7 +562,6 @@ main {
   right: 16px;
   width: 36px;
   height: 36px;
-  border: none;
   border-radius: 50%;
   background: #ffffff;
   color: var(--contacts-accent);
@@ -573,6 +572,16 @@ main {
   z-index: 2;
   border: 1px solid #d0d6e4;
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+}
+
+.overlay-close-button::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
 }
 
 .overlay-form {
