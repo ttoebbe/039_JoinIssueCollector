@@ -219,7 +219,7 @@
 }
 
 .icon-button:hover {
-  background-color: rgba(23, 125, 168, 0.12);
+  background-color: var(--color-primary-hover-tint);
 }
 
 .icon-button__glyph {

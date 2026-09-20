@@ -12,7 +12,7 @@
   background: var(--nav);
   border-radius: 12px;
   padding: 8px;
-  box-shadow: 0 12px 28px rgba(0,0,0,0.18);
+  box-shadow: var(--shadow-dropdown);
   z-index: 999;
 
   opacity: 0;
@@ -35,7 +35,7 @@
   padding: 10px 12px;
   border-radius: 10px;
 
-  color: #fff;
+  color: var(--color-text-on-dark);
   text-decoration: none;
   background: transparent;
   border: 0;
@@ -45,11 +45,11 @@
 }
 
 .user-dropdown-item:hover{
-  background: rgba(255,255,255,0.10);
+  background: var(--color-hover-on-dark);
 }
 
 .user-dropdown-item.is-active{
-  background: rgba(255,255,255,0.14);
+  background: var(--color-active-on-dark);
 }
 
 .user-dropdown-logout{
