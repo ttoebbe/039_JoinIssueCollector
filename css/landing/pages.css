@@ -323,21 +323,28 @@
 /*
  * The illustration sits in a fixed box with scaleMode FIT in Figma, so the image
  * is letterboxed inside it rather than filling it. `object-fit: contain` on a box
- * of the artboard size reproduces that exactly and keeps the box height stable,
- * which also prevents a layout shift while the image loads.
+ * of the artboard size reproduces that exactly, and carrying the artboard ratio
+ * as `aspect-ratio` keeps the box proportional once its width has to give way.
+ * The ratio also reserves the height before the image loads, so nothing shifts.
+ *
+ * `min-height: 0` is what lets the ratio win: in the mobile column the figure is
+ * a flex item along the vertical axis, and its automatic minimum size would be
+ * the image's own taller ratio rather than the box the artboard specifies.
  */
 .request-page__figure {
   align-self: center;
   width: 292px;
   max-width: 100%;
+  height: auto;
+  min-height: 0;
 }
 
 .request-page__figure[data-state='available'] {
-  height: 201px;                       /* node 350522:9698 */
+  aspect-ratio: 292 / 201;             /* node 350522:9698 */
 }
 
 .request-page__figure[data-state='limit-reached'] {
-  height: 215px;                       /* node 350522:9780 */
+  aspect-ratio: 292 / 215;             /* node 350522:9780 */
 }
 
 .request-page__figure img {
@@ -374,11 +381,28 @@
   justify-content: center;
 }
 
+/*
+ * Desktop tier. The file holds a 428 px and a 1440 px artboard and nothing in
+ * between (spec.md 2.3), so the values measured on the 1440 x 1024 artboard are
+ * written as the upper end of a fluid range rather than as fixed pixels. Each
+ * range still hits the artboard value exactly at artboard size and shrinks below
+ * it - which is what clears both scrollbars on a 1024 x 600 laptop (issue #8).
+ *
+ * Horizontal ranges interpolate on `vw` up to the 1440 px artboard width, vertical
+ * ones on `vh` between a compact 600 px and the 1024 px artboard height:
+ *   figure 280 -> 200   heading row 56 -> 24   block gap 48 -> 24
+ *   text gap 40 -> 16   prose gap 16 -> 8      page padding 29/40 -> 20/24
+ */
 @media (min-width: 768px) {
   .request-page {
+    --request-figure-height: clamp(200px, calc(18.87vh + 86.8px), 280px);
+    --request-row-gap: clamp(var(--space-24), calc(7.55vh - 21.3px), var(--space-56));
+    --request-block-gap: clamp(var(--space-24), calc(5.66vh - 10px), var(--space-48));
+
     /* Logo ends at y 85, the top bar starts at y 85 (nodes 350504:9322 / 350519:7109). */
     gap: 0;
-    padding: 29px 40px var(--space-40);
+    padding: clamp(20px, calc(2.12vh + 7.3px), 29px) var(--space-40)
+      clamp(var(--space-24), calc(3.77vh + 1.4px), var(--space-40));
   }
 
   .request-page__brand {
@@ -394,7 +418,7 @@
     grid-template-areas:
       'back counter'
       'title title';
-    row-gap: var(--space-56);
+    row-gap: var(--request-row-gap);
   }
 
   .request-page__heading .request-counter {
@@ -402,62 +426,89 @@
   }
 
   .request-page__title {
-    font-size: var(--font-size-display-desktop);
+    font-size: clamp(
+      var(--font-size-display-mobile),
+      4.44vw,
+      var(--font-size-display-desktop)
+    );
   }
 
   /*
    * On the 1440 px artboard the top bar spans the full 1121 px column while the
    * content block below is 966 px wide and centred inside it: (1121 - 966) / 2 = 78.
+   * Narrower viewports have no width to give away, so the inset fades out towards
+   * 1024 px instead of dropping at a breakpoint.
    */
   .request-page__title,
   .request-page__body,
   .request-page__action {
-    padding-inline: 78px;
+    padding-inline: clamp(0px, calc((100vw - 1024px) * 0.1875), 78px);
   }
 
   .request-page__body {
     flex-direction: row;
     align-items: flex-start;
     gap: var(--space-48);
-    margin-top: var(--space-48);
+    margin-top: var(--request-block-gap);
   }
 
+  /*
+   * Both columns carry their artboard width as the flex basis and may shrink from
+   * it. Without that, the fixed 502 + 48 + 416 = 966 px row outgrew every viewport
+   * below roughly 1200 px and pushed the illustration off screen.
+   */
   .request-page__text {
     display: flex;
     flex-direction: column;
-    gap: var(--space-40);
-    width: 502px;
-    flex-shrink: 0;
+    gap: clamp(var(--space-16), calc(5.66vh - 18px), var(--space-40));
+    flex: 1 1 502px;
+    max-width: 502px;
+    min-width: 0;
   }
 
   .request-page__lead {
     font-family: var(--font-prose);
-    font-size: var(--font-size-lead-desktop);
+    font-size: clamp(
+      var(--font-size-lead-mobile),
+      1.94vw,
+      var(--font-size-lead-desktop)
+    );
     font-weight: var(--font-weight-regular);
   }
 
+  /* The floor is the 16 px project minimum, not a scaled-down artboard value. */
   .request-page__prose {
-    gap: var(--space-16);
-    font-size: var(--font-size-19);
+    gap: clamp(var(--space-8), calc(1.89vh - 3.3px), var(--space-16));
+    font-size: clamp(var(--font-size-body), 1.32vw, var(--font-size-19));
   }
 
+  /*
+   * Shrink factor 2 against the text column's 1: when the row runs out of width
+   * the illustration gives way first and the prose keeps a readable measure,
+   * instead of both columns narrowing and the text growing taller than the
+   * viewport. This only takes effect below roughly 1100 px, where the row starts
+   * to shrink at all.
+   */
   .request-page__figure {
     align-self: flex-start;
-    width: 416px;
-    flex-shrink: 0;
+    flex: 0 2 416px;
+    width: auto;
+    min-width: 0;
   }
 
   .request-page__figure[data-state='available'] {
-    height: 280px;                     /* node 350504:9382 */
+    aspect-ratio: 416 / 280;             /* node 350504:9382 */
+    max-width: calc(var(--request-figure-height) * 416 / 280);
   }
 
   .request-page__figure[data-state='limit-reached'] {
-    height: 283px;                     /* node 350519:7107 */
+    aspect-ratio: 416 / 283;             /* node 350519:7107 */
+    max-width: calc(var(--request-figure-height) * 416 / 283);
   }
 
   .request-page__action {
     align-self: flex-start;
-    margin-top: var(--space-40);
+    margin-top: var(--request-block-gap);
   }
 }
 
