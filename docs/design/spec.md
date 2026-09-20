@@ -881,3 +881,151 @@ The comparison screenshots under `docs/design/verification/` showed the implemen
 landing page as of 2026-08-24 against the Figma frames. The comparison is complete,
 the images have long ceased to reflect the code — they are removed from the repo and
 reachable through the git history.
+
+---
+
+## 8. Node provenance from the implementation
+
+Until the stylesheets were cleaned up, the link between a Figma node and the CSS
+declaration derived from it existed only as a comment in the stylesheet. Of the 62
+node IDs the implementation refers to, 33 appear nowhere else in this spec or in
+`components.md`. They are recorded here so the stylesheets can be stripped of
+explanatory comments without losing the provenance.
+
+Pages referenced below: `350504` desktop artboards, `350522` mobile artboards,
+`350519` request page desktop, `350537` limit state, `350510` issue collector
+components, `353017` design notes.
+
+### 8.1 Tokens — `css/core/tokens.css`
+
+| Node | What it defines | Token |
+|---|---|---|
+| `301:1823` | Button variant "click", `#091931` | `--color-primary-active` |
+| `350504:9311` | App page fill, `#F6F7F8` | `--color-background` |
+| `350504:9300` | Welcome screen fill, `#2A3647` | `--color-background-inverse` |
+| `350504:9579` | Counter "10 of 10" desktop, `#FF3D00` | `--color-limit-desktop` |
+| `350522:9778` | Counter "10 of 10" mobile, `#DE3500` | `--color-limit-mobile` |
+| `350537:9936` | Limit notice surface, `rgba(255, 210, 210, 0.52)` | `--color-alert-surface` |
+| `350510:12310` | Creator badge "member", `#92FFBC` | `--color-creator-member` |
+| `350510:12321` | Creator badge "extern", `#EBFC88` | `--color-creator-extern` |
+| `350510:12313` | Creator badge label, `#0B3681` | `--color-creator-text` |
+| `350510:12645` | "Ai-generated ticket" gradient, `#9327FF` to `#2EA1DC` | `--color-ai-gradient-from`, `--color-ai-gradient-to` |
+| `75609:16165` | Board label "User Story", `#7B3ACF` | `--color-label-user-story` |
+| `75609:16167` | Board label "Technical Task", `#12AD9A` | `--color-label-technical` |
+| `75597:14106` | Text field variant "hover", `#686868` | `--color-border-field-hover` |
+| `75597:14109` | Text field variant "click", `#177DA8` | `--color-border-field-focus` |
+| `350504:9374` | "Welcome" desktop, 64 px | `--font-size-display-desktop` |
+| `350522:9690` | "Welcome" mobile, 40 px | `--font-size-display-mobile` |
+| `350504:9204` | "Welcome" on the card, 32 px | `--font-size-card-title` |
+| `350504:9378` | Lead text desktop, 28 px | `--font-size-lead-desktop` |
+| `350522:9696` | Lead text mobile, 22 px | `--font-size-lead-mobile` |
+| `350504:9206` | Buttons and prompts, 23 px | `--font-size-23` |
+| `350504:9380` | Prose and counter, 19 px | `--font-size-19` |
+| `350522:9536` | Role prompts mobile, 18 px | `--font-size-18` |
+| `70870:6310` | Check button, radius 3 px | `--radius-checkbox` |
+| `350510:12309` | Creator badge, radius 4 px | `--radius-badge` |
+| `301:1814`, `301:1829` | Button sets, radius 8 px | `--radius-button` |
+| `350504:9382` | Illustration, radius 8 px, box 416 x 280 | `--radius-image` |
+| `75597:14103` | Text field, radius 10 px | `--radius-field` |
+| `350504:9173` | Large panels, radius 16 px | `--radius-panel` |
+| `75609:16189` | Board card, radius 24 px | `--radius-card` |
+| `350504:9200` | Welcome card, radius 30 px, max width 789 px | `--radius-dialog`, `--layout-card-max` |
+| `45:2208` | ContentLeft, 232 px | `--layout-sidebar-width` |
+| `69360:4547` | Header, 96 px | `--layout-header-height` |
+| `350519:7109` | Stakeholder content column desktop, 1121 px | `--layout-desktop-content` |
+| `350537:9975` | Stakeholder content column mobile, 390 px | `--layout-mobile-content` |
+
+### 8.2 Welcome screen — `css/landing/pages.css`
+
+| Node | What it defines |
+|---|---|
+| `350504:9300` | Desktop artboard 1440 x 1024, page fill; carries no logo |
+| `350522:9493` | Mobile artboard 428 x 926; logo "Capa 2" 64 x 78 at x 41 / y 45 |
+| `350504:9200` | Welcome card, y 310 of 1024 — the exact vertical centre |
+| `350504:9205` | Underline below "Welcome", vector 120 x 0, stroke `#177DA8` 3 px |
+
+### 8.3 Request page — `css/landing/pages.css`
+
+| Node | What it defines |
+|---|---|
+| `350504:9311` | Desktop artboard, page fill |
+| `350522:9621` | Mobile artboard |
+| `350504:9385` | Desktop heading block: back arrow and counter form a top bar, title underneath |
+| `350522:9758` | Mobile heading block: title with the back arrow beside it, counter below |
+| `350504:9376` | Desktop content block: 502 px text column next to a 416 px illustration |
+| `350522:9687` | Mobile content block: lead, illustration and prose stacked, gap 24 px |
+| `350504:9322`, `350519:7109` | Logo ends at y 85, the top bar starts at y 85 |
+| `350504:9382` | Desktop illustration box 416 x 280, scaleMode FIT |
+| `350519:7107` | Desktop illustration box 416 x 283 |
+| `350522:9698` | Mobile illustration box 292 x 201 |
+| `350522:9780` | Mobile illustration box 292 x 215 |
+| `350537:9980` | Design note: the limit screen only appears after the daily limit has been reached, by default the Stakeholder frame is shown |
+| `353017:10351` | Design note: add a breakpoint at 1440 px |
+| `353017:10360` | Design note: on the login screen keep everything centered within the same bounds as in the normal desktop version |
+
+### 8.4 Components — `css/landing/components.css`
+
+| Node | What it defines |
+|---|---|
+| `301:1814` | Set "Button wo icon" — primary button |
+| `301:1829` | Set "Button seconday wo icon" — secondary button; stroke 1 px to 2 px on hover |
+| `371:2121` | Mobile button set, height 27 px — below the 44 px touch-target minimum |
+| `350504:9214`, `350504:9384` | Accent button on the stakeholder pages |
+| `350522:9719` | Mobile request button — "Create request", fill `#2A3647`, Inter 16, no icon |
+| `350504:9384` | Desktop request button — "Create Email Request", fill `#177DA8`, Open Sans 23, check icon |
+| `350522:9711`, `350522:9714` | Mobile role buttons — Inter 16, padding 15/24, fill `#2A3647` |
+| `350504:9214`, `350504:9220` | Desktop role buttons — Open Sans 23 resp. 19, fill `#177DA8` |
+| `70889:6497` | Set "Text Button" |
+| `70889:6498` | Text button variant 2 — label at weight 700 |
+| `70853:4953` | Set "arrow-left-line" — icon button |
+| `70853:4954` | Exported icon component, own fill `#177DA8` |
+| `350504:9387` | Icon button instance on the request screen, fill overridden to `#2A3647` |
+| `350537:9936`, `350522:9795` | Alert — limit notice |
+| `350504:9388`, `350522:9693` | Request counter |
+| `350522:9695` | Mobile counter — drops the word "today" |
+| `350504:9209`, `350504:9216` | Role prompt on the welcome screen |
+
+### 8.5 Implementation decisions previously documented only in the stylesheets
+
+1. **768 px breakpoint is a project decision.** The file holds only 428 px and
+   1440 px artboards with nothing in between, and note `353017:10351` names a single
+   breakpoint at 1440 px. See section 2.3.
+2. **The splash intro is deliberately not gated behind `prefers-reduced-motion`.**
+   The V1 login screen always plays its splash and the intro is part of the graded
+   deliverable (decision 31.08.).
+3. **The icon-button glyph is masked, not coloured.** The exported component carries
+   its own fill (`#177DA8`, `70853:4954`) while the instance on the request screen
+   overrides it to `#2A3647` (`350504:9387`). Masking lets the colour come from CSS
+   instead of from the file.
+4. **The button icon is masked for the same reason.** The Material Symbols files carry
+   no fill attribute, so an `<img>` would always render them black. As a mask the glyph
+   takes the button's own colour — white on the accent button, as in `350504:9384`.
+5. **Text button emphasis is painted with `text-shadow`.** A real weight change to 700
+   (`70889:6498`) would widen the label and reflow the footer row.
+6. **Mobile buttons keep their 27 px design height** (set `371:2121`) and gain the
+   missing hit area through a transparent inset, so nothing moves and the 44 px target
+   is still reachable. See section 6.5 no. 3.
+7. **The welcome logo stays in the document flow.** That is what stops the sign-up line
+   and the card from running underneath it on short viewports such as the iPhone SE.
+   Width and offset interpolate on `vh`, so 6.91vh / 4.86vh reproduce the artboard
+   values 64 px / 45 px at the artboard height of 926 px.
+8. **The desktop logo is kept although artboard `350504:9300` has none**, sized and
+   offset like the request page brand (46 px) so the two landing pages match.
+9. **The splash travel runs on `transform`**, not on top/left/width, so the logo can stay
+   in the flow while it moves.
+10. **Card spacing interpolates instead of using the artboard values directly.** An
+    iPhone SE is 259 px shorter than the 428 x 926 artboard, which the artboard spacing
+    alone does not survive: padding 64 to 24, gap 56 to 24, options 70 to 32, intro 24 to 16.
+11. **The legal links stay in the flow**, pushed down by `flex: 1` on the content. That
+    trades 5 px of offset on desktop for a card that can no longer collide with them.
+12. **Desktop values are written as fluid ranges, not fixed pixels**, because the file has
+    nothing between 428 px and 1440 px: figure 280 to 200, heading row 56 to 24, block gap
+    48 to 24, text gap 40 to 16, prose gap 16 to 8, page padding 29/40 to 20/24.
+13. **The 966 px content row carries an inset of (1121 - 966) / 2 = 78 px** on the 1440 px
+    artboard, faded out towards 1024 px rather than dropped at a breakpoint.
+14. **Both content columns carry their artboard width as flex basis and may shrink**;
+    the illustration shrinks at factor 2 against the text column's 1, so the prose keeps
+    a readable measure.
+15. **The illustration box carries the artboard ratio as `aspect-ratio`** to reproduce
+    the scaleMode FIT of the Figma node and to reserve the height before the image loads.
+16. **The prose floor is the 16 px project minimum**, not a scaled-down artboard value.

@@ -9,6 +9,9 @@ Shadow = x y blur spread color. Text style = family and size/weight of the varia
 
 Generated from the cache, not maintained by hand. The generating script was removed from the repo after the extraction was completed.
 
+Which Figma node backs which CSS declaration of the implemented landing page, and the
+implementation decisions that go with it, is recorded in `spec.md` section 8.
+
 
 ##### `585:3672` — add contact text
 
