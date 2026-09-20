@@ -1019,9 +1019,9 @@ see section 6.4.
 1. **768 px breakpoint is a project decision.** The file holds only 428 px and
    1440 px artboards with nothing in between, and note `353017:10351` names a single
    breakpoint at 1440 px. See section 2.3.
-2. **The splash intro is deliberately not gated behind `prefers-reduced-motion`.**
+2. **The splash intro was deliberately not gated behind `prefers-reduced-motion`.**
    The V1 login screen always plays its splash and the intro is part of the graded
-   deliverable (decision 31.08.).
+   deliverable (decision 31.08.). **Superseded on 2026-09-20**, see section 8.7.
 3. **The icon-button glyph is masked, not coloured.** The exported component carries
    its own fill (`#177DA8`, `70853:4954`) while the instance on the request screen
    overrides it to `#2A3647` (`350504:9387`). Masking lets the colour come from CSS
@@ -1087,3 +1087,36 @@ updating all of them consistently.
 
 These are the breakpoints of the V1 screens. The landing page uses its own two
 breakpoints, see section 2.3 and section 8.5 no. 1.
+
+### 8.7 Reduced motion
+
+Every page honours `prefers-reduced-motion: reduce`. The rule lives at the end of
+both reset layers, `css/core/base.css` and `css/landing/base.css`, because each page
+loads exactly one of the two and there is no third shared stylesheet that reaches all
+of them: the app screens load `core/base.css`, the landing pages `landing/base.css`.
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: -1ms !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+```
+
+The negative `animation-delay` matters for the two splash screens. `welcome-logo-in`
+runs with `backwards` after a 400 ms delay and `welcome-splash-out` with `forwards`
+after 800 ms; shortening only the duration would leave the logo displaced and the dark
+cover in place for the length of the delay. With the delay pulled negative both
+animations land on their end state in the first frame: the logo sits at its resting
+spot and the cover is `opacity: 0; visibility: hidden`.
+
+This replaces the earlier decision recorded in section 8.5 no. 2. The splash still
+plays in full for everyone who has not asked for reduced motion, so the graded intro
+is unaffected, and WCAG 2.3.3 is satisfied.
