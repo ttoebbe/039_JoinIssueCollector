@@ -1,5 +1,10 @@
 /**
  * Builds the priority selection block HTML.
+ *
+ * The three glyphs are inline SVG although prio-urgent.svg, prio-medium.svg
+ * and prio-low.svg exist under /assets/icons/. They use stroke="currentColor"
+ * so the active button can recolour them, which an <img> cannot do. See
+ * docs/design/spec.md section 8.5 no. 18.
  * @returns {string}
  */
 function getAddTaskPriorityBlockTemplate() {

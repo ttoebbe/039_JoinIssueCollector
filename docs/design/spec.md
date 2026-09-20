@@ -1060,6 +1060,13 @@ see section 6.4.
 16. **The prose floor is the 16 px project minimum**, not a scaled-down artboard value.
 17. **The mobile nav item is 44 px although node `332:1588` draws 40 px**, so the
     minimum touch target holds.
+18. **The three priority glyphs stay inline SVG** in `js/templates/add-task-templates.js`,
+    although `prio-urgent.svg`, `prio-medium.svg` and `prio-low.svg` exist under
+    `/assets/icons/`. The paths carry `stroke="currentColor"` so the active priority
+    button recolours its glyph; an `<img>` cannot be recoloured, and the mask route
+    used for `.icon-button__glyph` (no. 3) would cost more than it returns for three
+    glyphs that are never reused elsewhere. The icon files are therefore unused by the
+    add-task form, which is deliberate and not a missing wiring.
 
 ### 8.6 Breakpoints of the existing screens
 
