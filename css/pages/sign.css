@@ -199,7 +199,6 @@ input::placeholder {
     transform: translateY(0);
 }
 
-
 .form-buttons button {
     height: 48px;
     border: none;
@@ -278,8 +277,6 @@ footer a:hover {
 
 @media screen and (min-width: 481px) and (max-width: 990px) {
 
-
-    /* ================= LOGO ================= */
     .homepage-image {
         width: 60px;
         height: auto;
@@ -307,7 +304,6 @@ footer a:hover {
 
 @media (max-width: 480px) {
 
-    /* ================= LOGO ================= */
     .homepage-image {
         z-index: 2;
         width: 40px;
@@ -337,5 +333,3 @@ footer {
     text-align: center;
     font-size: 1.2rem;
 }
-
-

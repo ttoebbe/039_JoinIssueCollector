@@ -69,7 +69,6 @@
   background: var(--nav-active);
 }
 
-
 .footer-links{
   display: flex;
   flex-direction: column;

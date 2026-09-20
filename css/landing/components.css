@@ -1,10 +1,3 @@
-/*
- * Component layer. Each block names the Figma component set it comes from.
- * Variant values are listed in docs/design/components.md.
- */
-
-/* ---------- Button, primary — set "Button wo icon" (301:1814) ---------- */
-
 .button {
   display: inline-flex;
   align-items: center;
@@ -37,11 +30,6 @@
   box-shadow: var(--shadow-button);
 }
 
-/* ---------- Button, secondary — set "Button seconday wo icon" (301:1829) ----------
- * Figma switches the stroke from 1 px to 2 px on hover. An inset box-shadow is used
- * instead of a border so the hover state cannot shift the layout.
- */
-
 .button--secondary {
   background-color: transparent;
   color: var(--color-primary);
@@ -58,8 +46,6 @@
   box-shadow: inset 0 0 0 1px var(--color-primary-active), var(--shadow-button);
 }
 
-/* ---------- Button, accent — Stakeholder page (350504:9214 / 350504:9384) ---------- */
-
 .button--accent {
   background-color: var(--color-primary-hover);
   color: var(--color-text-on-dark);
@@ -75,12 +61,6 @@
   box-shadow: var(--shadow-button);
 }
 
-/*
- * Size variants. The mobile buttons in Figma are 27 px high (set 371:2121),
- * which is below the 44 px touch-target minimum. The design height is kept for
- * the visual result and the hit area is enlarged with a transparent inset,
- * so nothing moves and the target is still reachable. See spec.md 6.5 no. 3.
- */
 .button--lg {
   padding: 16px 18px;
   border-radius: var(--radius-field);
@@ -94,11 +74,6 @@
   font-size: var(--font-size-23);
 }
 
-/*
- * The request button differs between the two artboards, so both are kept:
- *   mobile  (350522:9719) - "Create request", fill #2A3647, Inter 16, no icon
- *   desktop (350504:9384) - "Create Email Request", fill #177DA8, Open Sans 23, check icon
- */
 .button--request {
   padding: 15px 24px;
   background-color: var(--color-primary);
@@ -144,11 +119,6 @@
   }
 }
 
-/*
- * Role buttons on the Welcome screen. Both artboards differ again:
- *   mobile  (350522:9711 / 350522:9714) - Inter 16, padding 15/24, fill #2A3647
- *   desktop (350504:9214 / 350504:9220) - Open Sans 23 resp. 19, fill #177DA8
- */
 .button--role {
   padding: 15px 24px;
   background-color: var(--color-primary);
@@ -201,11 +171,6 @@
   }
 }
 
-/*
- * Button icon. The Material Symbols files carry no fill attribute, so an <img>
- * would always render them black. The glyph is used as a mask instead and takes
- * the button's own colour - white on the accent button, as in node 350504:9384.
- */
 .button__icon {
   display: block;
   width: 24px;
@@ -219,8 +184,6 @@
   --icon: url('/assets/icons/material/check.svg');
 }
 
-/* ---------- Text button — set "Text Button" (70889:6497) ---------- */
-
 .text-button {
   display: inline-flex;
   align-items: center;
@@ -232,11 +195,6 @@
   text-decoration: none;
 }
 
-/*
- * Figma variant 2 sets the label to weight 700 (node 70889:6498). A real weight
- * change would widen the label and reflow the footer row, so the emphasis is
- * painted with text-shadow instead - same visual weight, identical metrics.
- */
 .text-button:hover,
 .text-button:focus-visible {
   text-shadow: 0.03em 0 0 currentColor, -0.03em 0 0 currentColor;
@@ -245,8 +203,6 @@
 .text-button--on-dark {
   color: var(--color-text-on-dark);
 }
-
-/* ---------- Icon button — set "arrow-left-line" (70853:4953) ---------- */
 
 .icon-button {
   display: inline-flex;
@@ -266,11 +222,6 @@
   background-color: rgba(23, 125, 168, 0.12);
 }
 
-/*
- * The exported component carries its own fill (#177DA8, node 70853:4954), while
- * the instance on the request screen overrides it to #2A3647 (node 350504:9387).
- * The glyph is therefore masked so the colour comes from CSS, not from the file.
- */
 .icon-button__glyph {
   display: block;
   width: 32px;
@@ -283,8 +234,6 @@
 .icon-button__glyph--arrow-left {
   --icon: url('/assets/icons/arrow-left.svg');
 }
-
-/* ---------- Alert — limit notice (350537:9936 / 350522:9795) ---------- */
 
 .alert {
   display: flex;
@@ -307,8 +256,6 @@
     font-weight: var(--font-weight-semibold);
   }
 }
-
-/* ---------- Request counter (350504:9388 / 350522:9693) ---------- */
 
 .request-counter {
   display: flex;
@@ -340,7 +287,6 @@
     font-size: var(--font-size-body);
   }
 
-  /* The mobile artboard 350522:9695 drops the word "today". */
   .request-counter__today {
     display: none;
   }
@@ -349,8 +295,6 @@
     color: var(--color-limit-mobile);
   }
 }
-
-/* ---------- Role prompt — Welcome screen (350504:9209 / 350504:9216) ---------- */
 
 .role-option {
   display: flex;

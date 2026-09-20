@@ -935,6 +935,35 @@ components, `353017` design notes.
 | `350519:7109` | Stakeholder content column desktop, 1121 px | `--layout-desktop-content` |
 | `350537:9975` | Stakeholder content column mobile, 390 px | `--layout-mobile-content` |
 
+Tokens whose origin is a Figma style rather than a node. Style names are not reused
+as token names: the file holds several different values under the same style name,
+see section 6.4.
+
+| Token | Origin |
+|---|---|
+| `--color-primary`, `--color-text-strong` | style "Version 2/main color" |
+| `--color-primary-hover` | style "Version 2/Ligth blue" |
+| `--color-accent` | style "Ligth blue" |
+| `--color-surface`, `--color-text-on-dark` | style "white" |
+| `--color-text` | style "black" |
+| `--color-text-muted` | style "menu color" |
+| `--color-text-subtle` | style "Style", used on text buttons |
+| `--color-border-field` | style "Style", text field default |
+| `--color-divider` | style "icon2" |
+| `--color-urgent`, `--color-medium`, `--color-low` | styles "urgent color", "medium color", "low color" |
+| `--font-ui`, `--font-prose` | Inter for the existing Join screens, Open Sans for the newer Issue Collector screens; see section 6.4 no. 4 |
+| `--font-size-t1`, `t2`, `t4`, `t5`, `t6`, `--font-size-body` | styles "Version 2/t1" and siblings |
+| `--line-height-ratio` | 120 % on every text style in the file |
+| `--radius-round` | cornerRadius 45 on nodes 32 to 56 px wide |
+| `--shadow-card` | effect style "nuevo" |
+| `--shadow-panel` | effect style "shadoe backlog box" |
+| `--shadow-button` | effect style "stronger" |
+| `--shadow-header` | effect style "Barra superior" |
+| `--space-4` to `--space-70` | the gap and padding values that actually occur in the auto-layout frames; the file has no 4- or 8-point system |
+| `--layout-desktop-gutter` | x offset of the 1121 px column on a 1440 px frame |
+| `--gradient-ai` | composed from the two AI gradient tokens |
+| `--focus-ring` | not defined in Figma, no component set carries a focus state; derived from the active colour so keyboard focus stays visible |
+
 ### 8.2 Welcome screen — `css/landing/pages.css`
 
 | Node | What it defines |
@@ -1029,3 +1058,25 @@ components, `353017` design notes.
 15. **The illustration box carries the artboard ratio as `aspect-ratio`** to reproduce
     the scaleMode FIT of the Figma node and to reserve the height before the image loads.
 16. **The prose floor is the 16 px project minimum**, not a scaled-down artboard value.
+17. **The mobile nav item is 44 px although node `332:1588` draws 40 px**, so the
+    minimum touch target holds.
+
+### 8.6 Breakpoints of the existing screens
+
+CSS custom properties do not work inside media queries, so these values are hardcoded
+in every stylesheet under `css/pages/` and `css/components/`. Changing one means
+updating all of them consistently.
+
+| Query | Tier |
+|---|---|
+| `max-width: 1150px` | desktop to tablet |
+| `max-width: 800px` | tablet to mobile |
+| `max-width: 480px` | mobile to small mobile |
+| `max-width: 360px` | extra small mobile |
+| `max-width: 900px` and `min-width: 645px` | tablet mid range |
+| `min-width: 481px` and `max-width: 990px` | tablet range |
+| `max-width: 1024px` and `max-height: 600px` | landscape |
+| `min-width: 801px` | desktop only |
+
+These are the breakpoints of the V1 screens. The landing page uses its own two
+breakpoints, see section 2.3 and section 8.5 no. 1.

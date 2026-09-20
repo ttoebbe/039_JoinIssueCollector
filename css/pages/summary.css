@@ -10,12 +10,10 @@ body {
   max-width: 1920px;
 }
 
-/* Sidebar active state */
 .nav-links nav a.nav-active {
   background: var(--color-primary-active);
 }
 
-/* Footer Links Farbe fix */
 .nav-bar .footer-links a,
 .nav-bar .footer-links a:visited {
   color: var(--color-text-muted);
@@ -33,8 +31,6 @@ body {
   outline: none;
 }
 
-
-/* ===== Layout below topbar ===== */
 .summary-body {
   padding: 12px 56px;
   padding-left: 60px;
@@ -51,7 +47,6 @@ body {
   flex-direction: column;
 }
 
-/* Headline "Join 360 | Key Metrics..." */
 .summary-headline {
   display: flex;
   align-items: center;
@@ -85,7 +80,6 @@ body {
   color: var(--color-text-primary);
 }
 
-/* Greeting (rechts) */
 .greeting {
   margin-top: 82px;
 }
@@ -131,7 +125,6 @@ body {
   color: var(--color-accent);
 }
 
-/* ===== KPI grid: 2–1–3 Layout ===== */
 .summary-kpis {
   width: 648px;
   display: grid;
@@ -140,7 +133,6 @@ body {
   padding-left: 6px;
 }
 
-/* base card */
 .kpi-card {
   background: var(--color-bg-surface);
   border-radius: 30px;
@@ -156,7 +148,6 @@ body {
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.10);
 }
 
-/* top cards */
 .kpi-top {
   grid-column: span 3;
   padding: 24px 28px;
@@ -198,7 +189,6 @@ body {
   font-size: 18px;
 }
 
-/* wide card (urgent + deadline) */
 .kpi-wide {
   grid-column: span 4;
   padding: 24px;
@@ -240,7 +230,6 @@ body {
   color: var(--color-text-primary);
 }
 
-/* square card (email requests) */
 .kpi-square {
   grid-column: span 2;
   padding: 22px 18px;
@@ -265,7 +254,6 @@ body {
   color: transparent;
 }
 
-/* bottom cards */
 .kpi-bottom {
   grid-column: span 2;
   padding: 22px 18px;
@@ -278,7 +266,6 @@ body {
   text-align: center;
 }
 
-/* Urgent Icon Stack */
 .kpi-icon--stack {
   position: relative;
   width: 64px;
@@ -303,17 +290,12 @@ body {
   object-fit: contain;
 }
 
-
 @media (max-width: 930px) {
   .summary-body {
     flex-direction: column;
     gap: 28px;
     align-items: center;
   }
-
-  /* .greeting{
-    display: none;
-  } */
 
   .summary-kpis {
     width: 100%;
@@ -466,7 +448,6 @@ body {
     padding-top: 0px;
   }
 
-
   .kpi-top {
     height: auto;
     padding: 18px 18px;
@@ -600,13 +581,11 @@ body {
   }
 }
 
-
 @media (max-width: 480px) {
 
   .summary-body {
     padding: 4px 10px;
   }
-
 
   .summary-h1 {
     font-size: 40px;
@@ -616,12 +595,10 @@ body {
     font-size: 16px;
   }
 
-
   .summary-kpis {
     gap: 12px;
     padding-top: 0px;
   }
-
 
   .kpi-top {
     height: auto;
@@ -662,7 +639,6 @@ body {
     height: 42px;
   }
 
-
   .kpi-wide {
     height: auto;
     padding: 14px 12px;
@@ -685,7 +661,6 @@ body {
   .kpi-sub {
     font-size: 16px;
   }
-
 
   .kpi-square,
   .kpi-bottom {
