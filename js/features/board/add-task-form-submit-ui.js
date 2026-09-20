@@ -35,14 +35,24 @@ function wireClearButton(state, resets) {
 }
 
 /**
+ * Clears the title, description and subtask limit states.
+ * @param {Object} state
+ */
+function clearAddTaskLimitState(state) {
+  clearTitleLimitState(state);
+  clearDescriptionLimitState();
+  clearSubtaskLimitState();
+}
+
+/**
  * Clears the add-task form state and UI.
+ * @param {Object} state
+ * @param {Object} resets
  */
 function clearAddTaskForm(state, resets) {
   resetForm(state);
   updateAddTaskCounters(state);
-  clearTitleLimitState(state);
-  clearDescriptionLimitState();
-  clearSubtaskLimitState();
+  clearAddTaskLimitState(state);
   resetStatusPreset();
   resetPrioSelection(state);
   resetSelectionState(state);

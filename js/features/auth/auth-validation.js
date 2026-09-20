@@ -65,37 +65,46 @@ function clearSignupErrorState(passwordInput, confirmPasswordInput) {
  * @param {Object} fields
  * @returns {boolean}
  */
-function validateSignupInputs({
-  nameInput,
-  emailInput,
-  passwordInput,
-  confirmPasswordInput,
-  policyCheckbox,
-}) {
-  clearSignupErrorState(passwordInput, confirmPasswordInput);
+function validateSignupInputs(fields) {
+  const { nameInput, emailInput, passwordInput, policyCheckbox } = fields;
+  clearSignupErrorState(passwordInput, fields.confirmPasswordInput);
   clearFieldError("sign-up-policy-error", policyCheckbox);
-  let valid = true;
-  if (!validateUsernameField(nameInput, "username-error")) valid = false;
-  if (!validateEmailField(emailInput, "sign-up-email-error")) valid = false;
-  if (!validatePasswordField(passwordInput, "sign-up-password-error"))
-    valid = false;
-  if (
-    !validateConfirmPasswordField(
-      passwordInput,
-      confirmPasswordInput,
-      "sign-up-confirm-password-error",
-    )
-  )
-    valid = false;
-  if (!policyCheckbox.checked) {
-    showFieldError(
-      "sign-up-policy-error",
-      "Please accept the Privacy Policy.",
-      policyCheckbox,
-    );
-    valid = false;
-  }
-  return valid;
+  const results = [
+    validateUsernameField(nameInput, "username-error"),
+    validateEmailField(emailInput, "sign-up-email-error"),
+    validatePasswordField(passwordInput, "sign-up-password-error"),
+    validateConfirmField(fields),
+    validatePolicyField(policyCheckbox),
+  ];
+  return results.every(Boolean);
+}
+
+/**
+ * Validates the confirm password field of the signup form.
+ * @param {Object} fields
+ * @returns {boolean}
+ */
+function validateConfirmField(fields) {
+  return validateConfirmPasswordField(
+    fields.passwordInput,
+    fields.confirmPasswordInput,
+    "sign-up-confirm-password-error",
+  );
+}
+
+/**
+ * Validates the privacy policy checkbox of the signup form.
+ * @param {HTMLInputElement} policyCheckbox
+ * @returns {boolean}
+ */
+function validatePolicyField(policyCheckbox) {
+  if (policyCheckbox.checked) return true;
+  showFieldError(
+    "sign-up-policy-error",
+    "Please accept the Privacy Policy.",
+    policyCheckbox,
+  );
+  return false;
 }
 
 /**

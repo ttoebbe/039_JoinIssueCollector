@@ -147,25 +147,16 @@ function wireContactCounters(elements) {
  * @param {Object} elements
  */
 function updateContactCounters(elements) {
-  enforceContactMax(elements.nameInput, CONTACT_NAME_MAX);
-  updateContactFieldCounter(
-    elements.nameInput,
-    "contact-name-counter",
-    CONTACT_NAME_MAX,
-  );
-  enforceContactMax(elements.emailInput, CONTACT_EMAIL_MAX);
-  updateContactFieldCounter(
-    elements.emailInput,
-    "contact-email-counter",
-    CONTACT_EMAIL_MAX,
-  );
-  trimPhoneToMaxDigits(elements.phoneInput, CONTACT_PHONE_MAX);
-  updateContactFieldCounter(
-    elements.phoneInput,
-    "contact-phone-counter",
-    CONTACT_PHONE_MAX,
-    getPhoneDigitsCount,
-  );
+  const { nameInput, emailInput, phoneInput } = elements;
+  enforceContactMax(nameInput, CONTACT_NAME_MAX);
+  enforceContactMax(emailInput, CONTACT_EMAIL_MAX);
+  trimPhoneToMaxDigits(phoneInput, CONTACT_PHONE_MAX);
+  const counters = [
+    [nameInput, "contact-name-counter", CONTACT_NAME_MAX],
+    [emailInput, "contact-email-counter", CONTACT_EMAIL_MAX],
+    [phoneInput, "contact-phone-counter", CONTACT_PHONE_MAX, getPhoneDigitsCount],
+  ];
+  counters.forEach((args) => updateContactFieldCounter(...args));
 }
 
 /**

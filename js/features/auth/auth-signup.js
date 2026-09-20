@@ -2,51 +2,61 @@
  * Wires signup error handlers.
  * @param {Object} fields
  */
-function wireSignupErrorHandlers({
-  nameInput,
-  emailInput,
-  passwordInput,
-  confirmPasswordInput,
-  policyCheckbox,
-}) {
-  nameInput.addEventListener("input", () =>
-    clearFieldError("username-error", nameInput),
+function wireSignupErrorHandlers(fields) {
+  wireSignupInputHandlers(fields);
+  wireSignupBlurHandlers(fields);
+}
+
+/**
+ * Wires the handlers that clear a field error while the user types.
+ * @param {Object} fields
+ */
+function wireSignupInputHandlers(fields) {
+  const cleared = [
+    [fields.nameInput, "username-error", "input"],
+    [fields.emailInput, "sign-up-email-error", "input"],
+    [fields.passwordInput, "sign-up-password-error", "input"],
+    [fields.confirmPasswordInput, "sign-up-confirm-password-error", "input"],
+    [fields.policyCheckbox, "sign-up-policy-error", "change"],
+  ];
+  cleared.forEach(([field, errorId, event]) => {
+    field?.addEventListener(event, () => clearFieldError(errorId, field));
+  });
+}
+
+/**
+ * Wires the blur handlers that validate a signup field.
+ * @param {Object} fields
+ */
+function wireSignupBlurHandlers(fields) {
+  wireSignupSimpleBlurHandlers(fields);
+  fields.emailInput.addEventListener("blur", () =>
+    handleSignupEmailBlur(fields.emailInput),
   );
-  emailInput.addEventListener("input", () =>
-    clearFieldError("sign-up-email-error", emailInput),
-  );
-  passwordInput.addEventListener("input", () =>
-    clearFieldError("sign-up-password-error", passwordInput),
-  );
-  confirmPasswordInput.addEventListener("input", () =>
-    clearFieldError("sign-up-confirm-password-error", confirmPasswordInput),
-  );
-  policyCheckbox?.addEventListener("change", () =>
-    clearFieldError("sign-up-policy-error", policyCheckbox),
-  );
-  nameInput.addEventListener("blur", () =>
+  fields.confirmPasswordInput.addEventListener("blur", () =>
     validateFieldWithAutoDismiss(
-      nameInput,
-      "username-error",
-      validateUsernameField,
-    ),
-  );
-  emailInput.addEventListener("blur", () => handleSignupEmailBlur(emailInput));
-  passwordInput.addEventListener("blur", () =>
-    validateFieldWithAutoDismiss(
-      passwordInput,
-      "sign-up-password-error",
-      validatePasswordField,
-    ),
-  );
-  confirmPasswordInput.addEventListener("blur", () =>
-    validateFieldWithAutoDismiss(
-      passwordInput,
-      confirmPasswordInput,
+      fields.passwordInput,
+      fields.confirmPasswordInput,
       "sign-up-confirm-password-error",
       validateConfirmPasswordField,
     ),
   );
+}
+
+/**
+ * Wires the blur validation of the name and password fields.
+ * @param {Object} fields
+ */
+function wireSignupSimpleBlurHandlers({ nameInput, passwordInput }) {
+  const validated = [
+    [nameInput, "username-error", validateUsernameField],
+    [passwordInput, "sign-up-password-error", validatePasswordField],
+  ];
+  validated.forEach(([field, errorId, validate]) => {
+    field.addEventListener("blur", () =>
+      validateFieldWithAutoDismiss(field, errorId, validate),
+    );
+  });
 }
 
 /**
@@ -111,34 +121,16 @@ function initSignup() {
  * @returns {Object|null}
  */
 function getSignupState() {
-  const form = document.getElementById("sign-up-form");
-  const nameInput = document.getElementById("sign-up-name");
-  const emailInput = document.getElementById("sign-up-email");
-  const passwordInput = document.getElementById("sign-up-password");
-  const confirmPasswordInput = document.getElementById(
-    "sign-up-confirm-password",
-  );
-  const policyCheckbox = document.getElementById("sign-up-policy");
-  const signUpButton = document.getElementById("sign-up-button");
-  if (
-    !form ||
-    !nameInput ||
-    !emailInput ||
-    !passwordInput ||
-    !confirmPasswordInput ||
-    !policyCheckbox ||
-    !signUpButton
-  )
-    return null;
-  return {
-    form,
-    nameInput,
-    emailInput,
-    passwordInput,
-    confirmPasswordInput,
-    policyCheckbox,
-    signUpButton,
+  const state = {
+    form: document.getElementById("sign-up-form"),
+    nameInput: document.getElementById("sign-up-name"),
+    emailInput: document.getElementById("sign-up-email"),
+    passwordInput: document.getElementById("sign-up-password"),
+    confirmPasswordInput: document.getElementById("sign-up-confirm-password"),
+    policyCheckbox: document.getElementById("sign-up-policy"),
+    signUpButton: document.getElementById("sign-up-button"),
   };
+  return Object.values(state).every(Boolean) ? state : null;
 }
 
 /**
@@ -193,20 +185,14 @@ async function runSignup(state) {
 async function attemptSignup({ nameInput, emailInput, passwordInput }) {
   const users = await loadUsers();
   const email = emailInput.value.trim();
-  if (users.some((u) => u.email === email)) {
-    showFieldError(
-      "sign-up-email-error",
-      "This email is already registered.",
-      emailInput,
-    );
+  if (users.some((user) => user.email === email)) {
+    const message = "This email is already registered.";
+    showFieldError("sign-up-email-error", message, emailInput);
     return;
   }
-  const newUser = await buildNewUser(
-    users,
-    nameInput.value.trim(),
-    email,
-    passwordInput.value.trim(),
-  );
+  const name = nameInput.value.trim();
+  const password = passwordInput.value.trim();
+  const newUser = await buildNewUser(users, name, email, password);
   await UserService.create(newUser);
   setTimeout(() => {
     window.location.href = ROUTES.LOGIN;
