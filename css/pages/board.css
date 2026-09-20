@@ -519,7 +519,7 @@
   .board-add-btn {
     flex: 0 0 auto;
     padding: 8px 10px;
-    font-size: 13px;
+    font-size: 16px;
     justify-content: center;
     background: var(--color-primary);
     white-space: nowrap;
@@ -926,7 +926,7 @@
   height: 32px;
   border-radius: 50%;
   color: #fff;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -940,12 +940,6 @@
   gap: 8px;
   flex-wrap: wrap;
   margin: 8px 0 4px;
-}
-
-.assigned-avatar--sm {
-  width: 24px;
-  height: 24px;
-  font-size: 10px;
 }
 
 .assigned-avatar--more {

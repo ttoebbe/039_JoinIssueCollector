@@ -166,11 +166,7 @@ function getSelectedAssigned(state) {
 function appendAssignedAvatars(parts, selected) {
   const visible = selected.slice(0, MAX_ASSIGNED_AVATARS);
   visible.forEach((person) => {
-    const avatar = buildAssignedAvatar(
-      person,
-      "assigned-avatar assigned-avatar--sm",
-    );
-    parts.avatarsEl.appendChild(avatar);
+    parts.avatarsEl.appendChild(buildAssignedAvatar(person));
   });
 }
 
@@ -193,7 +189,7 @@ function appendAssignedMoreBadge(parts, total) {
  */
 function buildAssignedMoreBadge(count) {
   const badge = document.createElement("span");
-  badge.className = "assigned-avatar assigned-avatar--sm assigned-avatar--more";
+  badge.className = "assigned-avatar assigned-avatar--more";
   badge.textContent = `+${count}`;
   badge.setAttribute("aria-label", `${count} more assigned`);
   badge.title = `${count} more assigned`;
