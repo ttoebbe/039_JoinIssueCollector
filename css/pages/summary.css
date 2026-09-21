@@ -32,8 +32,8 @@ body {
 }
 
 .summary-body {
-  padding: 12px 56px;
-  padding-left: 60px;
+  padding: 98px 56px 12px;
+  padding-left: 95px;
   box-sizing: border-box;
 
   display: flex;

@@ -6,8 +6,8 @@
 .board-page {
   width: 100%;
   padding: 0;
-  padding-top: 32px;
-  padding-left: 32px;
+  padding-top: 80px;
+  padding-left: 24px;
   padding-right: 32px;
   background: var(--color-bg-primary);
   height: calc(100vh - 96px);
@@ -33,11 +33,12 @@
 }
 
 .board-head {
+  margin-left: 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  margin-bottom: 28px;
+  margin-bottom: 47px;
   width: 100%;
   max-width: calc(var(--container-max-width) - var(--nav-width) - 80px);
 }

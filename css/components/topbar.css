@@ -1,7 +1,7 @@
 .topbar{
   height: 96px;
   background: var(--card);
-  border-bottom: 1px solid var(--line);
+  box-shadow: var(--shadow-header);
   width: 100%;
   position: sticky;
   top: 0;
@@ -12,7 +12,7 @@
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  padding: 0 56px 0 72px;
+  padding: 0 40px 0 116px;
   box-sizing: border-box;
   width: 100%;
   margin: 0;
