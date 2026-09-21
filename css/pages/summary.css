@@ -126,17 +126,17 @@ body {
 }
 
 .summary-kpis {
-  width: 648px;
+  width: 560px;
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 26px;
-  padding-left: 6px;
+  grid-auto-rows: 168px;
+  gap: 28px;
 }
 
 .kpi-card {
   background: var(--color-bg-surface);
   border-radius: 30px;
-  box-shadow: 0 0 14px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
   text-decoration: none;
   color: var(--color-text-primary);
 
