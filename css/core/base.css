@@ -51,6 +51,42 @@ select {
   font: inherit;
 }
 
+input[type="checkbox"] {
+  appearance: none;
+  position: relative;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  background: url("/assets/icons/checkbox-default.svg") center / 24px 24px no-repeat;
+  cursor: pointer;
+}
+
+input[type="checkbox"]:hover {
+  background-image: url("/assets/icons/checkbox-hover.svg");
+}
+
+input[type="checkbox"]:checked {
+  background-image: url("/assets/icons/checkbox-checked.svg");
+}
+
+input[type="checkbox"]:checked:hover {
+  background-image: url("/assets/icons/checkbox-checked-hover.svg");
+}
+
+/* Widens the hit area to 44x44 without taking up layout space. */
+input[type="checkbox"]::after {
+  content: "";
+  position: absolute;
+  inset: -10px;
+}
+
+input[type="checkbox"]:focus-visible {
+  outline: none;
+  border-radius: var(--radius-checkbox);
+  box-shadow: var(--focus-ring);
+}
+
 button.page-busy,
 [role="button"].page-busy {
   opacity: 0.6;
