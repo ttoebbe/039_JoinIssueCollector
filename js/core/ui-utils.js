@@ -1,16 +1,12 @@
 const RANDOM_COLOR_POOL = [
   "#FF7A00",
-  "#29ABE2",
-  "#02CF2F",
-  "#AF1616",
   "#9327FF",
-  "#FF7527",
   "#6E52FF",
   "#FC71FF",
   "#FFBB2B",
   "#1FD7C1",
-  "#FFA35E",
-  "#C5FF7A",
+  "#462F8A",
+  "#FF4646",
 ];
 let pageBusyGuardReady = false;
 let pageBusyElements = [];

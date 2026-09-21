@@ -31,8 +31,9 @@
 }
 
 .button-icon {
-  font-size: 20px;
-  line-height: 1;
+  width: 32px;
+  height: 32px;
+  filter: brightness(0) invert(1);
 }
 
 .contact-avatar {
@@ -776,7 +777,8 @@ main {
   }
 
   .button-icon {
-    font-size: 28px;
+    width: 28px;
+    height: 28px;
   }
 
   .contact-avatar-large {
