@@ -9,7 +9,7 @@
 .overlay-backdrop{
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.25);
+  background: var(--color-scrim);
 }
 
 .overlay-panel{
@@ -23,20 +23,20 @@
   border-radius: 30px;
   overflow: auto;
   padding: 32px 48px 40px;
+  box-shadow: var(--shadow-overlay);
 }
 
 .overlay-close{
   position: absolute;
   top: 20px;
   right: 20px;
-  border: 1px solid var(--color-border-light);
-  background: var(--color-bg-primary);
+  border: none;
+  background: transparent;
   cursor: pointer;
   font-size: 20px;
   line-height: 1;
   width: 32px;
   height: 32px;
-  border-radius: 50%;
   display: grid;
   place-items: center;
 }
@@ -52,8 +52,8 @@
 }
 
 .overlay-panel--detail {
-  width: min(520px, calc(100vw - 40px));
-  padding: 28px 28px 20px;
+  width: min(525px, calc(100vw - 40px));
+  padding: 48px 40px;
 }
 
 .task-detail-title {
@@ -153,9 +153,15 @@
 
 .task-detail-actions {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
   gap: 16px;
   margin-top: 12px;
+}
+
+.task-detail-actions .task-detail-btn + .task-detail-btn {
+  border-left: 1px solid var(--color-divider);
+  padding-left: 16px;
 }
 
 .task-detail-btn {

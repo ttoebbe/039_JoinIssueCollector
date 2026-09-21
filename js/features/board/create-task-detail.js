@@ -161,7 +161,7 @@ function createMetaIcon(iconSrc, prioKey) {
 function createAssignedSection(task) {
   const wrap = document.createElement("div");
   wrap.className = "task-detail-section";
-  wrap.appendChild(createSectionLabel("Assigned to:"));
+  wrap.appendChild(createSectionLabel("Assigned To:"));
   wrap.appendChild(buildAssignedList(task));
   return wrap;
 }
@@ -237,7 +237,7 @@ function buildAssigneeName(person) {
 function createSubtasksSection(task) {
   const wrap = document.createElement("div");
   wrap.className = "task-detail-section";
-  wrap.appendChild(createSectionLabel("Subtasks:"));
+  wrap.appendChild(createSectionLabel("Subtasks"));
   wrap.appendChild(buildSubtasksList(task));
   return wrap;
 }
