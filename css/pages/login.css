@@ -441,8 +441,8 @@ footer a:hover {
         }
 
         100% {
-            top: 30px;
-            left: 30px;
+            top: 37px;
+            left: 38px;
             transform: translate(0, 0) scale(1);
         }
     }
@@ -485,8 +485,8 @@ footer a:hover {
     }
 
     .homepage-image {
-        width: 40px;
-        height: auto;
+        width: 64px;
+        height: 78px;
         position: absolute;
         z-index: 2;
     }
@@ -505,8 +505,8 @@ footer a:hover {
         }
 
         100% {
-            top: 30px;
-            left: 30px;
+            top: 37px;
+            left: 38px;
             transform: translate(0, 0) scale(1);
         }
     }
@@ -534,17 +534,18 @@ footer a:hover {
     }
 
     section {
-        padding: 40px 16px;
+        padding: 32px 16px;
     }
 
     .login-page main {
         width: 100%;
-        max-width: 350px;
+        max-width: 396px;
+        min-height: 475px;
         height: auto;
     }
 
     .input-fields {
-        margin-bottom: 24px;
+        margin-bottom: 32px;
         gap: 16px;
     }
 
@@ -554,7 +555,8 @@ footer a:hover {
 
     .form-buttons {
         flex-direction: column;
-        gap: 16px;
+        align-items: center;
+        gap: 21px;
         max-width: 100%;
         width: 100%;
         padding: 0;
@@ -564,7 +566,8 @@ footer a:hover {
     .form-buttons button,
     .btn-left,
     .btn-right {
-        width: 100%;
+        width: 180px;
+        height: 51px;
         max-width: none;
         box-sizing: border-box;
     }
@@ -606,8 +609,8 @@ footer a:hover {
         }
 
         100% {
-            top: 15px;
-            left: 30px;
+            top: 37px;
+            left: 38px;
             transform: translate(0, 0) scale(1);
         }
     }
@@ -631,8 +634,8 @@ footer a:hover {
         }
 
         100% {
-            top: 15px;
-            left: 30px;
+            top: 37px;
+            left: 38px;
             transform: translate(0, 0) scale(1);
         }
     }
