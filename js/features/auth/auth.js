@@ -76,5 +76,6 @@ function handleAuthReady() {
 function runAuthInit() {
   initAnimation();
   initLogin();
+  renderSignupFields();
   initSignup();
 }
