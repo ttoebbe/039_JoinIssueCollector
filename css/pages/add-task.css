@@ -13,7 +13,7 @@
 
 .addtask-page-title {
   margin-left: 14px;
-  font-size: 48px;
+  font-size: 61px;
   font-weight: 700;
   color: var(--color-overlay-dark);
 }
@@ -33,9 +33,10 @@
 
 .addtask-form label {
   display: block;
+  font-size: 20px;
   font-weight: 400;
   color: var(--color-text-primary);
-  margin: 16px 0 6px;
+  margin: 16px 0 8px;
 }
 
 .addtask-grid {
@@ -56,8 +57,9 @@
   width: 100%;
   border: 1px solid var(--color-border-light);
   border-radius: 10px;
-  padding: 12px 14px;
-  font-size: 16px;
+  padding: 12px 21px;
+  font-size: 20px;
+  line-height: 24px;
   font-weight: 400;
   background: var(--color-bg-surface);
   box-sizing: border-box;
@@ -105,7 +107,8 @@
 }
 
 .addtask-grid textarea {
-  min-height: 110px;
+  min-height: 120px;
+  padding: 18px 16px;
   resize: vertical;
 }
 
