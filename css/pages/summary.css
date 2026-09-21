@@ -403,7 +403,7 @@ body {
   }
 
   .summary-body {
-    padding: 5px 16px 28px;
+    padding: 5px 20px 28px;
     gap: 18px;
     flex-direction: column;
   }
@@ -421,6 +421,7 @@ body {
   }
 
   .summary-line {
+    order: 3;
     width: 64px;
     height: 3px;
   }
@@ -509,7 +510,7 @@ body {
 
 @media (max-width: 600px) {
   .summary-body {
-    padding: 5px 10px;
+    padding: 5px 20px;
     gap: 14px;
   }
 
@@ -584,7 +585,7 @@ body {
 @media (max-width: 480px) {
 
   .summary-body {
-    padding: 4px 10px;
+    padding: 4px 20px;
   }
 
   .summary-h1 {
