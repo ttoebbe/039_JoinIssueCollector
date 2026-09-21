@@ -74,11 +74,11 @@ function getAddTaskFormOpen(presetStatus) {
 function getAddTaskLeftFields() {
   return `
       <label>Title<span class="req">*</span></label>
-      <input id="task-title" type="text" placeholder="Enter a title" />
+      <input id="task-title" type="text" placeholder="Enter a title" maxlength="40" />
       <div class="field-error" id="task-title-error"></div>
       <div class="field-counter" id="task-title-counter">0/40</div>
       <label>Description</label>
-      <textarea id="task-description" placeholder="Enter a Description"></textarea>
+      <textarea id="task-description" placeholder="Enter a Description" maxlength="200"></textarea>
       <div class="field-error" id="task-description-error"></div>
       <div class="field-counter" id="task-description-counter">0/200</div>
     <label>Due date<span class="req">*</span></label>
@@ -174,7 +174,7 @@ function getAddTaskSubtaskBlock() {
         <img src="/assets/img/icons/done.svg" alt="" aria-hidden="true" />
       </button>
     </div>
-    <input id="subtask-input" type="text" placeholder="Add new subtask" />
+    <input id="subtask-input" type="text" placeholder="Add new subtask" maxlength="30" />
   </div>
   <div class="field-error" id="subtask-error"></div>
   <div id="subtask-list"></div>

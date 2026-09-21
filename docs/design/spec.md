@@ -1068,6 +1068,24 @@ see section 6.4.
     glyphs that are never reused elsewhere. The icon files are therefore unused by the
     add-task form, which is deliberate and not a missing wiring.
 
+19. **The board column heads keep a visible plus button**, although every `plus button`
+    instance in the board frames is hidden (104 of 118 plus instances across the file,
+    desktop `47989:5803` and mobile `332:1228` alike). The button opens the add-task
+    overlay with the clicked column's status (`handleColumnAddClick`,
+    `js/features/board/create-task.js`), which saves the detour through Triage and a
+    subsequent move. Decision of 2026-09-21, see issue #51.
+20. **Character counters are shown although the file has none.** Five fields carry one:
+    add task title (40) and description (200), contact name (30), email (50) and phone
+    (15). The requirements specify no length limit — the limit passages there concern
+    the daily cap of 10 email requests. The counters make the limit visible before the
+    user hits it. Decision of 2026-09-21, see issue #51.
+
+    The limits now also sit in the markup as `maxlength`, so they no longer live only in
+    JavaScript. **Exception: the phone field.** Its rule counts digits
+    (`getPhoneDigitsCount`) while `maxlength` counts characters, so a formatted number
+    such as `+49 151 1234561` (15 characters, 12 digits) would be cut off. The phone
+    field therefore keeps the JavaScript check alone.
+
 ### 8.6 Breakpoints of the existing screens
 
 CSS custom properties do not work inside media queries, so these values are hardcoded
