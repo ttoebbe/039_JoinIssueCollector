@@ -61,9 +61,9 @@ body {
 
 .summary-h1 {
   margin: 0;
-  font-size: 64px;
+  font-size: 61px;
   font-weight: 700;
-  color: var(--color-text-primary);
+  color: var(--color-text);
 }
 
 .summary-line {
@@ -75,18 +75,18 @@ body {
 
 .summary-sub {
   margin: 0;
-  font-size: 20px;
+  font-size: 27px;
   font-weight: 400;
   color: var(--color-text-primary);
 }
 
 .greeting {
-  margin-top: 82px;
+  align-self: center;
 }
 
 #greeting-text {
   margin: 0;
-  font-size: 48px;
+  font-size: 47px;
   font-weight: 500;
   line-height: 1.15;
   color: var(--color-text-primary);
@@ -97,7 +97,7 @@ body {
   font-size: 64px;
   font-weight: 700;
   line-height: 1.05;
-  color: var(--color-accent);
+  color: var(--color-primary-hover);
 }
 
 .greeting-overlay {
