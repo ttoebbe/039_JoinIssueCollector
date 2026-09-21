@@ -335,20 +335,25 @@
 }
 
 .board-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin: 8px 0 14px;
 }
 
 .board-progress-text {
   font-size: 16px;
   color: var(--color-text-primary);
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
 .board-progress-bar {
+  flex: 1;
   height: 8px;
   background: var(--color-bg-selected);
   border-radius: 8px;
   overflow: hidden;
-  margin-top: 6px;
 }
 
 .board-progress-fill {

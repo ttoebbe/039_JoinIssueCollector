@@ -32,8 +32,8 @@ function buildProgressWrap(stats) {
   const wrap = document.createElement("div");
   wrap.className = "board-progress";
   wrap.title = `${stats.done} von ${stats.total} Subtasks erledigt`;
-  wrap.appendChild(buildProgressText(stats));
   wrap.appendChild(buildProgressBar(stats));
+  wrap.appendChild(buildProgressText(stats));
   return wrap;
 }
 
