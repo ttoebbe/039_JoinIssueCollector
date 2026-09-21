@@ -9,13 +9,13 @@
 
 main {
     max-width: 598px;
-    max-height: 630px;
+    min-height: 630px;
     width: min(100%, 598px);
     position: relative;
     margin: 0 auto;
     background-color: white;
     border-radius: 30px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 14px 3px rgba(0, 0, 0, 0.14);
 
 }
 
@@ -92,7 +92,7 @@ form img {
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 24px;
     margin-bottom: 40px;
     width: 100%;
     max-width: 422px;
@@ -221,8 +221,9 @@ input::placeholder {
     background-color: var(--color-gray-disabled);
 }
 
-.btn-left {
-    width: 110px;
+.form-buttons .btn-left {
+    width: 126px;
+    height: 55px;
     background-color: var(--color-primary);
     color: white;
     padding: 0;
