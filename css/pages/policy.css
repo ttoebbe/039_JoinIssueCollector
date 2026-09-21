@@ -184,18 +184,28 @@
 }
 
 @media (max-width: 800px) {
+  .policy-page {
+    padding: 32px 16px 56px;
+  }
+
+  .policy-title {
+    font-size: 47px;
+  }
+
+  .policy-section h2 {
+    font-size: 23px;
+  }
+
   .policy-toc ul {
     columns: 1;
   }
 
   .policy--paper {
-    padding: 18px;
-    border-radius: 18px;
+    padding: 0;
   }
 
   .policy-section {
-    padding: 16px 16px 16px 24px;
-    border-radius: 14px;
+    padding: 0;
   }
 
   .policy-back {
