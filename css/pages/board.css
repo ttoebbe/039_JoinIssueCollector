@@ -552,19 +552,16 @@
   }
 
   .board-column-body {
-    flex-direction: row;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    overflow-y: auto;
-    padding-top: 4px;
-    padding-bottom: 12px;
-    padding-right: 4px;
-    padding-left: 4px;
+    flex-direction: column;
+    overflow-x: visible;
+    overflow-y: visible;
+    max-height: none;
+    padding: 4px;
   }
 
   .board-card {
-    flex: 0 0 252px;
-    width: 252px;
+    flex: initial;
+    width: 100%;
   }
 }
 
@@ -612,6 +609,7 @@
     grid-column: 1 / -1;
     grid-row: 2 / 3;
     width: 100%;
+    max-width: none;
   }
 }
 
