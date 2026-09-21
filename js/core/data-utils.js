@@ -197,3 +197,17 @@ function getTaskIdNumber(id) {
   const number = parseInt(id.substring(1));
   return Number.isNaN(number) ? -1 : number;
 }
+
+/**
+ * Formats an ISO date (YYYY-MM-DD) as DD/MM/YYYY.
+ * Figma 75624:20773 shows the due date in day-first notation.
+ * @param {string} isoDate - The stored date
+ * @returns {string} The formatted date, or "-" when empty
+ */
+function formatDueDate(isoDate) {
+  if (!isoDate) return "-";
+  const parts = String(isoDate).split("-");
+  if (parts.length !== 3) return String(isoDate);
+  const [year, month, day] = parts;
+  return `${day}/${month}/${year}`;
+}

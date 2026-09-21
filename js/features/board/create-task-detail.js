@@ -84,7 +84,7 @@ function createDetailDescription(task) {
 function createDetailMeta(task) {
   const meta = document.createElement("div");
   meta.className = "task-detail-meta";
-  meta.appendChild(createMetaRow("Due date", task?.dueDate || "-"));
+  meta.appendChild(createMetaRow("Due date", formatDueDate(task?.dueDate)));
   meta.appendChild(createPriorityRow(task));
   return meta;
 }
