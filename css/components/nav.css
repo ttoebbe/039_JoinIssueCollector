@@ -87,6 +87,11 @@
   font-size: 16px;
 }
 
+.footer-links a.nav-active{
+  color: var(--color-text-on-dark);
+  font-weight: var(--font-weight-bold);
+}
+
 .footer-links a:hover{
   color: var(--accent);
 }

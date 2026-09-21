@@ -79,6 +79,19 @@ function setActiveNavLink() {
   resetNavActive(nav);
   const match = findActiveNavLink(nav);
   if (match) match.classList.add("nav-active");
+  setActiveFooterLink();
+}
+
+/**
+ * Marks the legal link that points at the current page.
+ * Figma 87229:6028 highlights it the same way as a nav item.
+ */
+function setActiveFooterLink() {
+  const footer = document.querySelector(".nav-bar .footer-links");
+  if (!footer) return;
+  resetNavActive(footer);
+  const match = findActiveNavLink(footer);
+  if (match) match.classList.add("nav-active");
 }
 
 /**
