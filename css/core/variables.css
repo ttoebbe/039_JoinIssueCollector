@@ -7,19 +7,11 @@
   --font-size-lg: 18px;
   --font-size-xl: 24px;
   --font-size-2xl: 32px;
-  --font-weight-normal: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 700;
+  --font-weight-normal: var(--font-weight-regular);
 
   /* === COLORS === */
-  /* Primary Colors */
-  --color-primary: #2A3647;
-  --color-primary-hover: #2A3D59;
-  --color-primary-active: #091931;
-
+  /* Primary Colors — defined in tokens.css */
   /* Accent Colors */
-  --color-accent: #29ABE2;
   --color-accent-deep: #177DA8;
   --color-accent-secondary: #4589FF;
   --color-accent-tertiary: #F3971F;
@@ -34,7 +26,6 @@
   /* Text Colors */
   --color-text-primary: #2A3647;
   --color-text-secondary: #5B6670;
-  --color-text-muted: #A8A8A8;
   --color-text-white: #FFFFFF;
 
   /* Background Colors */
@@ -64,13 +55,12 @@
   --color-avatar-blue: #1f7cff;
 
   /* Priority Colors */
-  --color-priority-urgent: #ff3d00;
-  --color-priority-medium: #ff8a00;
-  --color-priority-low: #7ae229;
+  --color-priority-urgent: var(--color-urgent);
+  --color-priority-medium: var(--color-medium);
+  --color-priority-low: var(--color-low);
 
   /* Label Colors */
-  --color-label-userstory: #0038ff;
-  --color-label-technical: #1fd7c1;
+  --color-label-userstory: var(--color-label-user-story);
 
   /* Additional Backgrounds */
   --color-bg-hover: #e7e7e7;
