@@ -17,7 +17,7 @@ function getNavBarTemplate() {
         </a>
         <a href="add-task.html" data-route="add_task">
           <img src="/assets/img/icons/addtasks.svg" alt="" />
-          <p>Add Tasks</p>
+          <p>Add Task</p>
         </a>
         <a href="board.html" data-route="board">
           <img src="/assets/img/icons/board.svg" alt="" />

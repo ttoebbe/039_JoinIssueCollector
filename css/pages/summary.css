@@ -16,7 +16,7 @@ body {
 
 .nav-bar .footer-links a,
 .nav-bar .footer-links a:visited {
-  color: var(--color-text-muted);
+  color: var(--color-divider);
   text-decoration: none;
 }
 
