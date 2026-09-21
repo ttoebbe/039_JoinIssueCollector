@@ -208,13 +208,13 @@ function validateUsernameField(inputEl, errorId) {
  * @returns {string|null}
  */
 function getUsernameValidationError(value) {
-  if (!value) return "Username is required.";
-  if (value.length < 2) return "Username must be at least 2 characters.";
-  if (!/^[a-zA-Z]/.test(value)) return "Username must start with a letter.";
+  if (!value) return "Name is required.";
+  if (value.length < 2) return "Name must be at least 2 characters.";
+  if (!/^[a-zA-Z]/.test(value)) return "Name must start with a letter.";
   if (/\s{2,}/.test(value))
-    return "Username cannot contain multiple consecutive spaces.";
+    return "Name cannot contain multiple consecutive spaces.";
   if (!/^[a-zA-Z][a-zA-Z0-9_\- ]*$/.test(value)) {
-    return "Username can only contain letters, numbers, single spaces, _ and -.";
+    return "Name can only contain letters, numbers, single spaces, _ and -.";
   }
   return null;
 }
