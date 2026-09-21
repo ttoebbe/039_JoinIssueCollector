@@ -113,6 +113,7 @@
   font-family: var(--font-prose);
   font-size: var(--font-size-body);
   color: var(--color-text-muted);
+  text-align: left;
 }
 
 .welcome-card__options {
