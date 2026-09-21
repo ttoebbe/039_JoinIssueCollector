@@ -9,9 +9,21 @@ async function initContactsPage() {
   }
   await loadContactsFromFirebase();
   renderContactList(listElement, getContactData());
+  preselectFirstContact(listElement);
   setupAddContactOverlay(listElement);
   setupHeaderBackButton();
   onPageVisible(() => reloadContactsData(listElement));
+}
+
+/**
+ * Preselects the first contact so the detail pane is not empty.
+ * Figma 576:4499 opens with a contact shown; on mobile the list stays in front.
+ * @param {HTMLElement} listElement
+ */
+function preselectFirstContact(listElement) {
+  if (window.matchMedia("(max-width: 1250px)").matches) return;
+  const first = listElement.querySelector(".contact-entry");
+  if (first) first.click();
 }
 
 /**
