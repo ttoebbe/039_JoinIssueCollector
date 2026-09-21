@@ -191,10 +191,10 @@
 
 .request-page__heading {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: auto 1fr;
   grid-template-areas:
-    'title back'
-    'counter counter';
+    'back counter'
+    'title title';
   align-items: center;
   column-gap: var(--space-32);
   row-gap: var(--space-8);
@@ -206,6 +206,7 @@
 
 .request-page__title {
   grid-area: title;
+  text-align: center;
   font-family: var(--font-prose);
   font-size: var(--font-size-display-mobile);
   font-weight: var(--font-weight-bold);
@@ -277,6 +278,7 @@
   font-family: var(--font-prose);
   font-size: var(--font-size-body);
   color: var(--color-text-muted);
+  text-align: justify;
 }
 
 .request-page__action {
