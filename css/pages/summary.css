@@ -151,8 +151,6 @@ body {
   color: var(--color-text-on-dark);
 }
 
-/* The AI count is painted with a clipped gradient, which would stay unreadable
-   on the dark surface, so it falls back to a plain white fill. */
 .kpi-card:hover .kpi-number--ai {
   background: none;
   -webkit-background-clip: border-box;
@@ -160,11 +158,6 @@ body {
   color: var(--color-text-on-dark);
 }
 
-/* The round icons carry a dark circle with a white glyph. A plain invert would
-   turn the circle beige, so it is desaturated first and lifted afterwards: the
-   circle clamps to white, the glyph drops to dark. No hover assets exist and
-   icons are not redrawn (CLAUDE.md). The urgent icon keeps its orange circle
-   and is therefore left alone. */
 .kpi-card:hover .kpi-icon img {
   filter: grayscale(1) invert(1) brightness(1.3);
 }
@@ -725,8 +718,6 @@ body {
     gap: 10px;
   }
 
-  /* Below 360px the deadline column would be ~34px wide and break mid-word,
-     so the wide card stacks its two halves instead. Three rows either way. */
   .kpi-wide {
     flex-direction: column;
     align-items: flex-start;

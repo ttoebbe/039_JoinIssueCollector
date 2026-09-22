@@ -74,7 +74,6 @@ input[type="checkbox"]:checked:hover {
   background-image: url("/assets/icons/checkbox-checked-hover.svg");
 }
 
-/* Widens the hit area to 44x44 without taking up layout space. */
 input[type="checkbox"]::after {
   content: "";
   position: absolute;

@@ -1086,6 +1086,26 @@ see section 6.4.
     such as `+49 151 1234561` (15 characters, 12 digits) would be cut off. The phone
     field therefore keeps the JavaScript check alone.
 
+21. **The help entry in the user menu is hidden on desktop.** The topbar carries a
+    `?` icon there, so the menu entry would duplicate it. Below 1250px that icon is
+    hidden (issue #53) and the menu entry takes over (issue #57), which is what the
+    mobile frame `332:1588` shows.
+22. **The checkbox hit area is widened through a transparent `::after` inset**, not
+    through a larger box. The glyph keeps its 24 px artboard size while the target
+    reaches the 44 px minimum, and nothing in the layout moves. Same trick as no. 6.
+23. **The AI count drops its gradient on hover.** `.kpi-number--ai` is painted with a
+    clipped gradient over transparent text; on the dark hover surface that stays
+    unreadable, so the hover state falls back to a plain white fill.
+24. **The hover icons are desaturated before they are inverted.** A plain `invert(1)`
+    turns the `#2A3647` circle beige. `grayscale(1) invert(1) brightness(1.3)` clamps
+    the circle to white and drops the glyph to dark, which is what the design system
+    page "02 Summary" shows for the hover row. No hover assets exist for these icons
+    and icons are not redrawn. The urgent icon keeps its orange circle and is excluded.
+25. **Below 360px the wide summary card stacks its two halves.** Side by side the
+    deadline column would be about 34 px wide and break the label mid-word. Stacking
+    keeps the three tile rows that `332:1588` shows at every width; the artboard
+    itself starts at 428 px and does not cover this case.
+
 ### 8.6 Breakpoints of the existing screens
 
 CSS custom properties do not work inside media queries, so these values are hardcoded
