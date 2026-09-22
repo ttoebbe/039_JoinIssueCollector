@@ -26,6 +26,10 @@
     grid-template-columns: auto 1fr auto;
   }
 
+  .user-dropdown-help{
+    display: block;
+  }
+
   .topbar-help{
     display: none;
     align-items: center;

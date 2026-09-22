@@ -59,3 +59,9 @@
 .user-dropdown.open, .user-dropdown{
   max-width: none;
 }
+
+/* The topbar keeps a ? icon on desktop, so the menu entry would duplicate it.
+   Below 1250px that icon is hidden and this entry takes over. */
+.user-dropdown-help {
+  display: none;
+}

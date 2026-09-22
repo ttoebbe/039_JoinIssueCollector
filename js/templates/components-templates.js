@@ -107,6 +107,7 @@ function getHeaderTemplate() {
           </button>
 
           <div class="user-dropdown" id="user-dropdown" role="menu" hidden>
+            <a class="user-dropdown-item user-dropdown-help" href="help.html" role="menuitem">Help</a>
             <a class="user-dropdown-item" href="legal-notice.html" role="menuitem">Legal Notice</a>
             <a class="user-dropdown-item" href="privacy-policy.html" role="menuitem">Privacy Policy</a>
             <button class="user-dropdown-item user-dropdown-logout" type="button" id="user-logout" role="menuitem">Log out</button>
