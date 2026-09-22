@@ -677,7 +677,7 @@ body {
   }
 }
 
-@media (min-width: 360px) and (max-width: 519px) {
+@media (max-width: 519px) {
   .kpi-wide-right {
     gap: 2px;
   }
@@ -688,8 +688,38 @@ body {
 }
 
 @media (max-width: 359px) {
-  .kpi-wide,
-  .kpi-square {
-    grid-column: 1 / -1;
+  .summary-kpis {
+    gap: 10px;
+  }
+
+  /* Below 360px the deadline column would be ~34px wide and break mid-word,
+     so the wide card stacks its two halves instead. Three rows either way. */
+  .kpi-wide {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .kpi-sub,
+  .kpi-date {
+    font-size: 14px;
+  }
+
+  .kpi-wide {
+    padding: 12px 10px;
+  }
+
+  .kpi-square,
+  .kpi-bottom {
+    padding: 12px 6px;
+  }
+
+  .kpi-number {
+    font-size: 32px;
+  }
+
+  .kpi-label,
+  .kpi-sub {
+    font-size: 16px;
   }
 }
