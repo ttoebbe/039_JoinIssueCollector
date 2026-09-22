@@ -155,8 +155,8 @@ body {
 }
 
 .kpi-icon {
-  width: 64px;
-  height: 64px;
+  width: 69px;
+  height: 69px;
   flex: 0 0 auto;
 
   display: grid;
@@ -164,8 +164,8 @@ body {
 }
 
 .kpi-icon img {
-  width: 64px;
-  height: 64px;
+  width: 69px;
+  height: 69px;
   display: block;
 }
 
@@ -264,8 +264,8 @@ body {
 
 .kpi-icon--stack {
   position: relative;
-  width: 64px;
-  height: 64px;
+  width: 69px;
+  height: 69px;
 }
 
 .kpi-icon--stack .icon-bg {
@@ -621,18 +621,18 @@ body {
   }
 
   .kpi-icon {
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
   }
 
   .kpi-icon img {
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
   }
 
   .kpi-icon--stack {
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
   }
 
   .kpi-wide {
