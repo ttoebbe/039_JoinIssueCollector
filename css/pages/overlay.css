@@ -142,8 +142,8 @@
 }
 
 .task-detail-subtask input {
-  width: 16px;
-  height: 16px;
+  width: 24px;
+  height: 24px;
 }
 
 .task-detail-empty {
@@ -276,15 +276,24 @@
   flex: 0 0 auto;
   margin-left: auto;
   white-space: nowrap;
-  padding: 0 3px;
+  padding: 4px 8px;
   border-radius: 4px;
   font-size: 16px;
-  color: var(--color-text-blue);
+  color: var(--color-link-email);
   text-decoration: none;
-  min-height: 44px;
   display: inline-flex;
   align-items: center;
   gap: 4px;
+}
+
+.task-detail-creator-action::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
 }
 
 .task-detail-creator-action:hover,
