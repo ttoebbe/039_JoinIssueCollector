@@ -290,8 +290,8 @@ body {
 
 .kpi-icon--stack {
   position: relative;
-  width: 69px;
-  height: 69px;
+  width: 60px;
+  height: 60px;
 }
 
 .kpi-icon--stack .icon-bg {
@@ -307,7 +307,7 @@ body {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 58%;
+  width: 107%;
   height: auto;
   object-fit: contain;
 }

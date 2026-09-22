@@ -1106,6 +1106,17 @@ see section 6.4.
     keeps the three tile rows that `332:1588` shows at every width; the artboard
     itself starts at 428 px and does not cover this case.
 
+26. **The urgent arrow image is scaled to 107% of its circle.** `prio-urgent.svg`
+    and `Prio-Urgent-white.svg` are 32x32 exports whose glyph spans only 17.1 units,
+    so 53% of the canvas is padding. Sizing the image to the circle would leave the
+    arrows at roughly 21px instead of the 34.2px that `45:2195` draws. 34.2 / 0.534
+    lands at 64.2px, which is 107% of the 60px circle; the overhang is transparent.
+    The same percentage also produces the mobile value (40px circle, 22.8px arrows,
+    `332:1588`), so one figure covers both breakpoints.
+27. **The urgent circle is 60px while the to-do and done circles are 69px.** Both are
+    named `Frame 59` in the file but carry different sizes on the desktop artboard;
+    on mobile both are 40px.
+
 ### 8.6 Breakpoints of the existing screens
 
 CSS custom properties do not work inside media queries, so these values are hardcoded
