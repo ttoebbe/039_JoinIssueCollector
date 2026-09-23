@@ -82,10 +82,18 @@
 
 .board-search-btn {
    transition: 100ms ease-in-out;
+  position: relative;
+  display: flex;
   border: none;
   background: transparent;
   cursor: pointer;
-  padding: 4px;
+  padding: 0;
+}
+
+.board-search-btn::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
 }
 
 .board-add-btn {
