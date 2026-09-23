@@ -144,7 +144,7 @@ def measure_page(browser, base_url, page, viewport):
     try:
         tab.wait_for_selector(page["ready"], state="attached", timeout=READY_TIMEOUT_MS)
         tab.evaluate(SETTLE_SCRIPT)
-        tab.add_script_tag(path=str(INVARIANTS_SCRIPT))
+        tab.add_script_tag(path=str(INVARIANTS_SCRIPT), type="module")
         found = tab.evaluate("window.layoutInvariants.measureAll()")
     except PlaywrightError as error:
         detail = "; ".join([str(error).splitlines()[0], f"at {tab.url}", *load_problems])
