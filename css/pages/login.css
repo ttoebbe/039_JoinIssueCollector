@@ -47,8 +47,36 @@
     }
 }
 
+@keyframes startAnimationMobile {
+    0% {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(2);
+    }
+
+    100% {
+        top: 37px;
+        left: 38px;
+        transform: translate(0, 0) scale(1);
+    }
+}
+
+@keyframes startAnimationSmall {
+    0% {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(2);
+    }
+
+    100% {
+        top: 24px;
+        left: 24px;
+        transform: translate(0, 0) scale(1);
+    }
+}
+
 .animated {
-    animation: startAnimation 0.5s ease-in-out forwards;
+    animation: startAnimation 500ms ease-in-out forwards;
 }
 
 .animation-skipped {
@@ -58,17 +86,7 @@
 }
 
 .bg-animated {
-    animation: backgroundFadeOut 0.5s ease-in-out forwards;
-}
-
-@keyframes backgroundFadeOutMobile {
-    0% {
-        opacity: 1;
-    }
-
-    100% {
-        opacity: 0;
-    }
+    animation: backgroundFadeOut 500ms ease-in-out forwards;
 }
 
 header {
@@ -382,6 +400,10 @@ footer a:hover {
 
 @media (max-width: 800px) {
 
+    .animated {
+        animation: startAnimationMobile 1000ms linear forwards;
+    }
+
     header p,
     header .btn-signup {
         text-align: center;
@@ -407,44 +429,10 @@ footer a:hover {
         z-index: 1;
     }
 
-    .bg-animated {
-        animation: backgroundFadeOutMobile 500ms ease-in-out forwards;
-    }
-
-    @keyframes backgroundFadeOut {
-        0% {
-            opacity: 1;
-        }
-
-        100% {
-            opacity: 0;
-        }
-    }
-
     .homepage-image {
         height: auto;
         position: absolute;
         z-index: 2;
-    }
-
-    .animated {
-        animation-delay: 500ms;
-
-        animation: startAnimationMobile 1000ms linear forwards;
-    }
-
-    @keyframes startAnimationMobile {
-        0% {
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(2);
-        }
-
-        100% {
-            top: 37px;
-            left: 38px;
-            transform: translate(0, 0) scale(1);
-        }
     }
 }
 
@@ -472,45 +460,11 @@ footer a:hover {
         z-index: 1;
     }
 
-    .bg-animated {
-        animation: backgroundFadeOutMobile 500ms ease-in-out forwards;
-    }
-
-    @keyframes backgroundFadeOut {
-        0% {
-            opacity: 1;
-        }
-
-        100% {
-            opacity: 0;
-        }
-    }
-
     .homepage-image {
         width: 64px;
         height: 78px;
         position: absolute;
         z-index: 2;
-    }
-
-    .animated {
-        animation-delay: 500ms;
-
-        animation: startAnimationMobile 1000ms linear forwards;
-    }
-
-    @keyframes startAnimationMobile {
-        0% {
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(2);
-        }
-
-        100% {
-            top: 37px;
-            left: 38px;
-            transform: translate(0, 0) scale(1);
-        }
     }
 
     header {
@@ -606,21 +560,7 @@ footer a:hover {
         gap: 18px;
     }
 
-    @keyframes startAnimationSmall {
-        0% {
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(2);
-        }
-
-        100% {
-            top: 24px;
-            left: 24px;
-            transform: translate(0, 0) scale(1);
-        }
-    }
-
-    .homepage-image.animated {
+    .animated {
         animation-name: startAnimationSmall;
     }
 
@@ -639,27 +579,6 @@ footer a:hover {
 }
 
 @media screen and (max-width: 800px) and (min-height: 600px) {
-
-    @keyframes startAnimationMobile {
-        0% {
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(2);
-        }
-
-        100% {
-            top: 37px;
-            left: 38px;
-            transform: translate(0, 0) scale(1);
-        }
-    }
-
-    .animated {
-        animation-delay: 500ms;
-
-        animation: startAnimationMobile 1000ms linear forwards;
-    }
-
     section {
         padding: 10px 11px 20px 11px;
     }
