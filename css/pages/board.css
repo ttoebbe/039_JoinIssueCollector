@@ -1157,6 +1157,7 @@
 
 .addtask-footer {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: 16px;
   margin-top: 24px;
@@ -1167,6 +1168,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
+  white-space: nowrap;
 }
 
 .addtask-footer .btn-icon {
@@ -1194,6 +1196,13 @@
   padding: 12px 18px;
   font-weight: 700;
   cursor: pointer;
+}
+
+@media (max-width: 400px) {
+  #clear-btn,
+  #create-btn {
+    padding: 12px;
+  }
 }
 
 #create-btn:disabled {
