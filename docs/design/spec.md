@@ -1117,13 +1117,19 @@ see section 6.4.
     named `Frame 59` in the file but carry different sizes on the desktop artboard;
     on mobile both are 40px.
 
-28. **Screens up to 375px animate the logo with their own keyframe.** The file
-    declares `startAnimationMobile` several times; the last declaration wins, so
-    overriding its end position inside the `max-width: 375px` block had no effect.
-    The small step therefore carries `startAnimationSmall` (ends at 24/24 instead of
-    37/38) and selects it through `.homepage-image.animated`, because a later block
-    sets the `animation` shorthand, which would otherwise reset `animation-name`.
-    The logo itself moves from 30px to the 64x78 of the mobile artboard `332:1638`.
+28. **Screens up to 375px animate the logo with their own keyframe.** `@keyframes`
+    is global, not scoped to the `@media` block it sits in, so competing declarations
+    of one name silently resolved to the last one parsed. `login.css` now declares
+    every keyframe once at the top of the file -- `startAnimation` (ends at 80/77),
+    `startAnimationMobile` (37/38) and `startAnimationSmall` (24/24) -- and the
+    breakpoints only pick one through `animation-name`. The logo itself moves from
+    30px to the 64x78 of the mobile artboard `332:1638`.
+
+29. **The skipped intro reuses the animation end position.** `skipAnimation` used to
+    write inline `top`/`left` values that no longer matched any breakpoint, so the
+    second visit of a session placed the logo at 30/30 on small screens. It now adds
+    `.animation-skipped`, and the stylesheet keeps that class in step with the
+    keyframe end positions per breakpoint.
 
 ### 8.6 Breakpoints of the existing screens
 

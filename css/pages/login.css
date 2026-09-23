@@ -404,6 +404,11 @@ footer a:hover {
         animation: startAnimationMobile 1000ms linear forwards;
     }
 
+    .animation-skipped {
+        top: 37px;
+        left: 38px;
+    }
+
     header p,
     header .btn-signup {
         text-align: center;

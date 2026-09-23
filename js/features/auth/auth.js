@@ -18,21 +18,14 @@ function startAnimation(img, bg) {
 }
 
 /**
- * Skips the intro animation.
+ * Skips the intro animation and places the logo at its end position.
  * @param {HTMLElement} img
  * @param {HTMLElement} bg
  */
 function skipAnimation(img, bg) {
   if (!img || !bg) return;
   img.src = "/assets/img/homepage-join.svg";
-  if (window.innerWidth <= 480) {
-    img.style.top = "30px";
-    img.style.left = "30px";
-  } else {
-    img.style.top = "73px";
-    img.style.left = "77px";
-  }
-  img.style.transform = "translate(0, 0) scale(1)";
+  img.classList.add("animation-skipped");
   bg.style.display = "none";
 }
 
