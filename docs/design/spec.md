@@ -1117,6 +1117,14 @@ see section 6.4.
     named `Frame 59` in the file but carry different sizes on the desktop artboard;
     on mobile both are 40px.
 
+28. **Screens up to 375px animate the logo with their own keyframe.** The file
+    declares `startAnimationMobile` several times; the last declaration wins, so
+    overriding its end position inside the `max-width: 375px` block had no effect.
+    The small step therefore carries `startAnimationSmall` (ends at 24/24 instead of
+    37/38) and selects it through `.homepage-image.animated`, because a later block
+    sets the `animation` shorthand, which would otherwise reset `animation-name`.
+    The logo itself moves from 30px to the 64x78 of the mobile artboard `332:1638`.
+
 ### 8.6 Breakpoints of the existing screens
 
 CSS custom properties do not work inside media queries, so these values are hardcoded

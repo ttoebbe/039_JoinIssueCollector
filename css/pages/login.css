@@ -606,7 +606,7 @@ footer a:hover {
         gap: 18px;
     }
 
-    @keyframes startAnimationMobile {
+    @keyframes startAnimationSmall {
         0% {
             top: 50%;
             left: 50%;
@@ -614,17 +614,26 @@ footer a:hover {
         }
 
         100% {
-            top: 37px;
-            left: 38px;
+            top: 24px;
+            left: 24px;
             transform: translate(0, 0) scale(1);
         }
     }
 
+    .homepage-image.animated {
+        animation-name: startAnimationSmall;
+    }
+
     .homepage-image {
-        width: 30px;
-        height: auto;
+        width: 64px;
+        height: 78px;
         position: absolute;
         z-index: 2;
+    }
+
+    .animation-skipped {
+        top: 24px;
+        left: 24px;
     }
 
 }
