@@ -1,0 +1,67 @@
+# Measures every page in seven viewports and fails on horizontal overflow,
+# elements leaving their parent, overlapping stacked siblings or a missing
+# gutter.
+#
+# Manual only, like the deploy: a check is started on purpose. The checker
+# itself lives in the private repository ttoebbe/join-layout-check and is
+# checked out into tools/layout-check/, the path it also has locally. Reading
+# that repository needs the secret LAYOUT_CHECK_TOKEN (fine-grained token,
+# Contents: read-only, on join-layout-check only).
+
+name: Layout check
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  layout:
+    name: Measure layout invariants
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check the required secret
+        env:
+          LAYOUT_CHECK_TOKEN: ${{ secrets.LAYOUT_CHECK_TOKEN }}
+        run: |
+          if [ -z "${LAYOUT_CHECK_TOKEN:-}" ]; then
+            echo "::error::LAYOUT_CHECK_TOKEN is not set. Add it under Settings > Secrets and variables > Actions as a repository secret."
+            exit 1
+          fi
+
+      - name: Check out the site
+        uses: actions/checkout@v5
+
+      - name: Check out the layout checker
+        uses: actions/checkout@v5
+        with:
+          repository: ttoebbe/join-layout-check
+          token: ${{ secrets.LAYOUT_CHECK_TOKEN }}
+          path: tools/layout-check
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: tools/layout-check/requirements.txt
+
+      - name: Install Playwright and Chromium
+        run: |
+          pip install -r tools/layout-check/requirements.txt
+          python -m playwright install --with-deps chromium
+
+      # The report also goes to the job summary, so a red run shows the table
+      # without opening the log.
+      - name: Run the layout check
+        run: python tools/layout-check/check_layout.py --json layout-violations.json
+
+      - name: Keep the raw violations
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: layout-violations
+          path: layout-violations.json
