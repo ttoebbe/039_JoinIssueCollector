@@ -425,11 +425,12 @@
 }
 
 .board-column-add {
+  position: relative;
   width: 24px;
   height: 24px;
   padding: 0;
   margin: 0;
-  border: 2px solid var(--color-primary);
+  border: none;
   border-radius: 6px;
   background: var(--color-bg-surface);
   cursor: pointer;
@@ -440,6 +441,12 @@
 
   line-height: 0;
   box-sizing: border-box;
+}
+
+.board-column-add::after {
+  content: "";
+  position: absolute;
+  inset: -10px;
 }
 
 .board-column-add-icon {
