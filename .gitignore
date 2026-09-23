@@ -24,6 +24,9 @@ __pycache__/
 *.pyc
 .venv/
 
+# Layout check - local tooling, stays off GitHub
+tools/layout-check/
+
 # Dependencies and build
 node_modules/
 /dist/
