@@ -517,7 +517,7 @@
   .board-column {
     width: 100%;
     max-width: none;
-    flex: 1;
+    flex: 0 0 auto;
     height: auto;
   }
 
@@ -1221,12 +1221,12 @@
 @media (max-width: 480px) {
   .board-column {
     width: 100%;
-    flex: 1;
+    flex: 0 0 auto;
     min-width: 0;
   }
 
   .board-column-body {
-    max-height: calc(100vh - 228px);
+    max-height: none;
   }
 
   .prio-row {
