@@ -326,10 +326,8 @@
     "callerPolicy": "workflowsFromSameOwner",
     "executionTimeout": 80
   },
-  "versionId": "c9875e50-3aad-4c4f-9e3b-487b0983a5f8",
-  "meta": {
-    "instanceId": "8b442d749397e472868510460542576e7a4a897f453f0c6f4511e91f9f705916"
-  },
+  "versionId": "f6058912-37b9-4fe4-8779-afbcade13b10",
+  "meta": null,
   "nodeGroups": [],
   "id": "aqt5CWllGhcjnb0K",
   "tags": []
