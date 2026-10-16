@@ -88,7 +88,7 @@ The file contains no credentials. To assign after the import:
 | `Email Trigger (IMAP)` | IMAP | `mail.your-server.de`, SSL/TLS, the username is the full address |
 | `Send confirmation`, `Send failure notice`, `Send guard notice` | SMTP | the same mailbox |
 | `Fetch task ids`, `Write ticket` | Google Service Account API | `Join V2 - Firebase RTDB (Service Account)`, see [`../docs/n8n-setup.md`](../docs/n8n-setup.md) |
-| `Google Gemini Chat Model` | Google Gemini (PaLM) API | already present, shared with Code a Cuisine |
+| `Google Gemini Chat Model` | Google Gemini (PaLM) API | Join's own copy of the key, see [`../docs/n8n-setup.md`](../docs/n8n-setup.md), section 8.1 |
 
 ### The two env variables
 
@@ -228,11 +228,17 @@ domain is added, it must go into **both** webhook nodes. See
 
 ## Where the workflows run
 
-In the **existing** n8n instance at `n8n.thomas-toebbe.de` — together with
-the Code a Cuisine workflows. Join gets no server of its own and no deploy
-structure of its own. Two things follow, described in detail in
-[`../docs/n8n-setup.md`](../docs/n8n-setup.md): a dedicated quota file and
-dedicated webhook paths, so the two projects cannot get in each other's way.
+In an **n8n instance of their own** (2.32.7) on a self-hosted server, with
+its own encryption key. The browser reaches the two webhooks under the
+site's origin, `https://join.thomas-toebbe.de/webhook/join-*`; the site's
+web server passes exactly these two paths on to n8n. The editor is only
+reachable through an SSH tunnel. The server setup lives in a private
+infrastructure repository, not here.
+
+Until October 2026 the workflows ran in an instance shared with Code a
+Cuisine; the move transferred them unchanged, with their IDs. The `join-`
+prefix on the quota file and the webhook paths dates from that time — see
+[`../docs/n8n-setup.md`](../docs/n8n-setup.md), section 5.
 
 ## Check before every commit
 
@@ -253,9 +259,9 @@ repo under any circumstances — neither as a file nor as a text excerpt.
 ## Further reading
 
 - [*Architecture*](../README.md#architecture) section in the README — how web
-  hosting, VPS and Firebase relate, plus the mail-to-ticket sequence diagram
+  server, n8n and Firebase relate, plus the mail-to-ticket sequence diagram
 - [`../docs/n8n-setup.md`](../docs/n8n-setup.md) — write access to Firebase,
-  operating next to Code a Cuisine, import route, checklist before the first
+  counter files and webhook paths, import route, checklist before the first
   import
 - [`../docs/deployment.md`](../docs/deployment.md#7-publishing-the-database-rules)
   — how `database.rules.json` gets into the database

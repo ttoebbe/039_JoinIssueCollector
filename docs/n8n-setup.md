@@ -1,7 +1,7 @@
 # n8n setup — Join Issue Collector
 
 How the Join workflows get into the running n8n instance, how they write to
-Firebase, and what to watch out for next to Code a Cuisine.
+Firebase, and what the instance needs for them.
 
 This file describes the procedure. It does not execute it: creating the
 service account, publishing the rules, creating the credential and the write
@@ -9,47 +9,46 @@ test are manual work on the running environment.
 
 The click path for publishing the rules is described in
 [`deployment.md`](deployment.md#7-publishing-the-database-rules), section 7.
-The big picture — web hosting, VPS, Firebase — is in the
+The big picture — web server, n8n, Firebase — is in the
 [*Architecture*](../README.md#architecture) section of the README.
 
 ---
 
 ## 1. Starting point
 
-The Join workflows get **no server of their own**. They run in the existing
-n8n instance at `n8n.thomas-toebbe.de` on the Code a Cuisine VPS, alongside
-the workflows already there.
+The Join workflows run in an **n8n instance of their own** on a self-hosted
+server. Until October 2026 they shared an instance with the Code a Cuisine
+project; since the move nothing of Join runs there anymore.
 
 | | |
 |---|---|
-| Host | Hetzner CPX12, Ubuntu 26.04 |
-| Stack | `/opt/code-a-cuisine/` — Caddy + n8n via Docker Compose |
-| n8n UI | **not public** — Caddy only lets `/webhook/*` through, port 5678 binds to loopback |
+| n8n | 2.32.7 via Docker Compose, own `N8N_ENCRYPTION_KEY` — no key is shared with another project |
+| Webhooks | `https://join.thomas-toebbe.de/webhook/join-status` and `…/join-quota` — the site's web server passes only these two paths on to n8n |
+| n8n UI | **not public** — n8n listens on loopback only, editor and REST API are not reachable from outside |
 | UI access | exclusively via SSH tunnel |
 
-Commands against the container always from `/opt/code-a-cuisine/` and always
-via Compose:
+Commands against the container always via Compose, from the directory of the
+Compose file on the n8n server:
 
 ```bash
-cd /opt/code-a-cuisine
 docker compose exec n8n <command>
 ```
 
-A bare `docker exec n8n …` fails there — the container has a different name,
+A bare `docker exec n8n …` fails — the container has a different name,
 Compose builds it from project and service name.
 
-SSH tunnel to the UI:
+SSH tunnel to the UI — host and user are in the private infrastructure
+repository:
 
 ```bash
-ssh -L 5680:localhost:5678 root@<vps>
+ssh -L 5680:127.0.0.1:5678 <user>@<n8n-server>
 # then in the browser: http://localhost:5680
 ```
 
-There is deliberately **no** separate `n8n/deploy/` with `docker-compose.yml`
-and `Caddyfile` for Join. It would mean a second stack next to the existing
-one — two n8n instances, two Caddy configurations, a port conflict. The
-project plan originally envisaged that and later decided to keep using the
-existing VPS; this documentation replaces the deploy structure.
+The server setup itself — Compose file, web server, firewall, backups — is
+deliberately **not** in this repository. It lives in a private
+infrastructure repository; this repository is public and only carries what
+Join itself consists of.
 
 ---
 
@@ -189,17 +188,16 @@ stay untouched.
 
 ---
 
-## 5. Operating next to Code a Cuisine
+## 5. Counter file and webhook paths
 
-Two places where the two projects would otherwise get in each other's way.
+Both carry the prefix `join-`. It dates from the time the workflows shared
+an instance with Code a Cuisine, whose counter file and webhook paths had to
+stay apart from Join's. In Join's own instance nothing collides anymore; the
+names stay because they do no harm and the workflows remain unchanged.
 
-### 5.1 Its own quota file
+### 5.1 The quota file
 
-Code a Cuisine already writes its daily counter to
-`/home/node/.n8n/quota-state.json`. Join must **not** share this file —
-otherwise both projects share one quota and block each other.
-
-Join uses, in the same volume:
+The issue collector keeps its daily counter in the n8n volume:
 
 ```
 /home/node/.n8n/join-quota-state.json
@@ -212,10 +210,9 @@ Structure of the file — `system` is the daily counter from the requirements
 { "day": "2026-08-26", "system": 4, "perSender": { "stakeholder@example.com": 2 } }
 ```
 
-Resetting, analogous to Code a Cuisine's existing counter:
+Resetting, from the directory of the Compose file on the n8n server:
 
 ```bash
-cd /opt/code-a-cuisine
 docker compose exec n8n rm -f /home/node/.n8n/join-quota-state.json
 docker compose exec n8n sh -c 'ls /home/node/.n8n/ | grep -c join-quota-state.json'   # 0 = reset
 ```
@@ -232,19 +229,23 @@ With ten requests a day in a demo that is acceptable; it still should not sit
 here as a silent flaw. The clean solution would be a file lock or a counter
 in the database instead of the file system.
 
-### 5.2 Its own webhook paths
+### 5.2 The webhook paths
 
 ```
 /webhook/join-status    — status notification on column change
 /webhook/join-quota     — daily limit for the landing page
 ```
 
-The `join-` prefix keeps them apart from the Code a Cuisine paths.
+The browser calls both under the site's own origin,
+`https://join.thomas-toebbe.de`. The site's web server passes **exactly
+these two paths** on to n8n — no other `/webhook/…` path, no
+`/webhook-test/…`, neither the editor nor the REST API. A **new** webhook
+therefore needs two changes: the workflow here and the web server
+configuration in the private infrastructure repository. Without the second,
+the new path answers `404` from outside while it works through the SSH
+tunnel.
 
-Caddy already lets `/webhook/*` through — **nothing additional** needs to be
-opened for the Join paths. The Caddy configuration is not touched for Join.
-
-**CORS must be set by each workflow itself.** Caddy does not do it. The
+**CORS must be set by each workflow itself.** The web server does not do it. The
 **webhook node** handles it via *Allowed Origins (CORS)* — it thereby also
 answers the preflight (`OPTIONS`) itself. **No** CORS headers are to be set
 manually on the "Respond to Webhook" node; an earlier version of this section
@@ -268,14 +269,15 @@ connecting to the mailbox itself via `require('imap')`.
 n8n only loads modules in code nodes that are explicitly allowed:
 
 ```yaml
-# /opt/code-a-cuisine/docker-compose.yml
+# docker-compose.yml on the n8n server
 environment:
   - NODE_FUNCTION_ALLOW_EXTERNAL=imap
 ```
 
 `imap@0.8.19` is already in the n8n image, so nothing needs to be installed.
-The variable has been set since 2026-08-26 and verified on the container:
-`require('imap')` returns `typeof === "function"` there.
+The variable was verified on the earlier instance on 2026-08-26 —
+`require('imap')` returned `typeof === "function"` there — and is set the
+same way in Join's own instance.
 
 Without the allowance, the three `Move mail to …` nodes fail on every run.
 Because they are set to `continueOnFail`, this does not show up as a red
@@ -305,15 +307,15 @@ code node is in the workflow export, and the export is in the repository.
 So they come from the container's environment:
 
 ```yaml
-# /opt/code-a-cuisine/docker-compose.yml
+# docker-compose.yml on the n8n server
 environment:
   - JOIN_IMAP_USER=${JOIN_IMAP_USER}
   - JOIN_IMAP_PASSWORD=${JOIN_IMAP_PASSWORD}
 ```
 
 The values themselves go into the `.env` next to the Compose file — never
-into the repository. After the change, `docker compose up -d` from
-`/opt/code-a-cuisine`.
+into the repository. After the change, `docker compose up -d` from the
+directory of the Compose file.
 
 The nodes read them via `$env.JOIN_IMAP_USER` and `$env.JOIN_IMAP_PASSWORD`
 and throw a descriptive error if either is missing. The prerequisite is
@@ -332,19 +334,19 @@ The three `Move mail to …` nodes then fail before they even open a
 connection — they cannot reach `JOIN_IMAP_USER` and `JOIN_IMAP_PASSWORD`.
 
 ```yaml
-# /opt/code-a-cuisine/docker-compose.yml, line 52
+# docker-compose.yml on the n8n server
 environment:
   - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
 ```
 
-That n8n nominally defaults the variable to `false` did not help here:
-without the entry, access in the running container was blocked. The line has
-been in place since the live test.
+That n8n nominally defaults the variable to `false` did not help: without
+the entry, access in the running container of the earlier instance was
+blocked. Join's own instance carries the line from the start.
 
-### 6.4 SMTP only via port 587
+### 6.4 SMTP via port 587
 
-**Hetzner Cloud blocks outgoing ports 25 and 465.** Only **587** is open. The
-SMTP credential therefore runs on 587 with **STARTTLS**:
+The SMTP credential runs on **587 with STARTTLS** — the mailbox's
+submission port:
 
 | Credential field | Value |
 |---|---|
@@ -352,33 +354,39 @@ SMTP credential therefore runs on 587 with **STARTTLS**:
 | SSL/TLS | **off** |
 | STARTTLS | on |
 
-With port 465 there is no error message to recognize this by: the send
-**hangs** until the workflow's execution timeout strikes. The affected
+It was set up that way on the earlier instance, whose cloud host blocked the
+outgoing ports 25 and 465, and was carried over unchanged. The symptom of a
+blocked port is worth knowing in any case: there is no error message, the
+send **hangs** until the workflow's execution timeout strikes. The affected
 `Send …` node shows "running" until then, and the run finally aborts at the
 timeout rather than at the connection — the cause appears nowhere in the log.
+
+Both mail connections — IMAP on 993 and SMTP on 587 — go **out** from the
+n8n server to the mailbox. The mailbox itself stays with the mail hosting;
+nothing on the n8n server accepts mail.
 
 ---
 
 ## 7. Checks before the first import
 
-Eight items on the container. All eight are set and were verified on the
-running container on 2026-08-26.
+Eight items on the container. On the earlier instance all eight were
+verified on 2026-08-26; Join's own instance carries the same values in its
+Compose file. Check them again after every rebuild of the server.
 
 | # | Check | Why |
 |---|---|---|
-| 1 | Volume for `/home/node/.n8n` present | done. `docker inspect code-a-cuisine-n8n-1` shows `volume code-a-cuisine_n8n_data … -> /home/node/.n8n`; the container has since survived four restarts without losing credentials or workflows. Without a volume, workflows, credentials and the quota state would be gone after every restart. |
-| 2 | `WEBHOOK_URL` set | done. `printenv` in the container returns `https://n8n.thomas-toebbe.de/`. Without the variable, n8n builds webhook URLs against `localhost:5678` — the landing page would get a useless address. |
-| 3 | `TZ=UTC` | already set. The daily counter calculates against UTC midnight; a different timezone shifts the reset. |
-| 4 | `NODE_FUNCTION_ALLOW_BUILTIN=fs` | already set. Without it the quota guard cannot write the counter file. |
-| 5 | `NODE_FUNCTION_ALLOW_EXTERNAL=imap` | set since 2026-08-26. See section 6.1. |
-| 6 | `JOIN_IMAP_USER` and `JOIN_IMAP_PASSWORD` | set — the live test logged into the mailbox. See section 6.2. |
-| 7 | `N8N_BLOCK_ENV_ACCESS_IN_NODE=false` | set since the live test, `docker-compose.yml` line 52. Without the entry, `$env` fails in code nodes. See section 6.3. |
-| 8 | `JOIN_NOTIFY_SECRET` | set since the live test of the status workflow. Must carry the same value as `NOTIFY_CONFIG.SECRET` in the client; if it is missing entirely, the guard node aborts with a descriptive error. See section 9.1. |
+| 1 | Volume for `/home/node/.n8n` present | a named volume in the Compose file. Without it, workflows, credentials and the quota state would be gone after every restart. |
+| 2 | `WEBHOOK_URL=https://join.thomas-toebbe.de/` | the site's origin, not the n8n server's own address — the webhooks are reached through the site's web server. Without the variable, n8n builds webhook URLs against `localhost:5678`, and the addresses it shows are useless. |
+| 3 | `TZ=UTC` | The daily counter calculates against UTC midnight; a different timezone shifts the reset. |
+| 4 | `NODE_FUNCTION_ALLOW_BUILTIN=fs` | Without it the quota guard cannot write the counter file. |
+| 5 | `NODE_FUNCTION_ALLOW_EXTERNAL=imap` | See section 6.1. |
+| 6 | `JOIN_IMAP_USER` and `JOIN_IMAP_PASSWORD` | from the `.env` next to the Compose file. See section 6.2. |
+| 7 | `N8N_BLOCK_ENV_ACCESS_IN_NODE=false` | Without the entry, `$env` fails in code nodes. See section 6.3. |
+| 8 | `JOIN_NOTIFY_SECRET` | Must carry the same value as `NOTIFY_CONFIG.SECRET` in the client; if it is missing entirely, the guard node aborts with a descriptive error. See section 9.1. |
 
-This can be verified like so:
+This can be verified like so, from the directory of the Compose file:
 
 ```bash
-cd /opt/code-a-cuisine
 docker compose exec n8n env | grep -E "WEBHOOK_URL|^TZ=|NODE_FUNCTION_ALLOW_|JOIN_IMAP_USER|N8N_BLOCK_ENV_ACCESS_IN_NODE"
 docker compose exec n8n env | grep -cE "^JOIN_NOTIFY_SECRET=."   # 1 = set
 docker compose config | grep -A5 volumes
@@ -417,6 +425,16 @@ Also to be set after the import, because it is not in the JSON:
 - **Check the webhook paths** so they still carry `join-` after the import.
 - **Activate the workflow.**
 
+### 8.1 The move to an instance of its own
+
+The move in October 2026 did **not** import from this repository. Workflows
+and credentials were transferred directly from the earlier instance, with
+their IDs unchanged, so every node found its credential without being
+re-assigned. The Gemini credential was **copied**: the earlier instance
+keeps the original for Code a Cuisine, Join's instance has its own copy of
+the key. The route above stays the one for importing a workflow from
+`../n8n/`.
+
 ---
 
 ## 9. The status workflow
@@ -432,7 +450,7 @@ guard node reads it via `$env.JOIN_NOTIFY_SECRET` and compares it with the
 request's `x-join-secret` header.
 
 ```yaml
-# /opt/code-a-cuisine/docker-compose.yml
+# docker-compose.yml on the n8n server
 environment:
   - JOIN_NOTIFY_SECRET=${JOIN_NOTIFY_SECRET}
 ```
@@ -481,10 +499,9 @@ notices. The three responses exist for manual debugging.
 /home/node/.n8n/join-notify-state.json
 ```
 
-The **third** counter file in the same volume, separate from the other two:
-`quota-state.json` belongs to Code a Cuisine, `join-quota-state.json` to the
-issue collector (section 5.1). Merging them would mean incoming mails and
-outgoing status mails share one quota.
+The **second** counter file in the same volume, separate from
+`join-quota-state.json` of the issue collector (section 5.1). Merging them
+would mean incoming mails and outgoing status mails share one quota.
 
 Structure — `perTask` counts per ticket ID, `day` is the UTC day:
 
@@ -492,10 +509,9 @@ Structure — `perTask` counts per ticket ID, `day` is the UTC day:
 { "day": "2026-08-26", "perTask": { "t2": 2, "t7": 1 } }
 ```
 
-Resetting:
+Resetting, from the directory of the Compose file:
 
 ```bash
-cd /opt/code-a-cuisine
 docker compose exec n8n rm -f /home/node/.n8n/join-notify-state.json
 docker compose exec n8n sh -c 'ls /home/node/.n8n/ | grep -c join-notify-state.json'   # 0 = reset
 ```
@@ -507,7 +523,10 @@ per day that is acceptable.
 
 ### 9.4 CORS
 
-The call comes from the browser, not from a server. The webhook node
+The call comes from the browser, not from a server. Live it goes to the
+site's own origin (section 5.2), so the browser applies **no** CORS there.
+The list matters for local development: a board served from `localhost`
+calls the same absolute URL, which is cross-origin. The webhook node
 therefore lists, under *Allowed Origins (CORS)*, the domains the board is
 served from:
 
@@ -519,16 +538,17 @@ The last three are the local development addresses: Live Server (5500, under
 `127.0.0.1` or `localhost` depending on its settings) and
 `python -m http.server 8080` from the [`../README.md`](../README.md).
 
-**This list must be checked against the real deployment.** With the wrong
-domain in there, the call fails in the browser while it works via `curl` — a
-failure picture that easily misleads, because the workflow runs cleanly in
-the execution log and still nothing arrives.
+**This list must be checked whenever the board is served from a new
+address** — locally or, should page and webhooks ever be separated again,
+live. With the wrong domain in there, the call fails in the browser while it
+works via `curl` — a failure picture that easily misleads, because the
+workflow runs cleanly in the execution log and still nothing arrives.
 
 The webhook node answers the preflight itself once the field is filled. There
 is **nothing** to retrofit on the respond node (section 5.2).
 
-Nothing to do on Caddy: `/webhook/*` is already allowed through
-(section 5.2).
+Nothing to do on the web server for CORS: it passes the path through
+unchanged (section 5.2).
 
 ### 9.5 After the import
 
@@ -659,7 +679,7 @@ call runs cleanly via `curl`, the browser's same-origin check discards it.
 Then activate and call it in the browser:
 
 ```
-https://n8n.thomas-toebbe.de/webhook/join-quota
+https://join.thomas-toebbe.de/webhook/join-quota
 ```
 
 Expected is `{"used":0,"limit":10}` or the current state of the day.
@@ -687,7 +707,7 @@ thereby settled and need **not be re-checked** on the next import:
 
 | Item | Result |
 |---|---|
-| `respondWith: "json"` together with `={{ JSON.stringify(…) }}` | correct as is. Calling `https://n8n.thomas-toebbe.de/webhook/join-quota` returns `{"limit":10,"used":1}` — a real JSON object, no string and no double-encoded JSON. The expression produces the text, the node sets the `Content-Type`; together that is exactly **one** encoding. |
+| `respondWith: "json"` together with `={{ JSON.stringify(…) }}` | correct as is. Calling the endpoint returns `{"limit":10,"used":1}` — a real JSON object, no string and no double-encoded JSON. The expression produces the text, the node sets the `Content-Type`; together that is exactly **one** encoding. |
 | `httpMethod` in the webhook node | no longer in the export. `GET` is the node's default value, and n8n does not write defaults. The endpoint still answers `GET` — the value is missing from the JSON, not from the node. Section 10.5 remains valid. |
 | CORS in the browser | the list from section 10.4 is right. `request.html` served from `http://127.0.0.1:5500` receives the answer, the browser does not discard it. A `curl` test alone would not have shown that. |
 

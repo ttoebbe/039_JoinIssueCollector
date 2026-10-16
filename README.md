@@ -59,37 +59,44 @@ cost guard for the AI API and resets daily at midnight UTC.
 
 ## Architecture
 
-Three systems that do not need to know about each other: the frontend is
-static files on web hosting, n8n runs in Docker on a VPS, and the database
-is a hosted Firebase Realtime Database.
+Three parts: the frontend is static files and n8n runs in Docker, both on
+self-hosted servers, and the database is a hosted Firebase Realtime
+Database. The request mailbox stays with the mail hosting.
 
 ```mermaid
 flowchart LR
     SH["Stakeholder"]
-    MB["Request mailbox<br/>Hetzner IMAP"]
-    N8N["n8n<br/>Hetzner VPS CPX12<br/>n8n.thomas-toebbe.de"]
+    MB["Request mailbox<br/>Hetzner web hosting"]
+    N8N["n8n 2.32.7<br/>self-hosted, Docker<br/>own instance"]
     GEM["Google Gemini<br/>gemini-3.5-flash"]
     FB[("Firebase<br/>Realtime Database<br/>europe-west1")]
-    FE["Frontend<br/>Hetzner web hosting<br/>join.thomas-toebbe.de"]
+    FE["Frontend<br/>self-hosted web server<br/>join.thomas-toebbe.de"]
     TM["Team"]
 
     SH -->|"Email with [JOIN]"| MB
     SH --> FE
     TM --> FE
-    N8N -->|"IMAP: polling and<br/>moving to done folder"| MB
+    N8N -->|"IMAP port 993: polling<br/>and moving to done folder"| MB
     N8N -->|"subject + body"| GEM
     GEM -->|"title, category,<br/>priority, deadline"| N8N
     N8N -->|"GET task IDs, PUT ticket<br/>service account"| FB
     N8N -->|"SMTP port 587"| SH
     FE <-->|"REST without auth"| FB
-    FE -->|"POST /webhook/join-status"| N8N
-    FE -->|"GET /webhook/join-quota"| N8N
+    FE -->|"POST /webhook/join-status<br/>passed on by the web server"| N8N
+    FE -->|"GET /webhook/join-quota<br/>passed on by the web server"| N8N
 ```
 
-What the picture does not show: Join's workflows run in an existing n8n
-instance that also serves another project — which is why Join has its own
-counter file and its own webhook paths, so the two projects cannot get in
-each other's way.
+What the picture does not show: the browser never addresses n8n directly.
+Both webhook calls go to `https://join.thomas-toebbe.de/webhook/join-*` —
+the same origin as the page — and the site's web server passes exactly these
+two paths on to n8n. Nothing else of n8n is reachable from outside; the
+editor is only available through an SSH tunnel. All connections of n8n to
+mailbox, Gemini and Firebase are outgoing.
+
+Join's n8n is an instance of its own with its own encryption key. The
+`join-` prefix on the counter files and webhook paths dates from the time
+the workflows shared an instance with another project; it stays, because it
+does no harm and the workflows remain unchanged.
 
 The two arrows to the database are **not** equivalent: n8n writes through a
 service account, while the frontend talks to the REST API without any
@@ -116,7 +123,7 @@ sequenceDiagram
     participant F as Firebase
 
     S->>M: Email with [JOIN] in the subject
-    N->>M: Polling
+    N->>M: IMAP polling
     Note over N: Subject filter<br/>no [JOIN]: discard silently
     Note over N: Reserve quota<br/>before the AI call
     N->>G: Subject + body
@@ -125,7 +132,7 @@ sequenceDiagram
     N->>F: GET tasks?shallow=true
     F->>N: existing task IDs
     N->>F: PUT tasks/tN
-    N->>S: Confirmation email
+    N->>S: Confirmation email via SMTP
     N->>M: Move mail to INBOX.erledigt
 ```
 
@@ -161,7 +168,7 @@ exists on this path.
 |---|---|
 | Frontend | HTML5, CSS3, vanilla JavaScript (ES6+) |
 | Database | Firebase Realtime Database (REST API) |
-| Automation | n8n (Docker, own VPS) |
+| Automation | n8n 2.32.7 (Docker, self-hosted) |
 | Build | none — static files |
 
 ---
@@ -214,11 +221,11 @@ Testing the landing page states without a running n8n:
 │   ├── features/           # auth, board, add-task, contacts, summary, landing
 │   ├── components/         # toast, overlays
 │   └── templates/          # template renderers
-├── n8n/                    # workflows as JSON (run in the existing instance)
+├── n8n/                    # workflows as JSON (exports from the running instance)
 └── docs/
     ├── design/             # design spec, component inventory, asset provenance
     ├── n8n-setup.md        # setting up and importing the workflows
-    └── deployment.md       # secrets and the deployment procedure
+    └── deployment.md       # the deployment procedure
 ```
 
 ---
@@ -240,15 +247,17 @@ Existing screens from 024_Join were deliberately not restyled.
 
 ## Deployment
 
-The site lives at **https://join.thomas-toebbe.de** and is rolled out
-manually via GitHub Actions: *Actions* tab → *Deploy frontend* →
-*Run workflow*. There is no push trigger — a commit on `main` does not
-change the live site.
+The site lives at **https://join.thomas-toebbe.de** on a self-hosted
+server and is rolled out by hand: the server fetches `main` — or a given
+commit — from this public repository over HTTPS and switches to it in one
+step. The run is started via SSH from the workstation; the script lives in
+a private infrastructure repository. There is no push trigger — a commit on
+`main` does not change the live site. Because the server fetches from
+GitHub, the order is always: push first, then roll out.
 
-Only what makes up the site is uploaded: `index.html`, `html/`, `css/`,
-`js/` and `assets/`. Which secrets the workflow needs, where they are
-created and what to check after a deploy is described in
-[`docs/deployment.md`](docs/deployment.md).
+Only what makes up the site goes live: `index.html`, `html/`, `css/`, `js/`
+and `assets/`. The procedure, the legacy GitHub Actions route and what to
+check after a deploy are described in [`docs/deployment.md`](docs/deployment.md).
 
 The n8n side — importing workflows, credentials, webhook paths, CORS — is
 covered in [`docs/n8n-setup.md`](docs/n8n-setup.md).
@@ -261,9 +270,11 @@ section 7.
 
 ## Configuration
 
-The Firebase URL is set in `js/core/constants.js`.
+The Firebase URL and the status webhook are set in `js/core/constants.js`,
+the quota webhook in `js/features/landing/request-limit.js`.
 Credentials for n8n (mail account, AI API, service account) live exclusively
-in the `.env` on the server and are excluded via `.gitignore`.
+in the n8n instance — in its credential store and in the `.env` on its
+server — and never in this repository.
 
 ---
 
