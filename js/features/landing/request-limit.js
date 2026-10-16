@@ -20,7 +20,7 @@
  * out of a limit that was never reached — that error would be the worse one.
  */
 
-const STATUS_ENDPOINT = 'https://n8n.thomas-toebbe.de/webhook/join-quota';
+const STATUS_ENDPOINT = 'https://join.thomas-toebbe.de/webhook/join-quota';
 const STATUS_TIMEOUT_MS = 3000;
 
 const MAIL_USER = 'issues';

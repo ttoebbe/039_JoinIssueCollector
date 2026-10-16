@@ -44,6 +44,6 @@ const API_CONFIG = {
 // database instead of the request, unknown status values are rejected, and the
 // number of mails per ticket and day is capped.
 const NOTIFY_CONFIG = {
-  ENDPOINT: 'https://n8n.thomas-toebbe.de/webhook/join-status',
+  ENDPOINT: 'https://join.thomas-toebbe.de/webhook/join-status',
   SECRET: 'join-v2-demo'
 };
