@@ -137,10 +137,12 @@ sequenceDiagram
 ```
 
 The quota slot is reserved **before** the model is called, not after a
-successful ticket. A failed AI call therefore also costs a slot — exactly
-this makes the counter a cost cap rather than a success statistic. The
-subject filter, in turn, runs **before** the counter, so a spam mail neither
-consumes quota nor gets a reply.
+successful ticket. An answer the model gave but that is unusable therefore
+also costs a slot — exactly this makes the counter a cost cap rather than a
+success statistic. Only when Gemini turns the call away (busy or down, HTTP
+429 or 5xx) does the slot go back, because nothing was spent. The subject
+filter, in turn, runs **before** the counter, so a spam mail neither consumes
+quota nor gets a reply.
 
 "Rules do not apply here" is the most important note in the picture: n8n
 writes with a service account token, which the Realtime Database treats as

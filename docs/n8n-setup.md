@@ -218,11 +218,38 @@ docker compose exec n8n sh -c 'ls /home/node/.n8n/ | grep -c join-quota-state.js
 ```
 
 The counter is incremented **before** the AI call, not after the ticket has
-been written successfully. A mail the model fails on still costs its slot —
-otherwise the limit would not be a cost guard but merely a success statistic.
+been written successfully, so a mail still waiting for the model already
+counts against the limit. A mail the model answered but that did not become a
+ticket still costs its slot — the call was billed, and otherwise the limit
+would not be a cost guard but merely a success statistic.
+
+**The one exception: Gemini turns the call away.** If the agent ends on its
+error output because Gemini answered HTTP 429 or 5xx (rate limit, overload,
+outage — for example a 503 "high demand"), no answer was produced and nothing
+was billed. The node `Release quota slot (AI error)` then takes the slot back:
+
+- `system` and the sender's `perSender` entry each drop by one, never below
+  zero.
+- Only if the file still holds the day the guard reserved the slot on
+  (`quotaDay`, passed along by the guard) and the sender still has a slot on
+  it. After midnight UTC or a manual reset nothing is touched.
+- Recognised are n8n's status messages (`Service unavailable - …`,
+  `The service is receiving too many requests …` and the other 5xx texts) and
+  the raw Gemini SDK text `[GoogleGenerativeAI Error]: … [503 …]`, each only at
+  the start of the error text. Model output quoted further down an error
+  message can therefore never trigger a release.
+- Every other error keeps the slot, above all a parser or format error: the
+  model did answer, and refunding it would let a mail built to break the
+  parser bypass the cap.
+
+The outcome is in the field `quotaRelease` of the node's output item:
+`released`, `kept: not a provider failure`, `skipped: counter holds another
+day`, `skipped: no slot to release`, `skipped: no reservation day` or
+`failed: …`. The node never throws — the sender gets the failure notice in
+any case.
 
 **Known weakness: the counter is read-modify-write without a lock.** The code
-node reads the file, increments the value and writes it back. If two mails
+nodes read the file, change the value and write it back. If two mails
 arrive so close together that two workflow runs overlap, both read the same
 state and write the same incremented value — one slot then counts only once.
 With ten requests a day in a demo that is acceptable; it still should not sit

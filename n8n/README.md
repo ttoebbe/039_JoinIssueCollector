@@ -28,6 +28,8 @@ Email Trigger (IMAP)
        └─ Passed the guard?                 [IF]
             ├─ true  → Issue analysis (AI Agent) ── Google Gemini Chat Model
             │             │                      └─ Structured Output Parser
+            │             ├─ error → Release quota slot (AI error)   [Code]
+            │             │            └─ Map AI answer (the same node as below)
             │             └─ Map AI answer         [Code]
             │                  └─ Ticket usable?   [IF]
             │                       ├─ true  → Fetch task ids        [HTTP GET]
@@ -49,6 +51,17 @@ processing error, and "not a `[JOIN]` mail". The first two differ only in the
 has an empty `notice` — `Notify sender?` sends it into the void, and exactly
 that is why a spam mail gets **no** reply, is not moved and consumes no quota
 slot.
+
+### The quota slot on an AI error
+
+The agent's error output passes `Release quota slot (AI error)` before it
+reaches `Map AI answer`. When Gemini turned the call away — HTTP 429 or 5xx,
+for example a 503 "high demand" — that node gives back the slot the guard
+reserved. Every other agent error keeps it: a parser or format error means the
+model answered and the call was billed. An unusable answer from the regular
+output never passes the node and keeps its slot as well. The rules and the
+`quotaRelease` field in the execution log are described in
+[`../docs/n8n-setup.md`](../docs/n8n-setup.md), section 5.1.
 
 ### The language of a ticket
 
