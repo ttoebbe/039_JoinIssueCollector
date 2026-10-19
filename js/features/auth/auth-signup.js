@@ -161,7 +161,6 @@ function wireSignupSubmit(state) {
  */
 async function handleSignupSubmit(state) {
   if (!validateSignupInputs(state)) return;
-  if (await checkDuplicateEmail(state.emailInput)) return;
   await runSignup(state);
 }
 
@@ -182,41 +181,35 @@ async function runSignup(state) {
  * Attempts signup with inputs.
  * @param {Object} fields
  */
-async function attemptSignup({ nameInput, emailInput, passwordInput }) {
-  const users = await loadUsers();
-  const email = emailInput.value.trim();
-  if (users.some((user) => user.email === email)) {
-    const message = "This email is already registered.";
-    showFieldError("sign-up-email-error", message, emailInput);
-    return;
-  }
-  const name = nameInput.value.trim();
-  const password = passwordInput.value.trim();
-  const newUser = await buildNewUser(users, name, email, password);
-  await UserService.create(newUser);
+async function attemptSignup(fields) {
+  const email = fields.emailInput.value.trim();
+  const password = fields.passwordInput.value.trim();
+  const { uid, error } = await signUpWithEmail(email, password);
+  if (error) return handleSignupError(error, fields);
+  const name = fields.nameInput.value.trim();
+  const color = generateRandomColor();
+  await UserService.create({ id: uid, name, email, color });
+  clearAuthSession();
   setTimeout(() => {
     window.location.href = ROUTES.LOGIN;
   }, 300);
 }
 
 /**
- * Builds a new user with a salted password hash.
- * @param {Array} users
- * @param {string} name
- * @param {string} email
- * @param {string} password
- * @returns {Promise<Object>}
+ * Shows a failed sign-up at the field it concerns.
+ * @param {string} error - Error code from the auth API.
+ * @param {Object} fields
  */
-async function buildNewUser(users, name, email, password) {
-  const pwSalt = createPasswordSalt();
-  return {
-    id: generateNextUserId(users),
-    name,
-    email,
-    pwSalt,
-    pwHash: await hashPassword(password, pwSalt),
-    color: generateRandomColor(),
-  };
+function handleSignupError(error, { emailInput, passwordInput }) {
+  if (error === "EMAIL_EXISTS") {
+    const message = "This email is already registered.";
+    return showFieldError("sign-up-email-error", message, emailInput);
+  }
+  if (error.startsWith("WEAK_PASSWORD")) {
+    const message = "Password must be at least 6 characters.";
+    return showFieldError("sign-up-password-error", message, passwordInput);
+  }
+  showAuthServiceError(error);
 }
 
 /**

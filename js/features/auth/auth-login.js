@@ -94,34 +94,28 @@ async function runLogin(state) {
  */
 async function attemptLogin({ emailInput, passwordInput }) {
   const email = emailInput.value.trim();
-  const passwordValue = passwordInput.value.trim();
-  const users = await loadUsers();
-  if (!users || users.length === 0) {
-    return showLoginErrorState(emailInput, passwordInput);
-  }
-  const found = await findMatchingUser(users, email, passwordValue);
-  if (!found) return showLoginErrorState(emailInput, passwordInput);
+  const password = passwordInput.value.trim();
+  const { uid, error } = await signInWithEmail(email, password);
+  if (error) return handleLoginError(error, emailInput, passwordInput);
+  const profile = await loadUserProfile(uid);
   await saveCurrentUser({
-    id: found.id,
-    name: found.name,
-    email: found.email,
-    color: found.color,
+    id: uid,
+    name: profile?.name ?? email,
+    email,
+    color: profile?.color,
   });
   window.location.href = ROUTES.SUMMARY;
 }
 
 /**
- * Finds the user matching email and password.
- * @param {Array} users
- * @param {string} email
- * @param {string} password
- * @returns {Promise<Object|null>} The user, or null when nothing matches.
+ * Shows a failed sign-in: wrong credentials at the fields, anything else as toast.
+ * @param {string} error - Error code from the auth API.
+ * @param {HTMLInputElement} emailInput
+ * @param {HTMLInputElement} passwordInput
  */
-async function findMatchingUser(users, email, password) {
-  const candidate = users.find((user) => user.email === email);
-  if (!candidate?.pwSalt || !candidate?.pwHash) return null;
-  const hash = await hashPassword(password, candidate.pwSalt);
-  return hash === candidate.pwHash ? candidate : null;
+function handleLoginError(error, emailInput, passwordInput) {
+  if (error === "NETWORK_ERROR") return showAuthServiceError(error);
+  showLoginErrorState(emailInput, passwordInput);
 }
 
 /**
@@ -131,9 +125,18 @@ async function findMatchingUser(users, email, password) {
 function wireGuestLogin({ guestLoginButton }) {
   guestLoginButton?.addEventListener("click", async (e) => {
     e.preventDefault();
-    await saveCurrentUser({ name: "Guest", guest: true });
-    window.location.href = ROUTES.SUMMARY;
+    await runGuestLogin();
   });
+}
+
+/**
+ * Signs the guest in anonymously and opens the summary.
+ */
+async function runGuestLogin() {
+  const { uid, error } = await signInAsGuest();
+  if (error) return showAuthServiceError(error);
+  await saveCurrentUser({ id: uid, name: "Guest", guest: true });
+  window.location.href = ROUTES.SUMMARY;
 }
 
 /**

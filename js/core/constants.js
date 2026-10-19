@@ -38,6 +38,17 @@ const API_CONFIG = {
   TIMEOUT: 10000
 };
 
+// The web API key identifies the Firebase project and ships with every
+// Firebase web app; it grants nothing by itself. Access is decided by the
+// database rules, which only let signed-in sessions through.
+const AUTH_CONFIG = {
+  API_KEY: 'AIzaSyDfZhcTaeJWwRV4BaDKiePBEGib8SCOKJA',
+  ACCOUNTS_URL: 'https://identitytoolkit.googleapis.com/v1/accounts',
+  TOKEN_URL: 'https://securetoken.googleapis.com/v1/token'
+};
+
+const AUTH_SESSION_KEY = 'join_auth_session';
+
 // The secret ships inside the delivered client code and is therefore not a real
 // secret. It keeps random requests away, nothing more. What actually protects
 // the endpoint sits in the n8n workflow: the recipient address is read from the

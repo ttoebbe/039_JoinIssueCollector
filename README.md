@@ -98,12 +98,12 @@ Join's n8n is an instance of its own with its own encryption key. The
 the workflows shared an instance with another project; it stays, because it
 does no harm and the workflows remain unchanged.
 
-The two arrows to the database are **not** equivalent: n8n writes through a
-service account, while the frontend talks to the REST API without any
-authentication — Join has no Firebase Auth and checks the login itself
-against the `users` node. This is a deliberate demo compromise, not a solved
-security problem; what follows from it for the database rules is described
-in [`docs/n8n-setup.md`](docs/n8n-setup.md), section 4.
+The two arrows to the database carry different credentials: n8n writes
+through a service account, which counts as admin access, while the frontend
+signs in with Firebase Authentication (email and password, or anonymously
+for the guest login) and sends the ID token with every request. The rules
+only let signed-in sessions through; see
+[`docs/n8n-setup.md`](docs/n8n-setup.md), section 4.
 
 The only path that costs money is the Gemini call. That is why it sits
 behind the daily limit of 10 requests — the counter is not a convenience

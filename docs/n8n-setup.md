@@ -123,29 +123,25 @@ Source: Firebase documentation, *Database Secrets* (deprecated) and
 
 ---
 
-## 4. The rules compromise
+## 4. The rules
 
-**The rules stay largely open.** `.read` is `true` in
-[`../database.rules.json`](../database.rules.json), `.write` is open on
-`tasks` and `contacts`. How the file gets into the database is described in
+**Only signed-in sessions get through.** `tasks` and `contacts` require
+`auth != null`, a record under `users` is readable and writable only by the
+account it belongs to (`auth.uid === $uid`). How the file gets into the
+database is described in
 [`deployment.md`](deployment.md#7-publishing-the-database-rules), section 7.
 
-The reason is uncomfortable and deserves to be said out loud: the frontend
-talks to the Realtime Database **without authentication** — Join's login is a
-home-grown check against the `users` node, not Firebase Auth. So there is no
-`auth` object a rule could test against. Closing `.read` would break login,
-board and contacts immediately and completely.
+The frontend signs in with Firebase Authentication over its REST API
+([`../js/core/auth-service.js`](../js/core/auth-service.js)): email and
+password for members, an anonymous session for the guest login. Every
+database request carries the ID token as `?auth=`. Passwords never reach the
+database; `users/<uid>` only holds `id`, `name`, `email` and `color`, and the
+rules reject any other field.
 
-**There is one exception:** on `users` the rule now only allows creating and
-deleting, not modifying an existing record — otherwise anyone who knows the
-database URL could take over someone else's account by overwriting its
-`pwHash`. The detailed reasoning is in [`deployment.md`](deployment.md),
-section 7.3.
-
-The service account changes **nothing** about this. It is the clean route for
-the server path and the preparation for closing the rules later — but as long
-as the frontend writes unauthenticated, it provides **no access control**.
-This is a deliberate demo compromise, not a solved security problem.
+What this does **not** do: anyone can still open a guest session, so
+`tasks` and `contacts` stay writable for every visitor of the site — that is
+what the guest login is for. What changed is that the database URL alone no
+longer opens anything, and the user list with its password hashes is gone.
 
 ### What the rules still accomplish
 
@@ -179,12 +175,11 @@ is missing on a legacy task, that does not matter; the rule is simply not
 evaluated for that field. A write with `status: "backlog"`, however, is
 rejected — the entire operation, not just the one field.
 
-### What would resolve the compromise
+### What is still open
 
-Real Firebase Auth in the frontend (anonymous sign-in would suffice to get an
-`auth` object) and a dedicated Firebase project for Join. Both are **not part
-of this stage** and would touch existing screens, which the project rules say
-stay untouched.
+A dedicated Firebase project for Join, and an HTTP referrer restriction on the
+web API key in the Google Cloud console. Neither changes who may read or
+write; the rules decide that.
 
 ---
 

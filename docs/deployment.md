@@ -165,16 +165,21 @@ stays usable ([`n8n-setup.md`](n8n-setup.md), section 10.6).
 
 ---
 
-## 6. Firebase — nothing to adjust
+## 6. Firebase — API key and sign-in methods
 
-The project plan lists "adjust key referrer and authorized domain for the
-production subdomain" for this phase. **That does not apply to Join.**
+[`../js/core/auth-service.js`](../js/core/auth-service.js) signs in through
+the Firebase Authentication REST API with the web API key from
+`AUTH_CONFIG` in [`../js/core/constants.js`](../js/core/constants.js). The key
+belongs to the web app "Join V2" registered in the project; it identifies the
+project and grants nothing by itself.
 
-[`../js/core/firebase-service.js`](../js/core/firebase-service.js) talks to
-the Realtime Database via REST and builds the URL as
-`${API_CONFIG.BASE_URL}/${path}.json` — **without an API key**. There is
-neither a key with a referrer restriction nor Firebase Auth with a domain
-allowlist that would need the new subdomain. The item is dropped entirely.
+The project needs two sign-in methods, both under **Authentication → Sign-in
+method** in the Firebase console: **Email/Password** for members and
+**Anonymous** for the guest login.
+
+There is no authorized-domain list to maintain: it only applies to OAuth
+redirects, and Join signs in with email and password over REST. An HTTP
+referrer restriction on the key is possible but not set up.
 
 What actually limits access are the rules in
 [`../database.rules.json`](../database.rules.json); see
@@ -255,43 +260,14 @@ regularly appear later, the decision is to be re-evaluated.
 The core in three sentences; the detailed reasoning is in
 [`n8n-setup.md`](n8n-setup.md), section 4.
 
-**`.read` stays `true`.** The frontend talks to the database without
-authentication — Join has no Firebase Auth and checks the login itself
-against the `users` node. There is no `auth` object a rule could test
-against; a read ban would break the login immediately. This is the
-documented compromise, not negligence.
+**Only signed-in sessions get through.** `tasks` and `contacts` need
+`auth != null`; every member and every guest session has that. A record under
+`users/<uid>` is readable and writable only by its own account, and only with
+the fields `id`, `name`, `email` and `color` — `$other` rejects anything
+else, so no password data can land there again.
 
-**`.write` is no longer global but per node.** `tasks` and `contacts` stay
-open — both are written from the unauthenticated frontend, nothing changes
-there. `users` gets a tighter rule:
-
-```
-"users": { "$userId": { ".write": "!data.exists() || !newData.exists()" } }
-```
-
-It allows **creating** a record (`!data.exists()`) and **deleting** it
-(`!newData.exists()`, so test accounts can still be removed from the
-console), but forbids **modifying** an existing one. An attacker who knows
-the database URL — it is in `constants.js` and therefore in the public
-repository — cannot take over someone else's account by overwriting its
-`pwHash`.
-
-**The global `.write: true` had to go for this.** In the Realtime Database,
-write rules cascade downwards: once access is granted at a higher level, the
-rules below are not evaluated at all. A `.write` at the root would have made
-the `users` rule ineffective. That is why the write permission now hangs on
-`tasks` and `contacts` individually.
-
-Sign-up is unaffected: `UserService.create` writes via `PUT` to `users/<id>`
-with a freshly assigned ID, where nothing exists yet — `!data.exists()`
-matches. There is one side effect after all: should the ID assignment in
-`generateNextUserId` ever land on an already taken ID, registration now fails
-instead of silently overwriting the foreign record. That is the intended
-direction.
-
-The field-level `.validate` rules on `users` limit `name` and `email` in
-length and require strings for `pwHash` and `pwSalt` — the same garbage brake
-as on `tasks`.
+The login no longer reads the user list. Firebase Authentication checks
+email and password, and the page then loads only its own profile.
 
 **The `.validate` rules catch faulty writes from the browser** — wrong status
 values, an unknown priority, a `createdAt` as text. They are a garbage brake,
@@ -310,7 +286,8 @@ steps, because together they write every validated field once:
 
 | Step | Verifies |
 |---|---|
-| Log in | `.read` on `users` is open |
+| Sign up, then log in | `users/<uid>` accepts the new profile and releases it to its owner |
+| Guest login | the anonymous session gets through `auth != null` |
 | Create a task (*Add task*) | `status`, `prio`, `source`, `aiGenerated`, `createdAt` in one go |
 | Drag a task to another column | `status` when the whole task is written back |
 | Create a contact | write access outside of `tasks` |
