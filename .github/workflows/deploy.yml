@@ -72,7 +72,10 @@ jobs:
             echo "::error::commit has to be a hash, for example a6906dc."
             exit 1
           fi
-          sha="$(git rev-parse --verify "${WANTED:-origin/main}^{commit}")"
+          if ! sha="$(git rev-parse --verify --quiet "${WANTED:-origin/main}^{commit}")"; then
+            echo "::error::$WANTED is not a commit of this repository."
+            exit 1
+          fi
           if ! git merge-base --is-ancestor "$sha" origin/main; then
             echo "::error::$sha is not part of main."
             exit 1
