@@ -13,12 +13,6 @@ How the web server, n8n and Firebase relate to each other is shown in the
 only covers the path to the web server; the n8n side is described in
 [`n8n-setup.md`](n8n-setup.md).
 
-> **Legacy route, will be removed.** Until October 2026 the site was
-> uploaded to a Hetzner web space via SFTP by
-> [`../.github/workflows/deploy-frontend.yml`](../.github/workflows/deploy-frontend.yml).
-> The workflow and its `SFTP_*` secrets stay until the old web space for
-> `join` is dismantled. Section 8 documents them until then.
-
 ---
 
 ## 1. What gets deployed — and what does not
@@ -45,8 +39,7 @@ This is an **allowlist, not an exclusion list** — deliberately:
   added here.
 
 **If a sixth folder is added that should be served, it must go into the list
-in the deploy script** — and, as long as it exists, into the legacy workflow
-from section 8. Conversely, if one of the five is missing from the commit,
+in the deploy script**. Conversely, if one of the five is missing from the commit,
 the run aborts instead of rolling out an incomplete site. After unpacking,
 the script additionally verifies that `index.html` and
 `js/core/constants.js` really are there.
@@ -341,82 +334,3 @@ not imported. The item is still documented here because it strikes exactly
 when someone later imports V1 tasks: the import itself would go through, the
 moving would only fail afterwards.
 
----
-
-## 8. Legacy route: GitHub Actions via SFTP — will be removed
-
-[`../.github/workflows/deploy-frontend.yml`](../.github/workflows/deploy-frontend.yml)
-uploads the five entries from section 1 via SFTP to the Hetzner web space
-that served the site until October 2026. **It no longer changes the live
-site:** `join.thomas-toebbe.de` does not point to that web space anymore.
-The workflow and its secrets stay only until the old web space for `join` is
-dismantled; then both are removed. Until then the following applies,
-unchanged.
-
-### 8.1 Trigger and upload
-
-The workflow has **only** `workflow_dispatch` as its trigger: GitHub →
-repository → *Actions* tab → *Deploy frontend* → *Run workflow* → branch
-`main`. Two simultaneous runs wait for each other instead of cancelling one
-another — an aborted mirror leaves a half-uploaded site behind.
-
-It copies the five entries into a staging directory and uploads them with
-`lftp mirror --reverse --delete`: files missing from staging disappear from
-the server. That is the reason for the safety check in 8.3.
-
-### 8.2 The secrets
-
-All of them as **repository secrets** (no GitHub environment).
-
-| Name | Required | Form | Source |
-|---|---|---|---|
-| `SFTP_HOST` | yes | hostname of the web space — no `sftp://`, no path | konsoleH → *Product overview* → *FTP main user*, field **Server** |
-| `SFTP_USER` | yes | login name of the FTP account | konsoleH → *Product overview* → *FTP main user*, field **Login name** |
-| `SFTP_PORT` | no | `22` | only set if the hoster specifies a different port. Without the secret the workflow uses 22 |
-| `SFTP_REMOTE_DIR` | yes | `/public_html/join` — the document root of `join` on the web space, absolute path | konsoleH, confirmed via the WebFTP breadcrumb. Background in 8.3 |
-| `SFTP_PASSWORD` | one of the two | the SFTP user's password | password manager |
-| `SFTP_KEY` | one of the two | complete private key including the `-----BEGIN …-----`/`-----END …-----` lines | password manager. The public part must be registered with the hoster |
-
-**`SFTP_HOST` and `SFTP_USER` are deliberately not spelled out here.** This
-repository is public, and both values are part of the SFTP login — together
-with the password they would form a complete set of credentials.
-
-If a required secret is missing, the run aborts in the very first step and
-names **which** one. The same happens if neither `SFTP_PASSWORD` nor
-`SFTP_KEY` is set. If both are present, the key wins.
-
-### 8.3 `SFTP_REMOTE_DIR` — never the account root
-
-The value must point to the **document directory of the subdomain**, i.e. the
-directory where `index.html` should end up. **The account root would be
-wrong, with severe consequences:** the upload runs with `--delete`. If the
-target points to the level above the subdomains, the run deletes everything
-that does not belong to Join — that is, the other subdomains of the same
-account.
-
-That is why the workflow checks the value before uploading anything: it must
-be an absolute path with at least one segment below the root. `/`, an empty
-value or a relative path abort the run. This check catches an *obviously* too
-vague value — it cannot know whether a specific path is the right one.
-
-### 8.4 Setting a secret from Git Bash — the MSYS trap
-
-**Git Bash (MSYS) converts arguments that look like Unix paths into Windows
-paths before a native `.exe` even sees them.** So
-
-```bash
-gh secret set SFTP_REMOTE_DIR --body "/public_html/join"
-```
-
-ends up as `C:/Program Files/Git/public_html/join` in the secret. `gh` reports
-**exit 0**, and `gh secret list` shows only names and timestamps, no values —
-the mistake stays invisible until the workflow runs. The safe route is via
-stdin, where no conversion applies:
-
-```bash
-printf '%s' "/public_html/join" | gh secret set SFTP_REMOTE_DIR --repo ttoebbe/039_JoinIssueCollector
-```
-
-Exactly this case occurred on the first deploy, and the safety check from 8.3
-caught it: the mangled value starts with `C:` instead of `/`, the run aborted
-before the first `lftp` call started.

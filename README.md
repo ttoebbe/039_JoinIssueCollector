@@ -258,8 +258,8 @@ a private infrastructure repository. There is no push trigger — a commit on
 GitHub, the order is always: push first, then roll out.
 
 Only what makes up the site goes live: `index.html`, `html/`, `css/`, `js/`
-and `assets/`. The procedure, the legacy GitHub Actions route and what to
-check after a deploy are described in [`docs/deployment.md`](docs/deployment.md).
+and `assets/`. The procedure and what to check after a deploy are described
+in [`docs/deployment.md`](docs/deployment.md).
 
 The n8n side — importing workflows, credentials, webhook paths, CORS — is
 covered in [`docs/n8n-setup.md`](docs/n8n-setup.md).
