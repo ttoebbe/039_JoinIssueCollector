@@ -1,9 +1,8 @@
 {
   "rules": {
-    ".read": true,
-
     "tasks": {
-      ".write": true,
+      ".read": "auth != null",
+      ".write": "auth != null",
       "$taskId": {
         "status": {
           ".validate": "newData.isString() && newData.val().matches(/^(triage|todo|inprogress|awaitfeedback|done)$/)"
@@ -24,23 +23,29 @@
     },
 
     "contacts": {
-      ".write": true
+      ".read": "auth != null",
+      ".write": "auth != null"
     },
 
     "users": {
-      "$userId": {
-        ".write": "!data.exists() || !newData.exists()",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['id', 'name', 'email'])",
+        "id": {
+          ".validate": "newData.val() === $uid"
+        },
         "name": {
           ".validate": "newData.isString() && newData.val().length <= 60"
         },
         "email": {
           ".validate": "newData.isString() && newData.val().length <= 100"
         },
-        "pwHash": {
+        "color": {
           ".validate": "newData.isString()"
         },
-        "pwSalt": {
-          ".validate": "newData.isString()"
+        "$other": {
+          ".validate": false
         }
       }
     }

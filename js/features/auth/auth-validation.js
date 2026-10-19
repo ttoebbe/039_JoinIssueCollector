@@ -158,31 +158,12 @@ function showSignupPolicyError(passwordInput, confirmPasswordInput) {
 
 /**
  * Handles email blur for signup.
+ * Whether the address is taken only shows on submit: the user list is no
+ * longer readable before sign-in.
  * @param {HTMLInputElement} emailInput
  */
-async function handleSignupEmailBlur(emailInput) {
-  if (!validateEmailField(emailInput, "sign-up-email-error")) return;
-  await checkDuplicateEmail(emailInput);
-}
-
-/**
- * Checks if the email already exists.
- * @param {HTMLInputElement} emailInput
- * @returns {Promise<boolean>}
- */
-async function checkDuplicateEmail(emailInput) {
-  const email = emailInput.value.trim();
-  if (!email) return false;
-  const users = await loadUsers();
-  const exists = users.some((u) => u.email === email);
-  if (exists)
-    showFieldError(
-      "sign-up-email-error",
-      "This email is already registered.",
-      emailInput,
-    );
-  else clearFieldError("sign-up-email-error", emailInput);
-  return exists;
+function handleSignupEmailBlur(emailInput) {
+  validateEmailField(emailInput, "sign-up-email-error");
 }
 
 /**
@@ -277,7 +258,7 @@ function validatePasswordField(inputEl, errorId) {
  */
 function getPasswordValidationError(value) {
   if (!value) return "Password is required.";
-  if (value.length < 4) return "Password must be at least 4 characters.";
+  if (value.length < 6) return "Password must be at least 6 characters.";
   if (/\s/.test(value)) return "Password cannot contain spaces.";
   return "";
 }

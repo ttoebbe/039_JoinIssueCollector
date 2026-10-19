@@ -237,6 +237,7 @@ function closeOnEscape(event, parts) {
 function wireLogout(logoutBtn) {
   logoutBtn?.addEventListener("click", () => {
     setCurrentUser(null);
+    clearAuthSession();
     sessionStorage.removeItem("mobileGreetingShown");
     window.location.href = "/html/pages/login.html";
   });

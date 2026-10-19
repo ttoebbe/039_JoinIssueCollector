@@ -50,19 +50,53 @@ function createRequestOptions(method, data, headers) {
  * @returns {Promise<any|null>} Processed response or null
  */
 async function processFirebaseResponse(response) {
-  if (!response.ok) {
-    const text = await response.text().catch(() => "");
-    console.error(
-      `Firebase Error (${response.status}): ${text || response.statusText}`,
-    );
-    showErrorToast("Connection error. Try again.");
-    return null;
-  }
+  if (!response.ok) return handleFirebaseError(response);
 
   const contentType = response.headers.get("Content-Type") || "";
   return contentType.includes("application/json")
     ? await response.json()
     : null;
+}
+
+/**
+ * Reports a failed Firebase response.
+ * Without a sign-in session the rules refuse everything, so the page goes
+ * back to the login instead of showing an error.
+ * @param {Response} response - Fetch Response object
+ * @returns {Promise<null>}
+ */
+async function handleFirebaseError(response) {
+  if (response.status === 401 && !readAuthSession()) {
+    redirectToSignIn();
+    return null;
+  }
+  const text = await response.text().catch(() => "");
+  console.error(
+    `Firebase Error (${response.status}): ${text || response.statusText}`,
+  );
+  showErrorToast("Connection error. Try again.");
+  return null;
+}
+
+/**
+ * Sends a page without a sign-in session back to the login.
+ * A session can be missing when the tab was opened before sign-in existed.
+ */
+function redirectToSignIn() {
+  setCurrentUser(null);
+  if (window.location.pathname === ROUTES.LOGIN) return;
+  window.location.href = ROUTES.LOGIN;
+}
+
+/**
+ * Builds the REST URL of a path, signed with the current ID token.
+ * @param {string} path - Firebase path
+ * @returns {Promise<string>} Request URL
+ */
+async function buildFirebaseUrl(path) {
+  const url = `${API_CONFIG.BASE_URL}/${path}.json`;
+  const token = await getIdToken();
+  return token ? `${url}?auth=${encodeURIComponent(token)}` : url;
 }
 
 /**
@@ -72,7 +106,7 @@ async function processFirebaseResponse(response) {
  * @returns {Promise<any|null>} Response data or null
  */
 async function firebaseRequest(path, { method = "GET", data, headers } = {}) {
-  const url = `${API_CONFIG.BASE_URL}/${path}.json`;
+  const url = await buildFirebaseUrl(path);
   const requestOptions = createRequestOptions(method, data, headers);
 
   try {
