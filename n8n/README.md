@@ -245,8 +245,10 @@ In an **n8n instance of their own** (2.32.7) on a self-hosted server, with
 its own encryption key. The browser reaches the two webhooks under the
 site's origin, `https://join.thomas-toebbe.de/webhook/join-*`; the site's
 web server passes exactly these two paths on to n8n. The editor is only
-reachable through an SSH tunnel. The server setup lives in a private
-infrastructure repository, not here.
+reachable through an SSH tunnel. A change to these files goes live with the
+**Deploy** button, target `n8n` (see
+[`../docs/n8n-setup.md`](../docs/n8n-setup.md), section 8). The server setup
+lives in a private infrastructure repository, not here.
 
 Until October 2026 the workflows ran in an instance shared with Code a
 Cuisine; the move transferred them unchanged, with their IDs. The `join-`

@@ -1,0 +1,192 @@
+# The deploy button. Checks the chosen commit of main and, only when every check
+# passes, sets the release mark the servers pull on their own: a new annotated
+# tag `live-site` for the site, `live-n8n` for the workflows in n8n/. GitHub
+# never reaches the servers and holds no key for them. The run waits until the
+# live site names the mark in /release.txt, or until the n8n server reports
+# back as commit status `kiflow`. How the servers pull: docs/deployment.md.
+
+name: Deploy
+
+# Manual only: a deployment is a decision, not a side effect of a push.
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: What goes live
+        type: choice
+        options:
+          - site
+          - n8n
+        default: site
+      commit:
+        description: Commit of main as hash, empty for the newest (to go back, the older one)
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+# Two runs for the same target would race for the mark, so they queue.
+concurrency:
+  group: deploy-${{ inputs.target }}
+  cancel-in-progress: false
+
+env:
+  SITE_URL: https://join.thomas-toebbe.de
+  # The workflows the n8n server takes from this repository, as file:id, and
+  # the credentials they may use. The server holds the same lists and refuses
+  # anything else.
+  N8N_WORKFLOWS: issue-collector:i0E9Ish8mRWcGLze status-notify:aqt5CWllGhcjnb0K quota-status:6ei9Vu9rIFxb1Kqf
+  N8N_CREDENTIALS: MEuXRRo5GCqXGd20 bm03EIcbShHRPEb5 6rzyHBYOVNjN1Olt ZLxjCB6nGcW2enHx
+
+jobs:
+  check:
+    name: Check the commit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      sha: ${{ steps.commit.outputs.sha }}
+
+    steps:
+      - name: Only from main
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "::error::Deploy runs from main only, not from $GITHUB_REF."
+          exit 1
+
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      # Only a hash reaches the shell, and only a commit that is part of main
+      # can go live — the way back included.
+      - name: Resolve the commit
+        id: commit
+        env:
+          WANTED: ${{ inputs.commit }}
+        run: |
+          set -euo pipefail
+          if [ -n "$WANTED" ] && ! [[ "$WANTED" =~ ^[0-9a-f]{7,40}$ ]]; then
+            echo "::error::commit has to be a hash, for example a6906dc."
+            exit 1
+          fi
+          sha="$(git rev-parse --verify "${WANTED:-origin/main}^{commit}")"
+          if ! git merge-base --is-ancestor "$sha" origin/main; then
+            echo "::error::$sha is not part of main."
+            exit 1
+          fi
+          git checkout --quiet "$sha"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "Commit: \`$sha\`" >> "$GITHUB_STEP_SUMMARY"
+
+      # The same allowlist the server unpacks: whatever is missing would go
+      # online as a broken site, so the run stops here instead.
+      - name: Check the site
+        if: inputs.target == 'site'
+        run: |
+          set -euo pipefail
+          for entry in index.html html css js assets; do
+            if [ ! -e "$entry" ]; then
+              echo "::error::$entry is missing from the commit."
+              exit 1
+            fi
+          done
+          for required in index.html js/core/constants.js; do
+            if [ ! -f "$required" ]; then
+              echo "::error::$required is missing from the commit."
+              exit 1
+            fi
+          done
+
+      # Each file has to be valid JSON, carry the id of the live workflow and use
+      # only the known credentials; a file with another id would land next to
+      # the live workflow instead of replacing it.
+      - name: Check the workflows
+        if: inputs.target == 'n8n'
+        run: |
+          set -euo pipefail
+          for pair in $N8N_WORKFLOWS; do
+            file="n8n/${pair%%:*}.workflow.json"
+            id="${pair##*:}"
+            if ! jq -e --arg id "$id" '.id == $id and (.nodes | type == "array")' "$file" > /dev/null; then
+              echo "::error::$file does not carry the workflow id $id."
+              exit 1
+            fi
+            for credential in $(jq -r '[.nodes[] | (.credentials // {}) | .[] | .id] | unique | .[]' "$file"); do
+              if [[ " $N8N_CREDENTIALS " != *" $credential "* ]]; then
+                echo "::error::$file uses the unknown credential $credential."
+                exit 1
+              fi
+            done
+          done
+
+  release:
+    name: Set the mark and wait until it is live
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions:
+      contents: write
+      statuses: read
+
+    steps:
+      # A new annotated tag on every run, so the same commit can go live again;
+      # the servers remember the tag object, not the commit.
+      - name: Set the release mark
+        id: mark
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ needs.check.outputs.sha }}
+          TAG: live-${{ inputs.target }}
+        run: |
+          set -euo pipefail
+          echo "since=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+          mark="$(gh api "repos/$GITHUB_REPOSITORY/git/tags" -f tag="$TAG" -f object="$SHA" -f type=commit \
+            -f message="Deploy run $GITHUB_RUN_ID" --jq .sha)"
+          if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$TAG" > /dev/null 2>&1; then
+            gh api -X PATCH "repos/$GITHUB_REPOSITORY/git/refs/tags/$TAG" -f sha="$mark" -F force=true > /dev/null
+          else
+            gh api "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/$TAG" -f sha="$mark" > /dev/null
+          fi
+          echo "mark=$mark" >> "$GITHUB_OUTPUT"
+          echo "Mark \`$TAG\`: \`$mark\`" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Wait for the site
+        if: inputs.target == 'site'
+        env:
+          MARK: ${{ steps.mark.outputs.mark }}
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 40); do
+            live="$(curl -fsS --max-time 10 "$SITE_URL/release.txt" || true)"
+            if grep -qx "$MARK" <<< "$live"; then
+              echo "Live after $attempt checks." >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "::error::The site does not name the mark after 10 minutes. The server keeps trying three times, then waits for the next mark."
+          exit 1
+
+      # The n8n server posts pending first, then success or failure.
+      - name: Wait for the n8n server
+        if: inputs.target == 'n8n'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ needs.check.outputs.sha }}
+          SINCE: ${{ steps.mark.outputs.since }}
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 120); do
+            state="$(gh api "repos/$GITHUB_REPOSITORY/commits/$SHA/statuses" --jq \
+              "[.[] | select(.context == \"kiflow\" and .created_at >= \"$SINCE\")][0] | (.state // \"\") + \" \" + (.description // \"\")")"
+            case "$state" in
+              success*) echo "n8n: ${state#success }" >> "$GITHUB_STEP_SUMMARY"; exit 0 ;;
+              failure*|error*) echo "::error::n8n: ${state#* }"; exit 1 ;;
+            esac
+            sleep 15
+          done
+          echo "::error::No answer from the n8n server after 30 minutes."
+          exit 1

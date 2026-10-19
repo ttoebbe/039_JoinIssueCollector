@@ -423,16 +423,21 @@ docker compose config | grep -A5 volumes
 
 ## 8. Import route
 
-Via the **n8n editor**, reachable through the SSH tunnel (see section 1):
-*Workflow → Import from File*, choose the JSON from `../n8n/`.
+**On the live instance: the Deploy button**, target `n8n`
+([`deploy.yml`](../.github/workflows/deploy.yml)). The run checks that every
+file carries the id of the live workflow and only known credentials, then
+sets the release mark `live-n8n`. The n8n server picks it up, imports with
+the CLI only the workflows that differ from the running ones, publishes
+again what was published, restarts once — the webhooks are gone for about
+30 seconds — and reports back as commit status. If anything fails after the
+import, it puts the previous workflows back. The CLI import keeps the id and
+the settings from the JSON, so nothing below has to be redone by hand.
 
-**Not via the CLI.** `n8n import:workflow` sets imported workflows to
-inactive; they would have to be activated individually in the UI anyway, and
-silent failures slip through easily.
-
-After **every** import, adjust the workflow settings by hand in the editor —
-the import does not carry them over and leaves the instance defaults in
-place:
+**Via the n8n editor** (a fresh instance, a local one): reachable through
+the SSH tunnel (see section 1), *Workflow → Import from File*, choose the
+JSON from `../n8n/`. After **every** editor import, adjust the workflow
+settings by hand — the editor import does not carry them over and leaves
+the instance defaults in place:
 
 | Setting | Value | Why |
 |---|---|---|

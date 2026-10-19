@@ -3,10 +3,12 @@
 How the site gets onto the subdomain **`join.thomas-toebbe.de`**: what goes
 live, how a deploy runs, and what to check afterwards.
 
-The site runs on a self-hosted web server. The server fetches the files from
-this public repository itself; the deploy script lives in a private
-infrastructure repository, not here. There is **no build step** — the files
-in the repository are the files that go online.
+The site runs on a self-hosted web server that GitHub never reaches. A deploy
+is a button in GitHub Actions: it checks the commit and sets a release mark,
+and the server fetches the mark and the files from this public repository
+itself. The server side lives in a private infrastructure repository, not
+here. There is **no build step** — the files in the repository are the files
+that go online.
 
 How the web server, n8n and Firebase relate to each other is shown in the
 [*Architecture*](../README.md#architecture) section of the README. This file
@@ -39,7 +41,8 @@ This is an **allowlist, not an exclusion list** — deliberately:
   added here.
 
 **If a sixth folder is added that should be served, it must go into the list
-in the deploy script**. Conversely, if one of the five is missing from the commit,
+in the server's deploy script and into the check of
+[`deploy.yml`](../.github/workflows/deploy.yml)**. Conversely, if one of the five is missing from the commit,
 the run aborts instead of rolling out an incomplete site. After unpacking,
 the script additionally verifies that `index.html` and
 `js/core/constants.js` really are there.
@@ -57,10 +60,16 @@ server delivers the files as they are and redirects HTTP to HTTPS itself
 
 | Step | What happens |
 |---|---|
-| Fetch | The server fetches `main` from this repository via git over HTTPS. The repository is public, so no key and no token are needed — there is no deploy secret. |
+| Mark | The **Deploy** workflow sets a new annotated tag `live-site` on the commit once its checks pass. Every run makes a new tag object, so the same commit can go live again. |
+| Fetch | Every two minutes the server asks this repository over HTTPS for `live-site`. A tag object it has not handled yet is a deploy: it fetches the commit via git. The repository is public, so no key and no token are needed — there is no deploy secret. |
 | Release | The five entries of the chosen commit are unpacked into a release directory of their own, one per commit. |
 | Switch | The live site is a link to one release directory. The deploy changes it in one atomic step: a visitor sees either the old or the new state, never a half-copied one. |
 | Keep | The most recent releases stay on the server, so going back does not depend on the old files having survived anywhere else. |
+| Report | The release holds `release.txt` with the commit and the mark. The Deploy run waits until `https://join.thomas-toebbe.de/release.txt` names its mark, so green means live. |
+
+A failing deploy is tried three times, then the server waits for the next
+mark. A commit shipped by the operator by hand stays live until the next run
+of the workflow.
 
 Because the server fetches from GitHub, **only pushed commits can be rolled
 out**. A commit that exists only locally is not found, and the run aborts
@@ -71,16 +80,21 @@ before anything changes.
 ## 3. How to deploy
 
 A deployment is a decision, not a side effect of a push: there is no push
-trigger and nothing that fetches on its own. The order is always:
+trigger, and the server only acts on a mark the workflow set. The order is
+always:
 
 1. Merge into `main` and **push**.
-2. Start the deploy via SSH from the workstation. Command and host are in the
-   private infrastructure repository. Without an argument it rolls out the
-   latest `main`, with a commit hash exactly that commit.
-3. Run the checks from section 4.
+2. GitHub → **Actions** → **Deploy** → **Run workflow**, from the browser or
+   the GitHub app. Target `site`; leave `commit` empty for the newest `main`,
+   or give the hash of a commit on `main`.
+3. The run checks the five entries, `index.html` and `js/core/constants.js`,
+   and only then sets the mark. It turns green once the live site names the
+   mark, after about three minutes. Red before the mark means nothing
+   changed.
+4. Run the checks from section 4.
 
-To go back, roll out the previous commit by its hash — the same command,
-nothing else.
+To go back, run **Deploy** with the hash of the previous commit — the same
+button, nothing else.
 
 ---
 

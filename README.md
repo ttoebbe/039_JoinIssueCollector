@@ -250,12 +250,12 @@ Existing screens from 024_Join were deliberately not restyled.
 ## Deployment
 
 The site lives at **https://join.thomas-toebbe.de** on a self-hosted
-server and is rolled out by hand: the server fetches `main` — or a given
-commit — from this public repository over HTTPS and switches to it in one
-step. The run is started via SSH from the workstation; the script lives in
-a private infrastructure repository. There is no push trigger — a commit on
-`main` does not change the live site. Because the server fetches from
-GitHub, the order is always: push first, then roll out.
+server that GitHub never reaches. A deploy is the **Deploy** button in
+GitHub Actions: it checks the commit and sets a release mark; the server
+picks the mark up within two minutes, fetches the commit from this public
+repository over HTTPS and switches to it in one step. There is no push
+trigger — a commit on `main` does not change the live site. The same button
+with target `n8n` ships the workflows in [`n8n/`](n8n/).
 
 Only what makes up the site goes live: `index.html`, `html/`, `css/`, `js/`
 and `assets/`. The procedure and what to check after a deploy are described
