@@ -269,6 +269,15 @@ else, so no password data can land there again.
 The login no longer reads the user list. Firebase Authentication checks
 email and password, and the page then loads only its own profile.
 
+**`tasks` and `contacts` are de facto public — accepted.** The guest login
+is an anonymous session that anyone can start with the public API key, and
+sign-up is open as well. Anyone can therefore read the board and the
+contacts, including the sender addresses that the mail automation stores
+under `createdBy`. Firebase reports this regularly by mail as "insecure
+rules — any user can read your entire database"; the warning is expected and
+needs no action. Closing it would mean moving guests to a separate data area
+with demo data.
+
 **The `.validate` rules catch faulty writes from the browser** — wrong status
 values, an unknown priority, a `createdAt` as text. They are a garbage brake,
 not access control.
