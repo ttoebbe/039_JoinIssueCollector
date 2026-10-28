@@ -117,7 +117,7 @@ header p {
 header .btn-signup {
     width: 91px;
     height: 49px;
-    background-color: #2A3647;
+    background-color: var(--color-primary);
     color: white;
     border: none;
     border-radius: 8px;
@@ -135,7 +135,7 @@ header .btn-signup {
 header .btn-signup:hover {
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
-    background-color: #29ABE2;
+    background-color: var(--color-accent);
 }
 
 .login-page main {
@@ -145,8 +145,8 @@ header .btn-signup:hover {
     position: relative;
     margin: 0 auto;
     background-color: white;
-    border-radius: 30px;
-    box-shadow: 0 0 14px 3px rgba(0, 0, 0, 0.14);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
 }
 
 .wrapper.max-width-1440 {
@@ -201,7 +201,7 @@ form img {
 .underline-div {
     width: 150px;
     height: 3px;
-    background-color: #29ABE2;
+    background-color: var(--color-accent);
     margin-bottom: 30px;
 }
 
@@ -271,7 +271,7 @@ input::placeholder {
 }
 
 .input-error {
-    border: 1px solid #ff3b3b !important;
+    border: 1px solid var(--color-urgent) !important;
     outline: none;
     box-shadow: none;
 }
@@ -283,7 +283,7 @@ input::placeholder {
 
     left: 0;
     font-size: 14px;
-    color: #ff3b3b;
+    color: var(--color-urgent);
     line-height: 1.2;
     opacity: 0;
 
@@ -331,7 +331,7 @@ input::placeholder {
 
 .btn-left {
     width: 110px;
-    background-color: #2A3647;
+    background-color: var(--color-primary);
     color: white;
     padding: 0;
 }
@@ -339,7 +339,7 @@ input::placeholder {
 .btn-left:hover {
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
-    background-color: #29ABE2;
+    background-color: var(--color-accent);
 }
 
 .btn-right {
@@ -353,8 +353,8 @@ input::placeholder {
 .btn-right:hover {
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
-    color: #29ABE2;
-    border-color: #29ABE2 !important;
+    color: var(--color-accent);
+    border-color: var(--color-accent) !important;
 }
 
 footer {
@@ -385,7 +385,7 @@ footer a {
 
 footer a:hover {
     transform: translateY(-1px);
-    color: #29ABE2;
+    color: var(--color-accent);
 }
 
 .footer-left {
@@ -461,7 +461,7 @@ footer a:hover {
     .background-overlay {
         position: fixed;
         inset: 0;
-        background-color: rgba(42, 54, 71, 1);
+        background-color: rgba(0, 96, 72, 1);
         z-index: 1;
     }
 

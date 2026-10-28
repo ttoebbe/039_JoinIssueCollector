@@ -33,6 +33,27 @@ const PRIORITY = {
   HIGH: 'high'
 };
 
+// Display labels only. The keys are the values stored in the database and
+// compared in code; they must never be translated.
+const STATUS_LABELS = {
+  triage: 'Triage',
+  todo: 'Zu erledigen',
+  inprogress: 'In Bearbeitung',
+  awaitfeedback: 'Warten auf Feedback',
+  done: 'Erledigt'
+};
+
+const PRIORITY_LABELS = {
+  urgent: 'Dringend',
+  medium: 'Mittel',
+  low: 'Niedrig'
+};
+
+const CATEGORY_LABELS = {
+  userstory: 'User Story',
+  technical: 'Technische Aufgabe'
+};
+
 const API_CONFIG = {
   BASE_URL: 'https://joinv2withn8n-default-rtdb.europe-west1.firebasedatabase.app',
   TIMEOUT: 10000

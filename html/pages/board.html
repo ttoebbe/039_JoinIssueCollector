@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="de">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Board</title>
+    <title>PFG Issue Collector · Board</title>
     <link
       rel="shortcut icon"
       href="/assets/img/homepage-join.svg"
@@ -41,7 +41,7 @@
                     id="boardSearchInput"
                     class="board-search-input"
                     type="text"
-                    placeholder="Find Task"
+                    placeholder="Aufgabe suchen"
                   />
 
                   <!-- Search icon button (optional UI-only) -->
@@ -49,7 +49,7 @@
                     id="boardSearchBtn"
                     class="board-search-btn"
                     type="button"
-                    aria-label="Search"
+                    aria-label="Suchen"
                   >
                     <img src="/assets/img/icons/search.svg" alt="" />
                   </button>
@@ -61,14 +61,14 @@
                   class="board-add-btn"
                   type="button"
                 >
-                  Add task <span class="board-add-plus">+</span>
+                  Aufgabe hinzufügen <span class="board-add-plus">+</span>
                 </button>
               </div>
             </div>
 
             <!-- No results message (shown only if search has no matches) -->
             <p id="boardNoResults" class="board-no-results" hidden>
-              No results found
+              Keine Ergebnisse gefunden
             </p>
 
             <!-- Board columns -->
@@ -80,25 +80,25 @@
                   <button
                     class="board-column-add"
                     type="button"
-                    aria-label="Add task to Triage"
+                    aria-label="Aufgabe in Spalte Triage hinzufügen"
                   >
                     <img src="/assets/img/icons/plus-button-1.svg" alt="" />
                   </button>
                 </div>
 
                 <div class="board-column-body" data-board-body>
-                  <div class="board-empty">No tasks in Triage</div>
+                  <div class="board-empty">Keine Aufgaben in Triage</div>
                 </div>
               </section>
 
               <!-- To do -->
               <section class="board-column" data-status="todo">
                 <div class="board-column-head">
-                  <h2 class="board-column-title">To do</h2>
+                  <h2 class="board-column-title">Zu erledigen</h2>
                   <button
                     class="board-column-add"
                     type="button"
-                    aria-label="Add task to To do"
+                    aria-label="Aufgabe in Spalte Zu erledigen hinzufügen"
                   >
                     <img src="/assets/img/icons/plus-button-1.svg" alt="" />
                   </button>
@@ -106,55 +106,55 @@
 
                 <!-- IMPORTANT: data-board-body must be on the column body -->
                 <div class="board-column-body" data-board-body>
-                  <div class="board-empty">No tasks To do</div>
+                  <div class="board-empty">Keine Aufgaben zu erledigen</div>
                 </div>
               </section>
 
               <!-- In progress -->
               <section class="board-column" data-status="inprogress">
                 <div class="board-column-head">
-                  <h2 class="board-column-title">In progress</h2>
+                  <h2 class="board-column-title">In Bearbeitung</h2>
                   <button
                     class="board-column-add"
                     type="button"
-                    aria-label="Add task to In progress"
+                    aria-label="Aufgabe in Spalte In Bearbeitung hinzufügen"
                   >
                     <img src="/assets/img/icons/plus-button-1.svg" alt="" />
                   </button>
                 </div>
 
                 <div class="board-column-body" data-board-body>
-                  <div class="board-empty">No tasks In progress</div>
+                  <div class="board-empty">Keine Aufgaben in Bearbeitung</div>
                 </div>
               </section>
 
               <!-- Await feedback -->
               <section class="board-column" data-status="awaitfeedback">
                 <div class="board-column-head">
-                  <h2 class="board-column-title">Await feedback</h2>
+                  <h2 class="board-column-title">Warten auf Feedback</h2>
                   <button
                     class="board-column-add"
                     type="button"
-                    aria-label="Add task to Await feedback"
+                    aria-label="Aufgabe in Spalte Warten auf Feedback hinzufügen"
                   >
                     <img src="/assets/img/icons/plus-button-1.svg" alt="" />
                   </button>
                 </div>
 
                 <div class="board-column-body" data-board-body>
-                  <div class="board-empty">No tasks Await feedback</div>
+                  <div class="board-empty">Keine Aufgaben warten auf Feedback</div>
                 </div>
               </section>
 
               <!-- Done (NO plus button allowed here) -->
               <section class="board-column" data-status="done">
                 <div class="board-column-head">
-                  <h2 class="board-column-title">Done</h2>
+                  <h2 class="board-column-title">Erledigt</h2>
                   <!-- no add button in done -->
                 </div>
 
                 <div class="board-column-body" data-board-body>
-                  <div class="board-empty">No tasks Done</div>
+                  <div class="board-empty">Keine erledigten Aufgaben</div>
                 </div>
               </section>
             </div>

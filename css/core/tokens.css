@@ -1,54 +1,56 @@
 :root {
   /* ---------- Brand and surface colours ---------- */
-  --color-primary: #2a3647;
-  --color-primary-hover: #177da8;
-  --color-primary-active: #091931;
-  --color-accent: #29abe2;
+  --color-primary: #006048;
+  --color-primary-hover: #0c3e32;
+  --color-primary-active: #102e26;
+  --color-accent: #0c3e32;
+  --color-accent-on-dark: #f3ff33;
   --color-surface: #ffffff;
-  --color-background: #f6f7f8;
-  --color-background-inverse: #2a3647;
+  --color-background: #f2f4f3;
+  --color-background-inverse: #102e26;
 
   /* ---------- Text colours ---------- */
-  --color-text: #000000;
-  --color-text-strong: #2a3647;
-  --color-text-muted: #42526e;
-  --color-text-subtle: #686868;
+  --color-text: #1f2a30;
+  --color-text-strong: #1f2a30;
+  --color-text-muted: #5f6b72;
+  --color-text-subtle: #5f6b72;
   --color-text-on-dark: #ffffff;
 
   /* ---------- Status colours ---------- */
-  --color-urgent: #ff3d00;
+  --color-urgent: #d03b3b;
   --color-medium: #ffa800;
-  --color-low: #7ae229;
-  --color-limit-desktop: #ff3d00;
-  --color-limit-mobile: #de3500;
-  --color-alert-surface: rgba(255, 210, 210, 0.52);
+  --color-low: #0ca30c;
+  --color-limit-desktop: #d03b3b;
+  --color-limit-mobile: #d03b3b;
+  --color-alert-surface: #fbe9e9;
 
   /* ---------- Issue Collector specifics ---------- */
-  --color-creator-member: #92ffbc;
-  --color-creator-extern: #ebfc88;
-  --color-creator-text: #0b3681;
-  --color-ai-gradient-from: #9327ff;
-  --color-ai-gradient-to: #2ea1dc;
+  --color-creator-member: #e6f1ec;
+  --color-creator-extern: #f3ff33;
+  --color-creator-text: #006048;
+  --color-ai-gradient-from: #006048;
+  --color-ai-gradient-to: #2e8b57;
   --gradient-ai: linear-gradient(90deg, var(--color-ai-gradient-from), var(--color-ai-gradient-to));
-  --color-label-user-story: #7b3acf;
-  --color-label-technical: #12ad9a;
+  --color-label-user-story: #006048;
+  --color-label-technical: #0c3e32;
 
   /* ---------- Borders ---------- */
   --color-border-field: #d1d1d1;
-  --color-border-field-hover: #686868;
-  --color-border-field-focus: #177da8;
-  --color-link-email: #007cee;
-  --color-divider: #e7e7e7;
+  --color-border-field-hover: #5f6b72;
+  --color-border-field-focus: #006048;
+  --color-link-email: #006048;
+  --color-divider: #e1e0d9;
 
   /* ---------- Overlay and interaction tints ---------- */
   --color-scrim: rgba(0, 0, 0, 0.35);
-  --color-primary-hover-tint: rgba(23, 125, 168, 0.12);
+  --color-primary-hover-tint: rgba(0, 96, 72, 0.12);
   --color-hover-on-dark: rgba(255, 255, 255, 0.1);
   --color-active-on-dark: rgba(255, 255, 255, 0.14);
 
   /* ---------- Type families ---------- */
-  --font-ui: 'Inter', 'Segoe UI', system-ui, sans-serif;
-  --font-prose: 'Open Sans', 'Segoe UI', system-ui, sans-serif;
+  --font-ui: Calibri, 'Carlito', 'Segoe UI', system-ui, sans-serif;
+  --font-prose: Calibri, 'Carlito', 'Segoe UI', system-ui, sans-serif;
+  --font-display: 'Unbounded', 'Segoe UI', system-ui, sans-serif;
 
   /* ---------- Type scale ---------- */
   --font-size-t1: 61px;
@@ -58,8 +60,8 @@
   --font-size-t6: 20px;
   --font-size-body: 16px;
 
-  --font-size-display-desktop: 64px;
-  --font-size-display-mobile: 40px;
+  --font-size-display-desktop: 45px;
+  --font-size-display-mobile: 28px;
   --font-size-card-title: 32px;
   --font-size-lead-desktop: 28px;
   --font-size-lead-mobile: 22px;
@@ -77,19 +79,19 @@
   /* ---------- Radii ---------- */
   --radius-checkbox: 3px;
   --radius-badge: 4px;
-  --radius-button: 8px;
-  --radius-image: 8px;
-  --radius-field: 10px;
-  --radius-panel: 16px;
-  --radius-card: 24px;
-  --radius-dialog: 30px;
+  --radius-button: 7px;
+  --radius-image: 7px;
+  --radius-field: 7px;
+  --radius-panel: 9px;
+  --radius-card: 9px;
+  --radius-dialog: 9px;
   --radius-round: 50%;
 
   /* ---------- Shadows ---------- */
-  --shadow-card: 0 0 4px 0 rgba(0, 0, 0, 0.1);
-  --shadow-panel: 0 0 10px 3px rgba(0, 0, 0, 0.08);
-  --shadow-button: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
-  --shadow-header: 0 4px 4px 0 rgba(0, 0, 0, 0.1);
+  --shadow-card: 0 0 0 1px #e1e0d9;
+  --shadow-panel: 0 0 0 1px #e1e0d9;
+  --shadow-button: none;
+  --shadow-header: none;
   --shadow-dropdown: 0 12px 28px rgba(0, 0, 0, 0.18);
   --shadow-overlay: 0 24px 80px rgba(0, 0, 0, 0.16);
 
@@ -114,5 +116,5 @@
   --layout-card-max: 789px;
 
   /* ---------- Focus ---------- */
-  --focus-ring: 0 0 0 3px rgba(23, 125, 168, 0.55);
+  --focus-ring: 0 0 0 3px rgba(0, 96, 72, 0.45);
 }

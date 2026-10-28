@@ -105,7 +105,7 @@ function registerEmailLengthValidation(elements) {
       elements.emailInput,
       CONTACT_EMAIL_MAX,
       "contact-email-error",
-      "Email",
+      "E-Mail",
     );
   });
 }
@@ -236,10 +236,10 @@ function registerOverlayDeleteButton(elements, listElement) {
     const currentId = getCurrentEditId();
     if (!currentId) return;
     const confirmed = await showConfirmOverlay({
-      title: "Delete contact?",
-      message: "Do you really want to delete this contact?",
-      confirmText: "Delete",
-      cancelText: "Cancel",
+      title: "Kontakt löschen?",
+      message: "Möchten Sie diesen Kontakt wirklich löschen?",
+      confirmText: "Löschen",
+      cancelText: "Abbrechen",
     });
     if (!confirmed) return;
     await deleteContact(currentId);

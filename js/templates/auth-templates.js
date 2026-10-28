@@ -21,7 +21,7 @@ function getSignupEmailFieldTemplate() {
   return `
   <div class="input-field-wrapper">
     <div class="input-control">
-      <input type="email" id="sign-up-email" name="email" placeholder="Email" autocomplete="email" />
+      <input type="email" id="sign-up-email" name="email" placeholder="E-Mail" autocomplete="email" />
       <img src="/assets/img/icons/mail.svg" alt="" class="input-icon-email position" />
     </div>
     <div class="field-error" id="sign-up-email-error"></div>
@@ -36,10 +36,10 @@ function getSignupPasswordFieldTemplate() {
   return `
   <div class="input-field-wrapper">
     <div class="input-control">
-      <input type="password" id="sign-up-password" name="password" placeholder="Password" autocomplete="new-password" />
+      <input type="password" id="sign-up-password" name="password" placeholder="Passwort" autocomplete="new-password" />
       <img src="/assets/img/icons/lock.svg" class="input-icon-password position" id="sign-up-password-lock-icon" alt="" />
       <img src="/assets/img/icons/visibility_off.svg" class="input-icon-password position d-none"
-        id="sign-up-password-visibility-toggle" alt="Toggle password visibility" />
+        id="sign-up-password-visibility-toggle" alt="Passwort anzeigen oder verbergen" />
     </div>
     <div class="field-error" id="sign-up-password-error"></div>
   </div>`;
@@ -53,10 +53,10 @@ function getSignupConfirmFieldTemplate() {
   return `
   <div class="input-field-wrapper">
     <div class="input-control">
-      <input type="password" id="sign-up-confirm-password" name="confirm_password" placeholder="Confirm Password" autocomplete="new-password" />
+      <input type="password" id="sign-up-confirm-password" name="confirm_password" placeholder="Passwort bestätigen" autocomplete="new-password" />
       <img src="/assets/img/icons/lock.svg" class="input-icon-confirm-password position" id="sign-up-confirm-password-lock-icon" alt="" />
       <img src="/assets/img/icons/visibility_off.svg" class="input-icon-confirm-password position d-none"
-        id="sign-up-confirm-password-visibility-toggle" alt="Toggle password visibility" />
+        id="sign-up-confirm-password-visibility-toggle" alt="Passwort anzeigen oder verbergen" />
     </div>
     <div class="field-error" id="sign-up-confirm-password-error"></div>
   </div>`;

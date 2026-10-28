@@ -126,7 +126,7 @@ function applyCategoryDefault(state, parts) {
  * @returns {string}
  */
 function getCategoryLabel(value) {
-  return value === "technical" ? "Technical Task" : "User Story";
+  return value === "technical" ? CATEGORY_LABELS.technical : CATEGORY_LABELS.userstory;
 }
 
 /**
@@ -134,7 +134,7 @@ function getCategoryLabel(value) {
  * @param {Object} parts
  */
 function resetCategoryDropdown(parts) {
-  if (parts.valueEl) parts.valueEl.textContent = "Select task category";
+  if (parts.valueEl) parts.valueEl.textContent = "Kategorie auswählen";
   parts.dropdown.classList.remove("has-value", "is-open");
   if (parts.menu) parts.menu.hidden = true;
   if (parts.toggle) parts.toggle.setAttribute("aria-expanded", "false");

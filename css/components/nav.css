@@ -72,6 +72,7 @@
 .nav-links nav a.nav-active{
   background: var(--nav-active);
   color: var(--color-text-on-dark);
+  box-shadow: inset 6px 0 0 var(--color-accent-on-dark);
 }
 
 .footer-links{
@@ -97,5 +98,5 @@
 }
 
 .footer-links a:hover{
-  color: var(--accent);
+  color: var(--color-accent-on-dark);
 }

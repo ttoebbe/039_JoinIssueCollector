@@ -73,10 +73,10 @@ function setOverlayMode(form, isEdit) {
  * @param {boolean} isEdit
  */
 function updateOverlayTexts(title, submitButton, isEdit) {
-  if (title) title.textContent = isEdit ? "Edit contact" : "Add contact";
+  if (title) title.textContent = isEdit ? "Kontakt bearbeiten" : "Kontakt hinzufügen";
   if (submitButton) {
     const label = submitButton.querySelector("span");
-    const text = isEdit ? "Save changes" : "Create contact";
+    const text = isEdit ? "Änderungen speichern" : "Kontakt erstellen";
     if (label) label.textContent = text;
     else submitButton.textContent = text;
   }
@@ -141,7 +141,7 @@ function ensureDefaultAvatarIcon(avatar) {
   if (avatar.querySelector("img")) return;
   const img = document.createElement("img");
   img.src = "/assets/img/icons/group-13.svg";
-  img.alt = "User avatar";
+  img.alt = "Benutzer-Avatar";
   avatar.appendChild(img);
 }
 

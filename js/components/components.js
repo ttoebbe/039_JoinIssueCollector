@@ -125,7 +125,7 @@ function renderUserInitials() {
   if (!el) return;
   const current = getCurrentUser();
   const label =
-    current?.name || current?.email || (current?.guest ? "Guest" : "") || "G";
+    current?.name || current?.email || (current?.guest ? "Gast" : "") || "G";
   el.textContent = getInitials(label);
 }
 

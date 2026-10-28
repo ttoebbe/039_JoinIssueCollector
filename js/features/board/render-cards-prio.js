@@ -17,7 +17,7 @@ function createPrioBlock(task) {
  */
 function buildPrioImage(task) {
   const img = document.createElement("img");
-  img.alt = "Priority";
+  img.alt = "Priorität";
   img.dataset.prio = normalizePrioKey(task?.prio);
   img.src = mapPrioToIcon(task?.prio);
   img.onerror = () => handlePrioImageError(img);

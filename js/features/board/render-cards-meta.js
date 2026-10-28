@@ -11,7 +11,7 @@ function createCategoryPill(task) {
     (category === "technical"
       ? "board-card-label--technical"
       : "board-card-label--userstory");
-  pill.textContent = category === "technical" ? "Technical Task" : "User Story";
+  pill.textContent = CATEGORY_LABELS[category];
   return pill;
 }
 
@@ -54,7 +54,7 @@ function createMoveToButton(task) {
   if (task?.id) btn.dataset.taskId = String(task.id);
   const img = document.createElement("img");
   img.src = "/assets/img/icons/move-to.svg";
-  img.alt = "Move to";
+  img.alt = "Verschieben nach";
   btn.appendChild(img);
   return btn;
 }
@@ -69,11 +69,11 @@ function createMoveToList(task) {
   menu.className = "board-move-menu";
   if (task?.id) menu.dataset.taskId = String(task.id);
   menu.setAttribute("aria-hidden", "true");
-  menu.appendChild(createMoveToItem("triage", "Triage"));
-  menu.appendChild(createMoveToItem("todo", "To-do"));
-  menu.appendChild(createMoveToItem("inprogress", "In progress"));
-  menu.appendChild(createMoveToItem("awaitfeedback", "Await feedback"));
-  menu.appendChild(createMoveToItem("done", "Done"));
+  menu.appendChild(createMoveToItem("triage", STATUS_LABELS.triage));
+  menu.appendChild(createMoveToItem("todo", STATUS_LABELS.todo));
+  menu.appendChild(createMoveToItem("inprogress", STATUS_LABELS.inprogress));
+  menu.appendChild(createMoveToItem("awaitfeedback", STATUS_LABELS.awaitfeedback));
+  menu.appendChild(createMoveToItem("done", STATUS_LABELS.done));
   return menu;
 }
 

@@ -4,10 +4,10 @@
  */
 async function confirmDeleteTask(taskId) {
   const ok = await showConfirmOverlay({
-    title: "Delete task?",
-    message: "Do you really want to delete this task?",
-    confirmText: "Delete",
-    cancelText: "Cancel",
+    title: "Aufgabe löschen?",
+    message: "Möchten Sie diese Aufgabe wirklich löschen?",
+    confirmText: "Löschen",
+    cancelText: "Abbrechen",
   });
   if (!ok) return;
   await deleteTaskAndRefresh(taskId);

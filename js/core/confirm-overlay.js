@@ -5,10 +5,10 @@
  */
 function normalizeConfirmOptions(options = {}) {
   return {
-    title: options.title || "Confirm",
-    message: options.message || "Are you sure?",
-    confirmText: options.confirmText || "Confirm",
-    cancelText: options.cancelText || "Cancel",
+    title: options.title || "Bestätigen",
+    message: options.message || "Möchten Sie fortfahren?",
+    confirmText: options.confirmText || "Bestätigen",
+    cancelText: options.cancelText || "Abbrechen",
   };
 }
 

@@ -10,7 +10,7 @@
   flex-direction: column;
   min-height: 100vh;
   padding: var(--welcome-logo-top) var(--welcome-page-inline) var(--space-40);
-  background-color: var(--color-background-inverse);
+  background: var(--color-background-inverse) url('/assets/images/pfg-title-background.jpg') right bottom / cover no-repeat;
 }
 
 .welcome-page__logo {
@@ -95,7 +95,7 @@
   flex-direction: column;
   gap: var(--space-16);
   align-items: center;
-  font-family: var(--font-prose);
+  font-family: var(--font-display);
   font-size: var(--font-size-display-mobile);
   font-weight: var(--font-weight-bold);
   color: var(--color-text-strong);
@@ -208,7 +208,7 @@
 .request-page__title {
   grid-area: title;
   text-align: center;
-  font-family: var(--font-prose);
+  font-family: var(--font-display);
   font-size: var(--font-size-display-mobile);
   font-weight: var(--font-weight-bold);
   color: var(--color-text-strong);

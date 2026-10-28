@@ -63,13 +63,13 @@ function parseDueDate(task) {
 }
 
 /**
- * Formats a Date into a long US date string.
+ * Formats a Date into a long German date string.
  * @param {Date} dateObj - Date to format
  * @returns {string} Formatted date string
  */
 function formatDateLong(dateObj) {
   try {
-    return new Intl.DateTimeFormat("en-US", {
+    return new Intl.DateTimeFormat("de-DE", {
       month: "long",
       day: "numeric",
       year: "numeric",
@@ -171,9 +171,9 @@ function setNextUrgentDeadline(kpiData, urgentOpenDates) {
  */
 function renderUser(user) {
   const greeting = getTimeBasedGreeting(new Date());
-  setText("greeting-text", user?.guest ? `${greeting}!` : `${greeting},`);
-  if (getById("user-name")) setText("user-name", user?.name || "Guest");
-  if (getById("user-initials")) setText("user-initials", getInitials(user?.name || "Guest"));
+  setText("greeting-text", user?.guest ? greeting : `${greeting},`);
+  if (getById("user-name")) setText("user-name", user?.name || "Gast");
+  if (getById("user-initials")) setText("user-initials", getInitials(user?.name || "Gast"));
 }
 
 /**
@@ -268,8 +268,8 @@ function markMobileGreetingShown() {
 function getGreetingData(user) {
   const greeting = getTimeBasedGreeting(new Date());
   return {
-    text: user?.guest ? `${greeting}!` : `${greeting},`,
-    name: user?.guest ? "" : user?.name || "Guest",
+    text: user?.guest ? greeting : `${greeting},`,
+    name: user?.guest ? "" : user?.name || "Gast",
   };
 }
 

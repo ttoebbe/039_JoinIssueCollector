@@ -9,24 +9,24 @@
  */
 function getAddTaskPriorityBlockTemplate() {
   return `
-    <label>Priority</label>
+    <label>Priorität</label>
     <div class="prio-row">
       <button type="button" class="prio-btn" data-prio="urgent">
-        <span class="prio-label">Urgent</span>
+        <span class="prio-label">Dringend</span>
         <svg class="prio-icon" viewBox="0 0 20 16" aria-hidden="true">
           <path d="M4 10L10 4L16 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
           <path d="M4 14L10 8L16 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
       </button>
       <button type="button" class="prio-btn is-active" data-prio="medium">
-        <span class="prio-label">Medium</span>
+        <span class="prio-label">Mittel</span>
         <svg class="prio-icon" viewBox="0 0 20 16" aria-hidden="true">
           <path d="M4 6H16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
           <path d="M4 10H16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
         </svg>
       </button>
       <button type="button" class="prio-btn" data-prio="low">
-        <span class="prio-label">Low</span>
+        <span class="prio-label">Niedrig</span>
         <svg class="prio-icon" viewBox="0 0 20 16" aria-hidden="true">
           <path d="M4 2L10 8L16 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
           <path d="M4 6L10 12L16 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -73,15 +73,15 @@ function getAddTaskFormOpen(presetStatus) {
  */
 function getAddTaskLeftFields() {
   return `
-      <label>Title<span class="req">*</span></label>
-      <input id="task-title" type="text" placeholder="Enter a title" maxlength="40" />
+      <label>Titel<span class="req">*</span></label>
+      <input id="task-title" type="text" placeholder="Titel eingeben" maxlength="40" />
       <div class="field-error" id="task-title-error"></div>
       <div class="field-counter" id="task-title-counter">0/40</div>
-      <label>Description</label>
-      <textarea id="task-description" placeholder="Enter a Description" maxlength="200"></textarea>
+      <label>Beschreibung</label>
+      <textarea id="task-description" placeholder="Beschreibung eingeben" maxlength="200"></textarea>
       <div class="field-error" id="task-description-error"></div>
       <div class="field-counter" id="task-description-counter">0/200</div>
-    <label>Due date<span class="req">*</span></label>
+    <label>Fälligkeitsdatum<span class="req">*</span></label>
     <input id="task-due-date" type="date" />
   `;
 }
@@ -116,10 +116,10 @@ function getAddTaskPriorityBlock() {
  */
 function getAddTaskAssignedBlock() {
   return `
-    <label>Assigned to</label>
+    <label>Zugewiesen an</label>
     <div class="dropdown dropdown--select assigned-dropdown" id="assigned-dropdown">
       <div class="dropdown-toggle" data-assigned-toggle role="button" tabindex="0" aria-haspopup="listbox" aria-expanded="false">
-        <input type="text" class="assigned-input" data-assigned-input placeholder="Select contacts to assign" aria-label="Search contacts" autocomplete="off" />
+        <input type="text" class="assigned-input" data-assigned-input placeholder="Kontakte zuweisen" aria-label="Kontakte suchen" autocomplete="off" />
         <span class="dropdown-caret" aria-hidden="true"></span>
       </div>
       <div class="dropdown-menu" data-assigned-menu hidden></div>
@@ -134,15 +134,15 @@ function getAddTaskAssignedBlock() {
  */
 function getAddTaskCategoryBlock() {
   return (
-    `<label>Category<span class="req">*</span></label>\n` +
+    `<label>Kategorie<span class="req">*</span></label>\n` +
     `<div class="dropdown dropdown--select" id="category-dropdown">\n` +
     `  <button type="button" class="dropdown-toggle" data-category-toggle aria-haspopup="listbox" aria-expanded="false">\n` +
-    `    <span class="dropdown-placeholder" data-category-value>Select task category</span>\n` +
+    `    <span class="dropdown-placeholder" data-category-value>Kategorie auswählen</span>\n` +
     `    <span class="dropdown-caret" aria-hidden="true"></span>\n` +
     `  </button>\n` +
     `  <div class="dropdown-menu" data-category-menu hidden>\n` +
     `    <button type="button" class="dropdown-item" data-category-item data-value="userstory" data-label="User Story">User Story</button>\n` +
-    `    <button type="button" class="dropdown-item" data-category-item data-value="technical" data-label="Technical Task">Technical Task</button>\n` +
+    `    <button type="button" class="dropdown-item" data-category-item data-value="technical" data-label="Technische Aufgabe">Technische Aufgabe</button>\n` +
     `  </div>\n` +
     `</div>\n`
   );
@@ -154,14 +154,14 @@ function getAddTaskCategoryBlock() {
  */
 function getAddTaskSubtaskBlock() {
   return `
-  <label>Subtasks</label>
+  <label>Unteraufgaben</label>
   <div class="subtask-row">
     <div class="subtask-input-actions">
       <button
         type="button"
         class="subtask-input-action"
         data-subtask-input-action="clear"
-        aria-label="Clear subtask"
+        aria-label="Unteraufgabe leeren"
       >
         <img src="/assets/img/icons/delete.svg" alt="" aria-hidden="true" />
       </button>
@@ -169,12 +169,12 @@ function getAddTaskSubtaskBlock() {
         type="button"
         class="subtask-input-action"
         data-subtask-input-action="save"
-        aria-label="Save subtask"
+        aria-label="Unteraufgabe speichern"
       >
         <img src="/assets/img/icons/done.svg" alt="" aria-hidden="true" />
       </button>
     </div>
-    <input id="subtask-input" type="text" placeholder="Add new subtask" maxlength="30" />
+    <input id="subtask-input" type="text" placeholder="Neue Unteraufgabe hinzufügen" maxlength="30" />
   </div>
   <div class="field-error" id="subtask-error"></div>
   <div id="subtask-list"></div>
@@ -188,16 +188,16 @@ function getAddTaskSubtaskBlock() {
 function getAddTaskFormFooter() {
   return `
       <div id="add-task-form-msg" class="form-msg" aria-live="polite"></div>
-      <p class="req-note"><span class="req">*</span>This field is required</p>
+      <p class="req-note"><span class="req">*</span>Pflichtfeld</p>
       <div class="addtask-footer">
         <button type="button" id="clear-btn">
-          <span class="btn-label">Clear</span>
+          <span class="btn-label">Zurücksetzen</span>
           <svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true">
             <path d="M4 4L12 12M12 4L4 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
           </svg>
         </button>
         <button type="submit" id="create-btn">
-          <span class="btn-label">Create Task</span>
+          <span class="btn-label">Aufgabe erstellen</span>
           <svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true">
             <path d="M3 8L6 11L13 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
           </svg>

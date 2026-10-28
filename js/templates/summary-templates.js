@@ -14,13 +14,13 @@ function buildGreetingOverlayHtml({ text, name }) {
  */
 function getSummaryKpisTemplate() {
   return (
-    getKpiTopCardTemplate("group-7.svg", "count-todo", "To-do") +
-    getKpiTopCardTemplate("frame-59.svg", "count-done", "Done") +
+    getKpiTopCardTemplate("group-7.svg", "count-todo", STATUS_LABELS.todo) +
+    getKpiTopCardTemplate("frame-59.svg", "count-done", STATUS_LABELS.done) +
     getKpiUrgentCardTemplate() +
     getKpiEmailCardTemplate() +
-    getKpiBottomCardTemplate("count-board", "Tasks in Board") +
-    getKpiBottomCardTemplate("count-in-progress", "Tasks In Progress") +
-    getKpiBottomCardTemplate("count-awaiting", "Awaiting Feedback")
+    getKpiBottomCardTemplate("count-board", "Aufgaben im Board") +
+    getKpiBottomCardTemplate("count-in-progress", "Aufgaben in Bearbeitung") +
+    getKpiBottomCardTemplate("count-awaiting", STATUS_LABELS.awaitfeedback)
   );
 }
 
@@ -70,7 +70,7 @@ function getKpiUrgentSideTemplate() {
       </div>
       <div class="kpi-stack">
         <div class="kpi-number" id="count-urgent">0</div>
-        <div class="kpi-label">Urgent</div>
+        <div class="kpi-label">${PRIORITY_LABELS.urgent}</div>
       </div>
     </div>
   `;
@@ -84,7 +84,7 @@ function getKpiDeadlineSideTemplate() {
   return `
     <div class="kpi-wide-right">
       <div class="kpi-date" id="next-deadline-date">—</div>
-      <div class="kpi-sub">Upcoming Deadline</div>
+      <div class="kpi-sub">Nächste Frist</div>
     </div>
   `;
 }
@@ -97,7 +97,7 @@ function getKpiEmailCardTemplate() {
   return `
     <a href="board.html" class="kpi-card kpi-square">
       <div class="kpi-number kpi-number--ai" id="count-email">0</div>
-      <div class="kpi-label">Email requests</div>
+      <div class="kpi-label">E-Mail-Anfragen</div>
     </a>
   `;
 }

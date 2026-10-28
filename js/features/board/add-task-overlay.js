@@ -30,7 +30,7 @@ async function renderTaskOverlay({ mode, status, task }) {
   root.classList.remove("hidden");
   root.setAttribute("aria-hidden", "false");
   const formHtml = await loadFormTemplate(status);
-  const title = mode === "edit" ? "Edit Task" : "Add Task";
+  const title = mode === "edit" ? "Aufgabe bearbeiten" : "Aufgabe hinzufügen";
   root.innerHTML = buildOverlayHTML(title, formHtml);
   setupOverlayEvents(root, status, mode);
   if (typeof initAddTaskForm === "function") {
@@ -51,7 +51,7 @@ async function loadFormTemplate(status) {
     if (!res.ok) throw new Error(`Template not found (${res.status})`);
     return await res.text();
   } catch (err) {
-    return `<div style="padding:16px; border:1px dashed #d1d1d1; border-radius:12px;"><p><strong>Template is missing or failed to load.</strong></p></div>`;
+    return `<div style="padding:16px; border:1px dashed #d1d1d1; border-radius:12px;"><p><strong>Die Vorlage fehlt oder konnte nicht geladen werden.</strong></p></div>`;
   }
 }
 
@@ -62,7 +62,7 @@ async function loadFormTemplate(status) {
  * @returns {string}
  */
 function buildOverlayHTML(title, formHtml) {
-  return `<div class="overlay-backdrop" data-overlay-close></div><div class="overlay-panel" role="dialog" aria-modal="true" aria-label="${title}"><button class="overlay-close" type="button" data-overlay-close aria-label="Close">×</button><h2>${title}</h2>${formHtml}</div>`;
+  return `<div class="overlay-backdrop" data-overlay-close></div><div class="overlay-panel" role="dialog" aria-modal="true" aria-label="${title}"><button class="overlay-close" type="button" data-overlay-close aria-label="Schließen">×</button><h2>${title}</h2>${formHtml}</div>`;
 }
 
 /**
@@ -81,9 +81,9 @@ function setupOverlayEvents(root, status, mode) {
   if (createBtn && mode === "edit") {
     const label = createBtn.querySelector(".btn-label");
     if (label) {
-      label.textContent = "Save";
+      label.textContent = "Speichern";
     } else {
-      createBtn.textContent = "Save";
+      createBtn.textContent = "Speichern";
     }
   }
 }

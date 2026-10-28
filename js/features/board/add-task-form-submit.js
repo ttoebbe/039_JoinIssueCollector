@@ -111,7 +111,7 @@ function buildCreator() {
   const user = getCurrentUser();
   return {
     type: "member",
-    name: user?.name ?? "Guest",
+    name: user?.name ?? "Gast",
     email: user?.email ?? "",
   };
 }

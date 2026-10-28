@@ -16,10 +16,10 @@ function isValidEmail(email) {
  */
 function getTimeBasedGreeting(date = new Date()) {
   const hour = date.getHours();
-  if (hour >= 5 && hour < 12) return "Good morning";
-  if (hour >= 12 && hour < 18) return "Good afternoon";
-  if (hour >= 18 && hour < 22) return "Good evening";
-  return "Good night";
+  if (hour >= 5 && hour < 12) return "Guten Morgen";
+  if (hour >= 12 && hour < 18) return "Guten Tag";
+  if (hour >= 18 && hour < 22) return "Guten Abend";
+  return "Willkommen";
 }
 
 /**
@@ -199,7 +199,7 @@ function getTaskIdNumber(id) {
 }
 
 /**
- * Formats an ISO date (YYYY-MM-DD) as DD/MM/YYYY.
+ * Formats an ISO date (YYYY-MM-DD) as DD.MM.YYYY, the German notation.
  * Figma 75624:20773 shows the due date in day-first notation.
  * @param {string} isoDate - The stored date
  * @returns {string} The formatted date, or "-" when empty
@@ -209,5 +209,5 @@ function formatDueDate(isoDate) {
   const parts = String(isoDate).split("-");
   if (parts.length !== 3) return String(isoDate);
   const [year, month, day] = parts;
-  return `${day}/${month}/${year}`;
+  return `${day}.${month}.${year}`;
 }

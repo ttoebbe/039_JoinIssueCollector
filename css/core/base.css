@@ -20,9 +20,17 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
+  color: var(--color-primary);
   font-weight: var(--font-weight-semibold);
   line-height: 1.2;
   margin-bottom: var(--spacing-md);
+}
+
+h1,
+.overlay-panel h2,
+.overlay-brand h2 {
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-bold);
 }
 
 h1 { font-size: var(--font-size-2xl); }

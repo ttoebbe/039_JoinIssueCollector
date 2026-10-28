@@ -56,9 +56,9 @@ function validateTaskForm(state) {
  * @returns {string}
  */
 function getTaskValidationError(values) {
-  if (!values.title) return "Please enter a title.";
-  if (!values.dueDate) return "Please select a due date.";
-  if (!values.category) return "Please select a category.";
+  if (!values.title) return "Bitte geben Sie einen Titel ein.";
+  if (!values.dueDate) return "Bitte wählen Sie ein Fälligkeitsdatum.";
+  if (!values.category) return "Bitte wählen Sie eine Kategorie.";
   return "";
 }
 
@@ -123,7 +123,7 @@ function isTitleAtLimit(title) {
  * @returns {string}
  */
 function getTitleLimitMessage() {
-  return `Title is too long (max ${TITLE_MAX_LENGTH} characters).`;
+  return `Der Titel ist zu lang (maximal ${TITLE_MAX_LENGTH} Zeichen).`;
 }
 
 /**
@@ -168,7 +168,7 @@ function showTitleLimitError(state) {
 function showDescriptionLimitError(desc) {
   showFieldError(
     "task-description-error",
-    `Description is too long (max ${DESCRIPTION_MAX_LENGTH} characters).`,
+    `Die Beschreibung ist zu lang (maximal ${DESCRIPTION_MAX_LENGTH} Zeichen).`,
     desc,
   );
 }

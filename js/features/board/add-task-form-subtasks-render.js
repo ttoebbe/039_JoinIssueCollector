@@ -75,7 +75,7 @@ function buildSubtaskBullet() {
 function buildAddTaskSubtaskText(subtask) {
   const text = document.createElement("span");
   text.className = "subtask-text";
-  text.textContent = subtask.title || "Subtask";
+  text.textContent = subtask.title || "Unteraufgabe";
   return text;
 }
 
@@ -92,7 +92,7 @@ function buildSubtaskEditInput(state, subtask, index) {
   input.className = "subtask-edit-input";
   input.value = getEditingValue(state, subtask, index);
   input.dataset.index = String(index);
-  input.setAttribute("aria-label", "Edit subtask");
+  input.setAttribute("aria-label", "Unteraufgabe bearbeiten");
   return input;
 }
 
@@ -140,12 +140,12 @@ function getSubtaskViewActions() {
     {
       action: "edit",
       icon: "/assets/img/icons/edit.svg",
-      label: "Edit subtask",
+      label: "Unteraufgabe bearbeiten",
     },
     {
       action: "delete",
       icon: "/assets/img/icons/delete.svg",
-      label: "Delete subtask",
+      label: "Unteraufgabe löschen",
     },
   ];
 }
@@ -159,12 +159,12 @@ function getSubtaskEditActions() {
     {
       action: "delete",
       icon: "/assets/img/icons/delete.svg",
-      label: "Delete subtask",
+      label: "Unteraufgabe löschen",
     },
     {
       action: "done",
       icon: "/assets/img/icons/done.svg",
-      label: "Save subtask",
+      label: "Unteraufgabe speichern",
     },
   ];
 }

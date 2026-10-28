@@ -55,7 +55,7 @@ function appendCardContent(cardElement, task) {
 function createCardTitle(task) {
   const title = document.createElement("h3");
   title.className = "board-card-title";
-  title.textContent = task?.title || task?.name || "(No title)";
+  title.textContent = task?.title || task?.name || "(Ohne Titel)";
   return title;
 }
 

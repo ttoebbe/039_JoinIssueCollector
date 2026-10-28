@@ -57,7 +57,7 @@ body {
 
 .summary-h1 {
   margin: 0;
-  font-size: 61px;
+  font-size: 43px;
   font-weight: 700;
   color: var(--color-text);
 }
@@ -131,7 +131,7 @@ body {
 
 .kpi-card {
   background: var(--color-bg-surface);
-  border-radius: 30px;
+  border-radius: var(--radius-card);
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
   text-decoration: none;
   color: var(--color-text-primary);
@@ -346,7 +346,7 @@ body {
   }
 
   .summary-h1 {
-    font-size: 72px;
+    font-size: 50px;
   }
 
   .summary-sub {
@@ -360,18 +360,18 @@ body {
 
   .kpi-top {
     padding: 28px 32px;
-    border-radius: 32px;
+    border-radius: var(--radius-card);
   }
 
   .kpi-wide {
     padding: 28px;
-    border-radius: 32px;
+    border-radius: var(--radius-card);
   }
 
   .kpi-square,
   .kpi-bottom {
     padding: 24px 20px;
-    border-radius: 32px;
+    border-radius: var(--radius-card);
   }
 
   .kpi-icon,
@@ -448,7 +448,7 @@ body {
   }
 
   .summary-h1 {
-    font-size: 48px;
+    font-size: 34px;
   }
 
   .summary-sub {
@@ -474,27 +474,27 @@ body {
   .kpi-top {
     height: auto;
     padding: 18px 18px;
-    border-radius: 26px;
+    border-radius: var(--radius-card);
     gap: 14px;
   }
 
   .kpi-wide {
     height: auto;
     padding: 18px 18px;
-    border-radius: 26px;
+    border-radius: var(--radius-card);
     gap: 16px;
   }
 
   .kpi-square {
     height: auto;
     padding: 16px 12px;
-    border-radius: 26px;
+    border-radius: var(--radius-card);
   }
 
   .kpi-bottom {
     height: auto;
     padding: 16px 12px;
-    border-radius: 26px;
+    border-radius: var(--radius-card);
   }
 
   .kpi-icon {
@@ -541,7 +541,7 @@ body {
   }
 
   .summary-h1 {
-    font-size: 44px;
+    font-size: 31px;
   }
 
   .summary-sub {
@@ -556,14 +556,14 @@ body {
   .kpi-top {
     height: auto;
     padding: 16px 14px;
-    border-radius: 24px;
+    border-radius: var(--radius-card);
     gap: 12px;
   }
 
   .kpi-wide {
     height: auto;
     padding: 16px 14px;
-    border-radius: 24px;
+    border-radius: var(--radius-card);
     gap: 12px;
   }
 
@@ -571,7 +571,7 @@ body {
   .kpi-bottom {
     height: auto;
     padding: 14px 10px;
-    border-radius: 24px;
+    border-radius: var(--radius-card);
   }
 
   .kpi-icon {
@@ -611,7 +611,7 @@ body {
   }
 
   .summary-h1 {
-    font-size: 40px;
+    font-size: 28px;
   }
 
   .summary-sub {
@@ -627,7 +627,7 @@ body {
     height: auto;
     padding: 14px 12px;
     gap: 10px;
-    border-radius: 22px;
+    border-radius: var(--radius-card);
   }
 
   .kpi-number {
@@ -665,7 +665,7 @@ body {
   .kpi-wide {
     height: auto;
     padding: 14px 12px;
-    border-radius: 22px;
+    border-radius: var(--radius-card);
     gap: 12px;
   }
 
@@ -689,7 +689,7 @@ body {
   .kpi-bottom {
     height: auto;
     padding: 12px 8px;
-    border-radius: 22px;
+    border-radius: var(--radius-card);
   }
 
   .kpi-square .kpi-number,

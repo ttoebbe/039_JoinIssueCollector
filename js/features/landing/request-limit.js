@@ -25,7 +25,7 @@ const STATUS_TIMEOUT_MS = 3000;
 
 const MAIL_USER = 'issues';
 const MAIL_HOST = 'thomas-toebbe.de';
-const MAIL_SUBJECT = '[JOIN] Feature request';
+const MAIL_SUBJECT = '[JOIN] Feature-Anfrage';
 
 /**
  * Reads the configured daily request limit from the page root.

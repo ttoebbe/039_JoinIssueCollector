@@ -236,7 +236,7 @@ function updateSubtaskLimitState(state) {
   const value = String(input?.value || "").trim();
   if (!value) return setSubtaskError("");
   if (value.length >= SUBTASK_MAX_LENGTH)
-    return setSubtaskError("Subtask is too long (max 30 characters).");
+    return setSubtaskError("Die Unteraufgabe ist zu lang (maximal 30 Zeichen).");
   setSubtaskError("");
 }
 

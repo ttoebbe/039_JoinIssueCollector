@@ -1,6 +1,6 @@
 :root {
   /* === TYPOGRAPHY === */
-  --font-family-primary: "Inter", sans-serif;
+  --font-family-primary: var(--font-ui);
   --font-size-xs: 12px;
   --font-size-sm: 14px;
   --font-size-md: 16px;
@@ -12,47 +12,47 @@
   /* === COLORS === */
   /* Primary Colors — defined in tokens.css */
   /* Accent Colors */
-  --color-accent-deep: #177DA8;
-  --color-accent-secondary: #4589FF;
+  --color-accent-deep: #006048;
+  --color-accent-secondary: #006048;
   --color-accent-tertiary: #F3971F;
   --color-accent-warning: #FFC107;
 
   /* Status Colors */
-  --color-success: #28A745;
+  --color-success: #0ca30c;
   --color-warning: #FFC107;
-  --color-danger: #DC3545;
-  --color-info: #17A2B8;
+  --color-danger: #d03b3b;
+  --color-info: #006048;
 
   /* Text Colors */
-  --color-text-primary: #2A3647;
-  --color-text-secondary: #5B6670;
+  --color-text-primary: #1f2a30;
+  --color-text-secondary: #5f6b72;
   --color-text-white: #FFFFFF;
 
   /* Background Colors */
-  --color-bg-primary: #F6F7F8;
-  --color-bg-secondary: #F6F7FB;
+  --color-bg-primary: #f2f4f3;
+  --color-bg-secondary: #f2f4f3;
   --color-bg-surface: #FFFFFF;
-  --color-bg-surface-muted: #F1F3F5;
+  --color-bg-surface-muted: #f2f4f3;
   --color-bg-overlay: rgba(0, 0, 0, 0.5);
 
   /* Border Colors */
   --color-border-light: #D1D1D1;
-  --color-border-medium: #E8EAED;
-  --color-border-dark: #5B6670;
-  --color-border-contacts: #d0d6e4;
-  --color-border-dark-alt: #1f2a3a;
+  --color-border-medium: #e1e0d9;
+  --color-border-dark: #5f6b72;
+  --color-border-contacts: #e1e0d9;
+  --color-border-dark-alt: #1f2a30;
 
   /* === ADDITIONAL COLORS === */
   /* Focus & Interactive */
-  --color-focus: #007bff;
+  --color-focus: #006048;
   --color-overlay-dark: #000000;
   --color-gray-light: #999;
   --color-gray-disabled: #66666666;
 
   /* Avatar Colors */
-  --color-avatar-orange: #ff7a00;
-  --color-avatar-purple: #9327ff;
-  --color-avatar-blue: #1f7cff;
+  --color-avatar-orange: #2e8b57;
+  --color-avatar-purple: #0c3e32;
+  --color-avatar-blue: #006048;
 
   /* Priority Colors */
   --color-priority-urgent: var(--color-urgent);
@@ -63,21 +63,21 @@
   --color-label-userstory: var(--color-label-user-story);
 
   /* Additional Backgrounds */
-  --color-bg-hover: #e7e7e7;
-  --color-bg-selected: #f4f4f4;
-  --color-bg-contacts: #e8eaf1;
-  --color-bg-contacts-light: #d5d9e6;
-  --color-bg-contacts-alt: #f8f8fb;
-  --color-bg-contacts-modal: #f1f3f8;
+  --color-bg-hover: #e6f1ec;
+  --color-bg-selected: #e6f1ec;
+  --color-bg-contacts: #f2f4f3;
+  --color-bg-contacts-light: #e6f1ec;
+  --color-bg-contacts-alt: #f2f4f3;
+  --color-bg-contacts-modal: #f2f4f3;
 
   /* Additional Text Colors */
-  --color-text-blue: #42526e;
-  --color-text-gray: #8f9bb3;
-  --color-text-gray-dark: #7d8da6;
-  --color-text-gray-medium: #8593ae;
-  --color-text-gray-light: #97a3c2;
-  --color-text-gray-lighter: #98a1b2;
-  --color-text-blue-alt: #2aaae2;
+  --color-text-blue: #5f6b72;
+  --color-text-gray: #5f6b72;
+  --color-text-gray-dark: #5f6b72;
+  --color-text-gray-medium: #5f6b72;
+  --color-text-gray-light: #8a959b;
+  --color-text-gray-lighter: #8a959b;
+  --color-text-blue-alt: #006048;
 
   /* === LEGACY COMPATIBILITY === */
 
@@ -118,10 +118,10 @@
   --size-3xl: 128px;
 
   /* === BORDERS === */
-  --border-radius-sm: 8px;
-  --border-radius-md: 12px;
-  --border-radius-lg: 16px;
-  --border-radius-xl: 24px;
+  --border-radius-sm: 7px;
+  --border-radius-md: 9px;
+  --border-radius-lg: 9px;
+  --border-radius-xl: 9px;
   --border-radius-full: 50%;
   --border-width-thin: 1px;
   --border-width-medium: 2px;

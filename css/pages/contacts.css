@@ -100,7 +100,7 @@
   position: relative;
   flex-direction: column;
   align-items: center;
-  box-shadow: 0 28px 60px rgba(15, 23, 42, 0.08);
+  box-shadow: var(--shadow-card);
   min-height: 0;
   overflow: auto;
 }
@@ -129,7 +129,7 @@
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
-  border-radius: 18px;
+  border-radius: var(--radius-card);
   border: 1px solid transparent;
   background: var(--contact-list-panel-color);
   cursor: pointer;
@@ -139,13 +139,13 @@
 }
 
 .contact-entry:hover {
-  border-color: rgba(69, 137, 255, 0.4);
-  background: rgba(69, 137, 255, 0.08);
+  border-color: rgba(0, 96, 72, 0.4);
+  background: rgba(0, 96, 72, 0.08);
 }
 
 .contact-entry.is-active {
   border-color: var(--contacts-primary);
-  background: rgba(69, 137, 255, 0.08);
+  background: rgba(0, 96, 72, 0.08);
 }
 
 .contact-email {
@@ -201,7 +201,7 @@
   content: "";
   height: 1px;
   width: 100%;
-  background: #d5d9e6;
+  background: #e1e0d9;
 }
 
 .contact-group-letter {
@@ -267,14 +267,14 @@
   grid-template-columns: minmax(320px, 420px) minmax(360px, 1fr);
   grid-template-rows: 1fr;
   background: #fff;
-  border-radius: 24px;
+  border-radius: var(--radius-card);
   overflow: hidden;
   position: relative;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.16);
 }
 
 .field-error {
-  color: #ff3d00;
+  color: var(--color-urgent);
   font-size: 14px;
   margin: 0;
   min-height: 17px;
@@ -286,7 +286,7 @@
 }
 
 .field-counter {
-  color: #8a8a8a;
+  color: #5f6b72;
   font-size: 14px;
   margin-top: 0;
   text-align: right;
@@ -294,7 +294,7 @@
 
 .contacts-header h1 {
   margin: 0;
-  font-size: 48px;
+  font-size: 34px;
   font-weight: 700;
   color: var(--contacts-text);
 }
@@ -328,7 +328,7 @@
 .content-border {
   margin: 0;
   font-size: 48px;
-  color: #29abe2;
+  color: var(--color-accent);
   font-weight: 400;
 }
 
@@ -339,12 +339,12 @@
 .detail-label {
   min-width: 80px;
   font-weight: 600;
-  color: #7d8da6;
+  color: #5f6b72;
 }
 
 .detail-placeholder {
   margin: auto;
-  color: #97a3c2;
+  color: #5f6b72;
   font-size: 18px;
   text-align: center;
 }
@@ -365,14 +365,14 @@
 
 .detail-subline {
   margin: 6px 0 0;
-  color: #7d8da6;
+  color: #5f6b72;
 }
 
 .form-msg {
   min-height: 20px;
   margin-top: 8px;
   margin-bottom: 8px;
-  color: #ff3d00;
+  color: var(--color-urgent);
   font-size: 16px;
   text-align: center;
 }
@@ -382,7 +382,7 @@
 }
 
 .overlay-form .input-error {
-  border: 1px solid #ff3d00 !important;
+  border: 1px solid var(--color-urgent) !important;
 }
 
 .input-icon {
@@ -395,7 +395,7 @@
   justify-content: center;
   width: 20px;
   height: 20px;
-  color: #98a1b2;
+  color: #5f6b72;
 }
 
 .input-icon img {
@@ -410,20 +410,20 @@
 .input-with-icon input {
   padding: 12px 48px 12px 12px;
   border-radius: 10px;
-  border: 1px solid #d5d9e6;
+  border: 1px solid #e1e0d9;
   background: #fff;
   font-size: 16px;
   outline: none;
 }
 
 .input-with-icon input:hover {
-  border-color: rgba(69, 137, 255, 0.6);
-  background: #f7f9ff;
+  border-color: rgba(0, 96, 72, 0.6);
+  background: #f2f4f3;
 }
 
 .input-with-icon input:focus {
   border-color: var(--contacts-primary);
-  box-shadow: 0 0 0 3px rgba(69, 137, 255, 0.15);
+  box-shadow: 0 0 0 3px rgba(0, 96, 72, 0.15);
 }
 
 .list-add-button {
@@ -452,14 +452,14 @@
 
 .logo-bar-primary {
   height: 28px;
-  background: #2aaae2;
+  background: var(--color-accent);
   left: 0;
   bottom: 0;
 }
 
 .logo-bar-secondary {
   height: 20px;
-  background: #4589ff;
+  background: var(--color-primary);
   right: 0;
   bottom: 0;
 }
@@ -512,7 +512,7 @@ main {
 
 .overlay-brand h2 {
   margin: 0;
-  font-size: 44px;
+  font-size: 31px;
 }
 
 .overlay-btn {
@@ -539,12 +539,12 @@ main {
 .overlay-btn-primary {
   background: var(--contacts-accent);
   color: #fff;
-  box-shadow: 0 10px 30px rgba(42, 54, 71, 0.25);
+  box-shadow: none;
 }
 
 .overlay-btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 12px 36px rgba(42, 54, 71, 0.3);
+  box-shadow: none;
 }
 
 .overlay-btn-secondary {
@@ -554,7 +554,7 @@ main {
 }
 
 .overlay-btn-secondary:hover {
-  background: #f1f3f8;
+  background: #f2f4f3;
 }
 
 .overlay-close-button {
@@ -571,7 +571,7 @@ main {
   place-items: center;
   cursor: pointer;
   z-index: 2;
-  border: 1px solid #d0d6e4;
+  border: 1px solid #e1e0d9;
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
 }
 
@@ -648,7 +648,7 @@ main {
 }
 
 .overlay-panel-right {
-  background: #f8f8fb;
+  background: #f2f4f3;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -677,7 +677,7 @@ main {
   display: inline-block;
   width: 72px;
   height: 3px;
-  background: #29abe2;
+  background: var(--color-accent);
   border-radius: 2px;
 }
 
@@ -695,13 +695,13 @@ main {
   background: var(--contacts-primary);
   color: #fff;
   font-weight: 600;
-  box-shadow: 0 12px 30px rgba(69, 137, 255, 0.35);
+  box-shadow: none;
   cursor: pointer;
 }
 
 .secondary-button {
   border-radius: 999px;
-  border: 1px solid #d0d6e4;
+  border: 1px solid #e1e0d9;
   background: transparent;
   color: var(--contacts-text);
   padding: 10px 18px;
@@ -835,7 +835,7 @@ main {
   }
 
   .contacts-header h1 {
-    font-size: 32px;
+    font-size: 22px;
   }
 
   .contacts-page {

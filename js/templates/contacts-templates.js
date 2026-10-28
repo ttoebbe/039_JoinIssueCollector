@@ -58,8 +58,8 @@ function buildContactHero(contact, initials) {
     `  <div class="contact-info">\n` +
     `    <h2>${contact.name}</h2>\n` +
     `    <div class="detail-actions">\n` +
-    `      <button class="secondary-button">Edit</button>\n` +
-    `      <button class="secondary-button">Delete</button>\n` +
+    `      <button class="secondary-button">Bearbeiten</button>\n` +
+    `      <button class="secondary-button">Löschen</button>\n` +
     `    </div>\n` +
     `  </div>\n` +
     `</div>\n`
@@ -74,13 +74,13 @@ function buildContactHero(contact, initials) {
 function buildContactDetails(contact) {
   return (
     `<div class="contact-details">\n` +
-    `  <h4>Contact Information</h4>\n` +
+    `  <h4>Kontaktinformationen</h4>\n` +
     `  <div class="detail-row">\n` +
-    `    <span class="detail-label">Email</span>\n` +
+    `    <span class="detail-label">E-Mail</span>\n` +
     `    <a href="mailto:${contact.email}">${contact.email}</a>\n` +
     `  </div>\n` +
     `  <div class="detail-row">\n` +
-    `    <span class="detail-label">Phone</span>\n` +
+    `    <span class="detail-label">Telefon</span>\n` +
     `    <span>${contact.phone}</span>\n` +
     `  </div>\n` +
     `</div>\n`
@@ -93,7 +93,7 @@ function buildContactDetails(contact) {
  */
 function buildContactMenuButton() {
   return `
-    <button type="button" class="contact-menu-button" aria-label="Edit contact">
+    <button type="button" class="contact-menu-button" aria-label="Kontakt bearbeiten">
       <img src="/assets/img/icons/menu-contact-options.svg" alt="" aria-hidden="true" />
     </button>
   `;

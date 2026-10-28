@@ -48,7 +48,7 @@ function createAiBadge() {
   icon.className = "task-detail-ai-icon";
   icon.setAttribute("aria-hidden", "true");
   badge.appendChild(icon);
-  badge.appendChild(document.createTextNode("Ai-generated ticket"));
+  badge.appendChild(document.createTextNode("KI-generiertes Ticket"));
   return badge;
 }
 
@@ -60,7 +60,7 @@ function createAiBadge() {
 function createDetailTitle(task) {
   const title = document.createElement("h2");
   title.className = "task-detail-title";
-  title.textContent = task?.title || task?.name || "(No title)";
+  title.textContent = task?.title || task?.name || "(Ohne Titel)";
   return title;
 }
 
@@ -84,7 +84,7 @@ function createDetailDescription(task) {
 function createDetailMeta(task) {
   const meta = document.createElement("div");
   meta.className = "task-detail-meta";
-  meta.appendChild(createMetaRow("Due date", formatDueDate(task?.dueDate)));
+  meta.appendChild(createMetaRow("Fälligkeitsdatum", formatDueDate(task?.dueDate)));
   meta.appendChild(createPriorityRow(task));
   return meta;
 }
@@ -96,7 +96,7 @@ function createDetailMeta(task) {
  */
 function createPriorityRow(task) {
   return createMetaRow(
-    "Priority",
+    "Priorität",
     normalizePrioLabel(task?.prio),
     mapPrioToIcon(task?.prio),
     normalizePrioKey(task?.prio),
@@ -147,7 +147,7 @@ function createMetaValue(value) {
 function createMetaIcon(iconSrc, prioKey) {
   const img = document.createElement("img");
   img.className = "task-detail-prio-icon";
-  img.alt = "Priority";
+  img.alt = "Priorität";
   if (prioKey) img.dataset.prio = prioKey;
   img.src = iconSrc;
   return img;
@@ -161,7 +161,7 @@ function createMetaIcon(iconSrc, prioKey) {
 function createAssignedSection(task) {
   const wrap = document.createElement("div");
   wrap.className = "task-detail-section";
-  wrap.appendChild(createSectionLabel("Assigned To:"));
+  wrap.appendChild(createSectionLabel("Zugewiesen an:"));
   wrap.appendChild(buildAssignedList(task));
   return wrap;
 }
@@ -200,7 +200,7 @@ function buildAssignedList(task) {
 function appendAssignedEmpty(list) {
   const empty = document.createElement("span");
   empty.className = "task-detail-empty";
-  empty.textContent = "No one assigned";
+  empty.textContent = "Niemand zugewiesen";
   list.appendChild(empty);
   return list;
 }
@@ -237,7 +237,7 @@ function buildAssigneeName(person) {
 function createSubtasksSection(task) {
   const wrap = document.createElement("div");
   wrap.className = "task-detail-section";
-  wrap.appendChild(createSectionLabel("Subtasks"));
+  wrap.appendChild(createSectionLabel("Unteraufgaben"));
   wrap.appendChild(buildSubtasksList(task));
   return wrap;
 }
@@ -266,7 +266,7 @@ function buildSubtasksList(task) {
 function appendSubtasksEmpty(list) {
   const empty = document.createElement("span");
   empty.className = "task-detail-empty";
-  empty.textContent = "No subtasks";
+  empty.textContent = "Keine Unteraufgaben";
   list.appendChild(empty);
   return list;
 }
@@ -304,7 +304,7 @@ function buildSubtaskCheckbox(task, subtask, index) {
  */
 function buildSubtaskText(subtask) {
   const text = document.createElement("span");
-  text.textContent = subtask.title || subtask.name || subtask.text || "Subtask";
+  text.textContent = subtask.title || subtask.name || subtask.text || "Unteraufgabe";
   return text;
 }
 
@@ -350,10 +350,10 @@ function appendDetailButtonContent(btn, label) {
  */
 function getDetailActionIcon(label) {
   const key = String(label || "").toLowerCase();
-  if (key === "delete")
-    return buildDetailIcon("/assets/img/icons/delete.svg", "Delete");
-  if (key === "edit")
-    return buildDetailIcon("/assets/img/icons/edit.svg", "Edit");
+  if (key === "löschen")
+    return buildDetailIcon("/assets/img/icons/delete.svg", "Löschen");
+  if (key === "bearbeiten")
+    return buildDetailIcon("/assets/img/icons/edit.svg", "Bearbeiten");
   return null;
 }
 
@@ -376,7 +376,7 @@ function buildDetailIcon(src, label) {
  * @returns {HTMLButtonElement}
  */
 function createDeleteButton(task) {
-  return createDetailButton("Delete", () => confirmDeleteTask(task?.id));
+  return createDetailButton("Löschen", () => confirmDeleteTask(task?.id));
 }
 
 /**
@@ -385,7 +385,7 @@ function createDeleteButton(task) {
  * @returns {HTMLButtonElement}
  */
 function createEditButton(task) {
-  return createDetailButton("Edit", () => {
+  return createDetailButton("Bearbeiten", () => {
     if (typeof openEditTaskOverlay === "function") openEditTaskOverlay(task);
   });
 }
@@ -397,7 +397,7 @@ function createEditButton(task) {
  */
 function normalizePrioLabel(value) {
   const v = String(value || "medium").toLowerCase();
-  if (v === "urgent" || v === "high" || v === "alta") return "Urgent";
-  if (v === "low" || v === "baja") return "Low";
-  return "Medium";
+  if (v === "urgent" || v === "high" || v === "alta") return PRIORITY_LABELS.urgent;
+  if (v === "low" || v === "baja") return PRIORITY_LABELS.low;
+  return PRIORITY_LABELS.medium;
 }

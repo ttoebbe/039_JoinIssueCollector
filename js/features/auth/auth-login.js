@@ -135,7 +135,7 @@ function wireGuestLogin({ guestLoginButton }) {
 async function runGuestLogin() {
   const { uid, error } = await signInAsGuest();
   if (error) return showAuthServiceError(error);
-  await saveCurrentUser({ id: uid, name: "Guest", guest: true });
+  await saveCurrentUser({ id: uid, name: "Gast", guest: true });
   window.location.href = ROUTES.SUMMARY;
 }
 

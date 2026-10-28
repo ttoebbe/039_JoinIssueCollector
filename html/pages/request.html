@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Join Issue Collector — Create a request</title>
-  <meta name="description" content="Send a feature request by email. Our AI system turns it into a ticket with a deadline and a priority level.">
+  <title>PFG Issue Collector · Anfrage erstellen</title>
+  <meta name="description" content="Senden Sie eine Feature-Anfrage per E-Mail. Unser KI-System erstellt daraus ein Ticket mit Frist und Prioritätsstufe.">
   <link rel="icon" href="/assets/logos/join-logo-dark.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/assets/fonts/fonts.css">
   <link rel="stylesheet" href="/css/core/tokens.css">
@@ -14,92 +14,92 @@
 </head>
 <body>
   <div class="request-page" data-limit-reached="false" data-request-limit="10">
-    <a href="/index.html" class="request-page__brand" aria-label="Back to the start page">
-      <img src="/assets/logos/join-logo-dark.svg" alt="Join">
+    <a href="/index.html" class="request-page__brand" aria-label="Zurück zur Startseite">
+      <img src="/assets/logos/join-logo-dark.svg" alt="PFG Issue Collector">
     </a>
 
     <main class="request-page__main">
       <div class="request-page__heading">
-        <a href="/index.html" class="icon-button request-page__back" aria-label="Back to the start page">
+        <a href="/index.html" class="icon-button request-page__back" aria-label="Zurück zur Startseite">
           <span class="icon-button__glyph icon-button__glyph--arrow-left"></span>
         </a>
-        <h1 class="request-page__title">Welcome</h1>
+        <h1 class="request-page__title">Willkommen</h1>
         <p class="request-counter" data-request-counter>
           <span class="request-counter__value" data-counter-used>0</span>
-          <span class="request-counter__separator">of</span>
+          <span class="request-counter__separator">von</span>
           <span class="request-counter__value" data-counter-limit>10</span>
-          <span class="request-counter__label">requests used<span class="request-counter__today"> today</span></span>
+          <span class="request-counter__label">Anfragen<span class="request-counter__today"> heute</span> genutzt</span>
         </p>
       </div>
 
       <div class="request-page__body">
         <div class="request-page__text">
           <p class="request-page__lead" data-state="available">
-            Easily create a ticket by sending an email — no extra steps needed.
+            Erstellen Sie ein Ticket einfach per E-Mail, ohne weitere Schritte.
           </p>
 
           <p class="alert" data-state="limit-reached" role="status">
-            The daily 10-request limit has been reached!
+            Das Tageslimit von 10 Anfragen ist erreicht.
           </p>
 
           <div class="request-page__prose" data-state="available">
             <p>
-              On this platform, you can submit your feature requests via email. Our AI
-              system will automatically generate a ticket with a deadline and priority level.
+              Über diese Plattform können Sie Ihre Feature-Anfragen per E-Mail einreichen. Unser
+              KI-System erstellt daraus automatisch ein Ticket mit Frist und Prioritätsstufe.
             </p>
             <p>
-              A total of 10 requests can be created per day. After this limit, emails can
-              still be sent, but they will be manually reviewed by our team instead of
-              generating AI tickets.
+              Pro Tag können insgesamt 10 Anfragen erstellt werden. Danach können Sie weiterhin
+              E-Mails senden; diese prüft unser Team jedoch manuell, statt daraus per KI
+              Tickets zu erzeugen.
             </p>
           </div>
 
           <div class="request-page__prose" data-state="limit-reached">
             <p>
-              Need more? No worries — you can still send emails, but our team will review
-              them manually instead of using AI to create tickets.
+              Sie benötigen weitere Anfragen? Sie können weiterhin E-Mails senden. Unser Team
+              prüft diese dann manuell, statt daraus per KI Tickets zu erstellen.
             </p>
           </div>
         </div>
 
         <figure class="request-page__figure" data-state="available">
           <img src="/assets/images/stakeholder-intro.png" width="1111" height="836"
-               alt="A person adds cards to a kanban board with several columns.">
+               alt="Eine Person fügt Karten zu einem Kanban-Board mit mehreren Spalten hinzu.">
         </figure>
 
         <figure class="request-page__figure" data-state="limit-reached">
           <img src="/assets/images/stakeholder-limit-reached.png" width="1090" height="845"
-               alt="A person waits in front of a kanban board on which no further card can be placed.">
+               alt="Eine Person wartet vor einem Kanban-Board, auf dem keine weitere Karte Platz findet.">
         </figure>
       </div>
 
       <p class="request-page__action">
         <a class="button button--request" data-state="available" data-request-mail
            href="#">
-          <span class="button__label button__label--desktop">Create Email Request</span>
-          <span class="button__label button__label--mobile">Create request</span>
+          <span class="button__label button__label--desktop">E-Mail-Anfrage erstellen</span>
+          <span class="button__label button__label--mobile">Anfrage erstellen</span>
           <span class="button__icon button__icon--check"></span>
         </a>
         <a class="button button--request" data-state="limit-reached" data-request-mail
            href="#">
-          <span class="button__label button__label--desktop">Send an email</span>
-          <span class="button__label button__label--mobile">Create request</span>
+          <span class="button__label button__label--desktop">E-Mail senden</span>
+          <span class="button__label button__label--mobile">Anfrage erstellen</span>
           <span class="button__icon button__icon--check"></span>
         </a>
       </p>
 
       <noscript>
         <p class="request-page__noscript">
-          JavaScript is disabled. Send your request to
-          <strong>issues [at] thomas-toebbe.de</strong> and start the subject with
+          JavaScript ist deaktiviert. Senden Sie Ihre Anfrage an
+          <strong>issues [at] thomas-toebbe.de</strong> und beginnen Sie den Betreff mit
           <strong>[JOIN]</strong>.
         </p>
       </noscript>
     </main>
 
-    <nav class="request-page__footer" aria-label="Legal">
-      <a class="text-button" href="/html/pages/privacy-policy.html" data-label="Privacy Policy">Privacy Policy</a>
-      <a class="text-button" href="/html/pages/legal-notice.html" data-label="Legal notice">Legal notice</a>
+    <nav class="request-page__footer" aria-label="Rechtliches">
+      <a class="text-button" href="/html/pages/privacy-policy.html" data-label="Datenschutzerklärung">Datenschutzerklärung</a>
+      <a class="text-button" href="/html/pages/legal-notice.html" data-label="Impressum">Impressum</a>
     </nav>
   </div>
 

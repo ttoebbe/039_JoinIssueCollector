@@ -74,7 +74,7 @@ async function handleFirebaseError(response) {
   console.error(
     `Firebase Error (${response.status}): ${text || response.statusText}`,
   );
-  showErrorToast("Connection error. Try again.");
+  showErrorToast("Verbindungsfehler. Bitte versuchen Sie es erneut.");
   return null;
 }
 
@@ -114,7 +114,7 @@ async function firebaseRequest(path, { method = "GET", data, headers } = {}) {
     return await processFirebaseResponse(response);
   } catch (error) {
     console.error(`Firebase request failed for ${path}:`, error);
-    showErrorToast("Connection error. Try again.");
+    showErrorToast("Verbindungsfehler. Bitte versuchen Sie es erneut.");
     return null;
   }
 }

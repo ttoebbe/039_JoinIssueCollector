@@ -6,12 +6,12 @@
 function showLoginErrorState(emailInput, passwordInput) {
   showFieldError(
     "email-error",
-    "Invalid email address or password",
+    "E-Mail-Adresse oder Passwort ungültig",
     emailInput,
   );
   showFieldError(
     "password-error",
-    "Invalid email address or password",
+    "E-Mail-Adresse oder Passwort ungültig",
     passwordInput,
   );
 }
@@ -101,7 +101,7 @@ function validatePolicyField(policyCheckbox) {
   if (policyCheckbox.checked) return true;
   showFieldError(
     "sign-up-policy-error",
-    "Please accept the Privacy Policy.",
+    "Bitte akzeptieren Sie die Datenschutzerklärung.",
     policyCheckbox,
   );
   return false;
@@ -130,12 +130,12 @@ function validateFieldWithAutoDismiss(arg1, arg2, arg3, arg4) {
 function showSignupRequiredError(passwordInput, confirmPasswordInput) {
   showFieldError(
     "sign-up-password-error",
-    "Please complete all required fields.",
+    "Bitte füllen Sie alle Pflichtfelder aus.",
     passwordInput,
   );
   showFieldError(
     "sign-up-confirm-password-error",
-    "Please complete all required fields.",
+    "Bitte füllen Sie alle Pflichtfelder aus.",
     confirmPasswordInput,
   );
   return false;
@@ -150,7 +150,7 @@ function showSignupRequiredError(passwordInput, confirmPasswordInput) {
 function showSignupPolicyError(passwordInput, confirmPasswordInput) {
   showFieldError(
     "sign-up-policy-error",
-    "Please accept the Privacy Policy.",
+    "Bitte akzeptieren Sie die Datenschutzerklärung.",
     document.getElementById("sign-up-policy"),
   );
   return false;
@@ -189,13 +189,13 @@ function validateUsernameField(inputEl, errorId) {
  * @returns {string|null}
  */
 function getUsernameValidationError(value) {
-  if (!value) return "Name is required.";
-  if (value.length < 2) return "Name must be at least 2 characters.";
-  if (!/^[a-zA-Z]/.test(value)) return "Name must start with a letter.";
+  if (!value) return "Bitte geben Sie einen Namen ein.";
+  if (value.length < 2) return "Der Name muss mindestens 2 Zeichen lang sein.";
+  if (!/^[a-zA-Z]/.test(value)) return "Der Name muss mit einem Buchstaben beginnen.";
   if (/\s{2,}/.test(value))
-    return "Name cannot contain multiple consecutive spaces.";
+    return "Der Name darf keine aufeinanderfolgenden Leerzeichen enthalten.";
   if (!/^[a-zA-Z][a-zA-Z0-9_\- ]*$/.test(value)) {
-    return "Name can only contain letters, numbers, single spaces, _ and -.";
+    return "Der Name darf nur Buchstaben, Ziffern, einzelne Leerzeichen, _ und - enthalten.";
   }
   return null;
 }
@@ -209,11 +209,11 @@ function getUsernameValidationError(value) {
 function validateEmailField(inputEl, errorId) {
   const value = inputEl.value.trim();
   if (!value) {
-    showFieldError(errorId, "Email is required.", inputEl);
+    showFieldError(errorId, "Bitte geben Sie eine E-Mail-Adresse ein.", inputEl);
     return false;
   }
   if (!isValidEmail(value)) {
-    showFieldError(errorId, "Invalid email address.", inputEl);
+    showFieldError(errorId, "Ungültige E-Mail-Adresse.", inputEl);
     return false;
   }
   clearFieldError(errorId, inputEl);
@@ -229,11 +229,11 @@ function validateEmailField(inputEl, errorId) {
 function validateLoginEmailField(inputEl, errorId) {
   const value = inputEl.value.trim();
   if (!value) {
-    showFieldError(errorId, "Email is required.", inputEl);
+    showFieldError(errorId, "Bitte geben Sie eine E-Mail-Adresse ein.", inputEl);
     return false;
   }
   if (!isValidEmail(value)) {
-    showFieldError(errorId, "Invalid email address.", inputEl);
+    showFieldError(errorId, "Ungültige E-Mail-Adresse.", inputEl);
     return false;
   }
   return true;
@@ -257,9 +257,9 @@ function validatePasswordField(inputEl, errorId) {
  * @returns {string}
  */
 function getPasswordValidationError(value) {
-  if (!value) return "Password is required.";
-  if (value.length < 6) return "Password must be at least 6 characters.";
-  if (/\s/.test(value)) return "Password cannot contain spaces.";
+  if (!value) return "Bitte geben Sie ein Passwort ein.";
+  if (value.length < 6) return "Das Passwort muss mindestens 6 Zeichen lang sein.";
+  if (/\s/.test(value)) return "Das Passwort darf keine Leerzeichen enthalten.";
   return "";
 }
 
@@ -288,7 +288,7 @@ function applyPasswordValidationResult(errorId, inputEl, error) {
 function validateLoginPasswordField(inputEl, errorId) {
   const value = inputEl.value.trim();
   if (!value) {
-    showFieldError(errorId, "Password is required.", inputEl);
+    showFieldError(errorId, "Bitte geben Sie ein Passwort ein.", inputEl);
     return false;
   }
   return true;
@@ -310,13 +310,13 @@ function validateConfirmPasswordField(
   if (!value) {
     showFieldError(
       errorId,
-      "Please confirm your password.",
+      "Bitte bestätigen Sie Ihr Passwort.",
       confirmPasswordInput,
     );
     return false;
   }
   if (value !== passwordInput.value.trim()) {
-    showFieldError(errorId, "Passwords don't match.", confirmPasswordInput);
+    showFieldError(errorId, "Die Passwörter stimmen nicht überein.", confirmPasswordInput);
     return false;
   }
   clearFieldError(errorId, confirmPasswordInput);

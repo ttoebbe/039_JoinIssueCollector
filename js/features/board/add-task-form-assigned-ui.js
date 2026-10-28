@@ -61,7 +61,7 @@ function updateAssignedInputState(parts, open) {
  * @param {Object} parts
  */
 function prepareAssignedSearch(parts) {
-  parts.input.placeholder = "Search contacts";
+  parts.input.placeholder = "Kontakte suchen";
 }
 
 /**
@@ -69,7 +69,7 @@ function prepareAssignedSearch(parts) {
  * @param {Object} parts
  */
 function restoreAssignedPlaceholder(parts) {
-  parts.input.placeholder = "Select contacts to assign";
+  parts.input.placeholder = "Kontakte zuweisen";
 }
 
 /**
@@ -191,8 +191,8 @@ function buildAssignedMoreBadge(count) {
   const badge = document.createElement("span");
   badge.className = "assigned-avatar assigned-avatar--more";
   badge.textContent = `+${count}`;
-  badge.setAttribute("aria-label", `${count} more assigned`);
-  badge.title = `${count} more assigned`;
+  badge.setAttribute("aria-label", `${count} weitere zugewiesen`);
+  badge.title = `${count} weitere zugewiesen`;
   return badge;
 }
 
@@ -242,7 +242,7 @@ function collectAssignedNames(list) {
  * @param {Object} parts
  */
 function resetAssignedLabel(parts) {
-  if (parts.valueEl) setAssignedValue(parts, "Select contacts to assign");
+  if (parts.valueEl) setAssignedValue(parts, "Kontakte zuweisen");
   parts.dropdown.classList.remove("has-value");
   clearAssignedAvatars(parts);
 }

@@ -25,7 +25,7 @@ function createCreatorRow(task) {
 function createCreatorLabel() {
   const label = document.createElement("span");
   label.className = "task-detail-creator-label";
-  label.textContent = "Creator:";
+  label.textContent = "Erstellt von:";
   return label;
 }
 
@@ -63,7 +63,7 @@ function createCreatorBadgeIcon(type) {
  * @returns {string}
  */
 function getCreatorTypeLabel(type) {
-  return type === "extern" ? "Extern" : "Member";
+  return type === "extern" ? "Extern" : "Mitglied";
 }
 
 /**
@@ -83,7 +83,7 @@ function createCreatorName(creator) {
 /**
  * Creates the action next to the creator: an email link for external
  * requesters, the contacts page for members. Labels follow the design
- * ("E-mail" / "Profil"). Guest sessions store an empty email, so they get
+ * ("E-Mail" / "Profil"). Guest sessions store an empty email, so they get
  * no action at all.
  * @param {Object} creator
  * @returns {HTMLAnchorElement|null}
@@ -96,7 +96,7 @@ function createCreatorAction(creator) {
   link.dataset.type = isExtern ? "extern" : "member";
   link.href = isExtern ? "mailto:" + creator.email : "/html/pages/contacts.html";
   link.appendChild(createCreatorActionIcon());
-  link.appendChild(createCreatorActionText(isExtern ? "E-mail" : "Profil"));
+  link.appendChild(createCreatorActionText(isExtern ? "E-Mail" : "Profil"));
   return link;
 }
 

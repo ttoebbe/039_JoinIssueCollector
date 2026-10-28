@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Add Task</title>
+    <title>PFG Issue Collector · Aufgabe hinzufügen</title>
     <link rel="shortcut icon" href="/assets/img/homepage-join.svg" type="image/x-icon" />
     <link rel="stylesheet" href="/assets/fonts/fonts.css" />
     <link rel="stylesheet" href="/css/core/tokens.css" />
@@ -20,7 +20,7 @@
         <div id="header-placeholder"></div>
         <!-- content starts here -->
         <main class="content">
-        <h1 class="addtask-page-title">Add Task</h1>
+        <h1 class="addtask-page-title">Aufgabe hinzufügen</h1>
          <form id="add-task-form" class="addtask-form" novalidate>
   <!-- status preset from board -->
   <input type="hidden" id="task-status-preset" value="triage" />
@@ -28,39 +28,39 @@
 
   <div class="addtask-grid">
     <div>
-      <label>Title<span class="req">*</span></label>
-      <input id="task-title" type="text" placeholder="Enter a title" maxlength="40" />
+      <label>Titel<span class="req">*</span></label>
+      <input id="task-title" type="text" placeholder="Titel eingeben" maxlength="40" />
       <div class="field-error" id="task-title-error"></div>
       <div class="field-counter" id="task-title-counter">0/40</div>
       
-      <label>Description</label>
-      <textarea id="task-description" placeholder="Enter a Description" maxlength="200"></textarea>
+      <label>Beschreibung</label>
+      <textarea id="task-description" placeholder="Beschreibung eingeben" maxlength="200"></textarea>
       <div class="field-error" id="task-description-error"></div>
       <div class="field-counter" id="task-description-counter">0/200</div>
 
-      <label>Due date<span class="req">*</span></label>
+      <label>Fälligkeitsdatum<span class="req">*</span></label>
       <input id="task-due-date" type="date" />
     </div>
 
     <div>
-      <label>Priority</label>
+      <label>Priorität</label>
       <div class="prio-row">
         <button type="button" class="prio-btn" data-prio="urgent">
-          <span class="prio-label">Urgent</span>
+          <span class="prio-label">Dringend</span>
           <svg class="prio-icon" viewBox="0 0 20 16" aria-hidden="true">
             <path d="M4 10L10 4L16 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
             <path d="M4 14L10 8L16 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </button>
         <button type="button" class="prio-btn is-active" data-prio="medium">
-          <span class="prio-label">Medium</span>
+          <span class="prio-label">Mittel</span>
           <svg class="prio-icon" viewBox="0 0 20 16" aria-hidden="true">
             <path d="M4 6H16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
             <path d="M4 10H16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
           </svg>
         </button>
         <button type="button" class="prio-btn" data-prio="low">
-          <span class="prio-label">Low</span>
+          <span class="prio-label">Niedrig</span>
           <svg class="prio-icon" viewBox="0 0 20 16" aria-hidden="true">
             <path d="M4 2L10 8L16 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
             <path d="M4 6L10 12L16 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -68,7 +68,7 @@
         </button>
       </div>
 
-      <label>Assigned to</label>
+      <label>Zugewiesen an</label>
       <div class="dropdown dropdown--select assigned-dropdown" id="assigned-dropdown">
         <div
           class="dropdown-toggle"
@@ -82,8 +82,8 @@
             type="text"
             class="assigned-input"
             data-assigned-input
-            placeholder="Select contacts to assign"
-            aria-label="Search contacts"
+            placeholder="Kontakte zuweisen"
+            aria-label="Kontakte suchen"
             autocomplete="off"
           />
           <span class="dropdown-caret" aria-hidden="true"></span>
@@ -92,7 +92,7 @@
       </div>
       <div class="assigned-selected" data-assigned-avatars hidden></div>
 
-      <label>Category<span class="req">*</span></label>
+      <label>Kategorie<span class="req">*</span></label>
       <div class="dropdown dropdown--select" id="category-dropdown">
         <button
           type="button"
@@ -101,7 +101,7 @@
           aria-haspopup="listbox"
           aria-expanded="false"
         >
-          <span class="dropdown-placeholder" data-category-value>Select task category</span>
+          <span class="dropdown-placeholder" data-category-value>Kategorie auswählen</span>
           <span class="dropdown-caret" aria-hidden="true"></span>
         </button>
         <div class="dropdown-menu" data-category-menu hidden>
@@ -119,21 +119,21 @@
             class="dropdown-item"
             data-category-item
             data-value="technical"
-            data-label="Technical Task"
+            data-label="Technische Aufgabe"
           >
-            Technical Task
+            Technische Aufgabe
           </button>
         </div>
       </div>
 
-      <label>Subtasks</label>
+      <label>Unteraufgaben</label>
   <div class="subtask-row">
     <div class="subtask-input-actions">
       <button
         type="button"
         class="subtask-input-action"
         data-subtask-input-action="clear"
-        aria-label="Clear subtask"
+        aria-label="Unteraufgabe leeren"
       >
         <img src="/assets/img/icons/delete.svg" alt="" aria-hidden="true" />
       </button>
@@ -141,12 +141,12 @@
         type="button"
         class="subtask-input-action"
         data-subtask-input-action="save"
-        aria-label="Save subtask"
+        aria-label="Unteraufgabe speichern"
       >
         <img src="/assets/img/icons/done.svg" alt="" aria-hidden="true" />
       </button>
     </div>
-    <input id="subtask-input" type="text" placeholder="Add new subtask" maxlength="30" />
+    <input id="subtask-input" type="text" placeholder="Neue Unteraufgabe hinzufügen" maxlength="30" />
   </div>
       <div class="field-error" id="subtask-error"></div>
       <div id="subtask-list"></div>
@@ -156,15 +156,15 @@
   <div id="add-task-form-msg" class="form-msg" aria-live="polite"></div>
 
   <div class="addtask-footer">
-    <p class="req-note"><span class="req">*</span>This field is required</p>
+    <p class="req-note"><span class="req">*</span>Pflichtfeld</p>
     <button type="button" id="clear-btn">
-      <span class="btn-label">Clear</span>
+      <span class="btn-label">Zurücksetzen</span>
       <svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true">
         <path d="M4 4L12 12M12 4L4 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
       </svg>
     </button>
     <button type="submit" id="create-btn">
-      <span class="btn-label">Create Task</span>
+      <span class="btn-label">Aufgabe erstellen</span>
       <svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true">
         <path d="M3 8L6 11L13 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
       </svg>

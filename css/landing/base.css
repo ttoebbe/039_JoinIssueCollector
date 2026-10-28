@@ -27,6 +27,10 @@ figure {
   margin: 0;
 }
 
+h1 {
+  font-family: var(--font-display);
+}
+
 ul {
   margin: 0;
   padding: 0;

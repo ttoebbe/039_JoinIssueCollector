@@ -45,7 +45,7 @@
 
 .board-title {
   margin: 0;
-  font-size: 61px;
+  font-size: 43px;
   font-weight: 700;
   color: var(--color-overlay-dark);
 }
@@ -99,9 +99,10 @@
 .board-add-btn {
    transition: 100ms ease-in-out;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-button);
   padding: 12px 16px;
-  width: 160px;
+  width: auto;
+  white-space: nowrap;
   justify-content: center;
   font-size: 21px;
   font-weight: 700;
@@ -211,7 +212,7 @@
 .board-card {
    transition: 100ms ease-in-out;
   background: var(--color-bg-surface);
-  border-radius: 24px;
+  border-radius: var(--radius-card);
   padding: 16px;
   box-shadow: 0 0 10px 3px rgba(0,0,0,0.08);
   cursor: pointer;
@@ -275,8 +276,8 @@
   right: 0;
   top: 38px;
   min-width: 140px;
-  background: #2a3647;
-  border-radius: 16px;
+  background: var(--color-primary);
+  border-radius: var(--radius-card);
   padding: 10px;
   display: none;
   gap: 8px;
@@ -296,7 +297,7 @@
   right: 12px;
   width: 12px;
   height: 12px;
-  background: #2a3647;
+  background: var(--color-primary);
   transform: rotate(45deg);
 }
 
@@ -484,7 +485,7 @@
   }
 
   .board-title {
-    font-size: 40px;
+    font-size: 28px;
   }
 
   .board-head {
@@ -656,7 +657,7 @@
 
 .addtask-page-title {
   margin-left: 14px;
-  font-size: 48px;
+  font-size: 34px;
   font-weight: 700;
   color: var(--color-overlay-dark);
 }
@@ -870,8 +871,8 @@
   line-height: 28px;
   height: 28px;
   display: block;
-  caret-color: #2a3647;
-  color: #2a3647;
+  caret-color: var(--color-primary);
+  color: var(--color-text-primary);
 }
 
 .assigned-dropdown .assigned-input::placeholder {
@@ -887,7 +888,7 @@
 }
 
 .dropdown-toggle:focus {
-  outline: 2px solid #29abe2;
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 
@@ -896,7 +897,7 @@
 }
 
 .dropdown--select.has-value .dropdown-placeholder {
-  color: #2a3647;
+  color: var(--color-text-primary);
 }
 
 .dropdown-caret {
@@ -904,7 +905,7 @@
   height: 0;
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
-  border-top: 6px solid #2a3647;
+  border-top: 6px solid var(--color-primary);
   margin-left: 8px;
   flex-shrink: 0;
 }
@@ -948,7 +949,7 @@
 }
 
 .dropdown-item:hover {
-  background: #f6f7f8;
+  background: var(--color-background);
 }
 
 .dropdown-item--assigned {
@@ -1004,7 +1005,7 @@
 }
 
 .dropdown-item.is-selected {
-  background: #2a3647;
+  background: var(--color-primary);
   color: #fff;
 }
 
@@ -1042,15 +1043,15 @@
   border-radius: 8px;
   background: transparent;
   font-size: 16px;
-  color: #2a3647;
+  color: var(--color-text-primary);
   gap: 8px;
   width: 100%;
   box-sizing: border-box;
 }
 
 .subtask-item:hover {
-  background: #f2f4f5;
-  border-color: #f2f4f5;
+  background: #f2f4f3;
+  border-color: #f2f4f3;
 }
 
 .subtask-bullet {
@@ -1059,7 +1060,7 @@
   justify-content: center;
   font-size: 18px;
   line-height: 1;
-  color: #2a3647;
+  color: var(--color-text-primary);
   flex-shrink: 0;
 }
 
@@ -1109,7 +1110,7 @@
   border-radius: 8px;
   padding: 6px 8px;
   font-size: 16px;
-  color: #2a3647;
+  color: var(--color-text-primary);
 }
 
 .subtask-item.is-editing .subtask-bullet {
@@ -1122,16 +1123,16 @@
   min-height: 20px;
   margin-top: 8px;
   margin-bottom: 8px;
-  color: #ff3d00;
+  color: var(--color-urgent);
   font-size: 16px;
 }
 
 .addtask-form .input-error {
-  border: 1px solid #ff3d00 !important;
+  border: 1px solid var(--color-urgent) !important;
 }
 
 .field-error {
-  color: #ff3d00;
+  color: var(--color-urgent);
   font-size: 14px;
   margin-top: 4px;
   min-height: 17px;
@@ -1143,7 +1144,7 @@
 }
 
 .field-counter {
-  color: #8a8a8a;
+  color: #5f6b72;
   font-size: 14px;
   margin-top: 2px;
   text-align: right;
@@ -1151,7 +1152,7 @@
 
 .req-note {
   margin: 20px 0 0;
-  color: #2a3647;
+  color: var(--color-text-primary);
   font-size: 16px;
 }
 
@@ -1179,12 +1180,12 @@
 }
 
 #clear-btn {
-  border: 1px solid #2a3647;
+  border: 1px solid var(--color-primary);
   background: #fff;
   border-radius: 10px;
   padding: 12px 18px;
   font-weight: 700;
-  color: #2a3647;
+  color: var(--color-text-primary);
   cursor: pointer;
 }
 
@@ -1210,11 +1211,11 @@
 }
 
 #create-btn.is-active {
-  background: #2a3647;
+  background: var(--color-primary);
 }
 
 .overlay-panel h2 {
-  font-size: 48px;
+  font-size: 34px;
   font-weight: 700;
   margin: 0 0 8px;
 }
@@ -1225,7 +1226,7 @@
   }
 
   .addtask-page-title {
-    font-size: 40px;
+    font-size: 28px;
   }
 
   .addtask-grid {

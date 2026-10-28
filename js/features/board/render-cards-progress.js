@@ -31,7 +31,7 @@ function getSubtaskStats(task) {
 function buildProgressWrap(stats) {
   const wrap = document.createElement("div");
   wrap.className = "board-progress";
-  wrap.title = `${stats.done} von ${stats.total} Subtasks erledigt`;
+  wrap.title = `${stats.done} von ${stats.total} Unteraufgaben erledigt`;
   wrap.appendChild(buildProgressBar(stats));
   wrap.appendChild(buildProgressText(stats));
   return wrap;
@@ -45,7 +45,7 @@ function buildProgressWrap(stats) {
 function buildProgressText(stats) {
   const text = document.createElement("div");
   text.className = "board-progress-text";
-  text.textContent = `${stats.done}/${stats.total} Subtasks`;
+  text.textContent = `${stats.done}/${stats.total} Unteraufgaben`;
   return text;
 }
 

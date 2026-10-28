@@ -202,11 +202,11 @@ async function attemptSignup(fields) {
  */
 function handleSignupError(error, { emailInput, passwordInput }) {
   if (error === "EMAIL_EXISTS") {
-    const message = "This email is already registered.";
+    const message = "Diese E-Mail-Adresse ist bereits registriert.";
     return showFieldError("sign-up-email-error", message, emailInput);
   }
   if (error.startsWith("WEAK_PASSWORD")) {
-    const message = "Password must be at least 6 characters.";
+    const message = "Das Passwort muss mindestens 6 Zeichen lang sein.";
     return showFieldError("sign-up-password-error", message, passwordInput);
   }
   showAuthServiceError(error);

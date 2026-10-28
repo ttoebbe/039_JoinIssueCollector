@@ -22,5 +22,5 @@ async function loadUserProfile(uid) {
  */
 function showAuthServiceError(error) {
   console.error("Auth error:", error);
-  showErrorToast("Connection error. Try again.");
+  showErrorToast("Verbindungsfehler. Bitte versuchen Sie es erneut.");
 }

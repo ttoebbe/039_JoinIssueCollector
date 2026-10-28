@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="de">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Contacts | Join</title>
+    <title>PFG Issue Collector · Kontakte</title>
     <link
       rel="shortcut icon"
       href="/assets/img/homepage-join.svg"
@@ -32,7 +32,7 @@
                 type="button"
                 aria-controls="contact-overlay"
               >
-                <span>Add new contact</span>
+                <span>Neuen Kontakt hinzufügen</span>
                 <img class="button-icon" src="/assets/icons/material/person-add.svg" alt="">
               </button>
               <div class="contact-list" aria-live="polite"></div>
@@ -41,11 +41,11 @@
             <section class="contact-detail-panel">
               <section class="contacts-header">
                 <div class="contacts-title-row">
-                  <h1>Contacts</h1>
+                  <h1>Kontakte</h1>
                   <button
                     type="button"
                     class="contact-back-button"
-                    aria-label="Back to contacts"
+                    aria-label="Zurück zu den Kontakten"
                   >
                     <img
                       src="/assets/img/icons/property-1-default.svg"
@@ -55,7 +55,7 @@
                   </button>
                 </div>
                 <p class="content-border">|</p>
-                <p class="contacts-tagline">Better with a team</p>
+                <p class="contacts-tagline">Besser im Team</p>
               </section>
 
               <section id="contact-detail-injection"></section>
@@ -79,17 +79,17 @@
               type="button"
               class="overlay-close-button"
               data-overlay-close
-              aria-label="Close add contact dialog"
+              aria-label="Dialog schließen"
             >
               X
             </button>
             <div class="overlay-panel overlay-panel-top">
               <div class="overlay-brand">
                 <div class="overlay-logo">
-                  <img src="/assets/img/capa-1.svg" alt="Join logo" />
+                  <img src="/assets/img/capa-1.svg" alt="Logo PFG Issue Collector" />
                 </div>
-                <h2 id="contact-overlay-title">Add contact</h2>
-                <p class="overlay-tagline">Tasks are better with a team!</p>
+                <h2 id="contact-overlay-title">Kontakt hinzufügen</h2>
+                <p class="overlay-tagline">Aufgaben gelingen besser im Team.</p>
                 <span class="overlay-underline"></span>
               </div>
             </div>
@@ -100,7 +100,7 @@
                   <div class="avatar-circle">
                     <img
                       src="/assets/img/icons/group-13.svg"
-                      alt="User avatar"
+                      alt="Benutzer-Avatar"
                     />
                   </div>
                 </div>
@@ -128,7 +128,7 @@
                   </div>
 
                   <div class="field-group">
-                    <label class="sr-only" for="contact-email">Email</label>
+                    <label class="sr-only" for="contact-email">E-Mail</label>
                     <div class="input-with-icon">
                       <!-- <span class="input-prefix">email=</span> -->
                       <input
@@ -136,7 +136,7 @@
                         id="contact-email"
                         name="email"
                         type="email"
-                        placeholder="Email"
+                        placeholder="E-Mail"
                         autocomplete="email"
                       maxlength="50" />
                       <span class="input-icon" aria-hidden="true">
@@ -150,7 +150,7 @@
                   </div>
 
                   <div class="field-group">
-                    <label class="sr-only" for="contact-phone">Phone</label>
+                    <label class="sr-only" for="contact-phone">Telefon</label>
                     <div class="input-with-icon">
                       <!-- <span class="input-prefix">phone=</span> -->
                       <input
@@ -158,7 +158,7 @@
                         id="contact-phone"
                         name="phone"
                         type="tel"
-                        placeholder="Phone"
+                        placeholder="Telefon"
                         autocomplete="tel" />
                       <span class="input-icon" aria-hidden="true">
                         <img src="/assets/img/icons/call.svg" alt="" />
@@ -180,20 +180,20 @@
                       class="overlay-btn overlay-btn-secondary"
                       data-overlay-close
                     >
-                      <span>Cancel</span>
+                      <span>Abbrechen</span>
                     </button>
                     <button
                       type="button"
                       id="contact-delete"
                       class="overlay-btn overlay-btn-secondary"
                     >
-                      <span>Delete</span>
+                      <span>Löschen</span>
                     </button>
                     <button
                       type="submit"
                       class="overlay-btn overlay-btn-primary"
                     >
-                      <span>Create contact</span>
+                      <span>Kontakt erstellen</span>
                     </button>
                   </div>
                 </form>

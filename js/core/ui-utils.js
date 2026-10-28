@@ -70,7 +70,7 @@ function applyGuestDisabled(button) {
 function handleGuestBlockedClick(event) {
   event.preventDefault();
   event.stopPropagation();
-  showToast("not allowed for Guest users.");
+  showToast("Für Gastzugänge nicht verfügbar.");
 }
 
 /**

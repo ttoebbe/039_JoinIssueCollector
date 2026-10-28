@@ -14,8 +14,8 @@ main {
     position: relative;
     margin: 0 auto;
     background-color: white;
-    border-radius: 30px;
-    box-shadow: 0 0 14px 3px rgba(0, 0, 0, 0.14);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
 
 }
 
@@ -131,7 +131,7 @@ input::placeholder {
 .input-fields input:focus {
     outline: none;
     border-color: var(--color-focus);
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+    box-shadow: 0 0 5px rgba(0, 96, 72, 0.3);
 }
 
 .position {
@@ -178,7 +178,7 @@ input::placeholder {
 .input-error {
     border: 1px solid red !important;
     outline: none;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+    box-shadow: 0 0 5px rgba(0, 96, 72, 0.3);
 }
 
 .field-error {
@@ -186,7 +186,7 @@ input::placeholder {
     top: 100%;
     left: 0;
     font-size: 14px;
-    color: #ff3b3b;
+    color: var(--color-urgent);
     line-height: 1.2;
     opacity: 0;
     transform: translateY(-10px);
@@ -263,7 +263,7 @@ footer a {
 
 footer a:hover {
     transform: translateY(-1px);
-    color: #29ABE2;
+    color: var(--color-accent);
 }
 
 .footer-left {

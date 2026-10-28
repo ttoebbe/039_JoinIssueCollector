@@ -191,13 +191,13 @@ function isValidPhone(phone) {
  */
 function getContactValidationError(values) {
   if (!values.name || !isValidContactName(values.name)) {
-    return "Please enter your full name. Only letters are allowed.";
+    return "Bitte geben Sie Ihren vollständigen Namen ein. Es sind nur Buchstaben erlaubt.";
   }
   if (!values.email || !isValidEmail(values.email)) {
-    return "Please enter a valid email address.";
+    return "Bitte geben Sie eine gültige E-Mail-Adresse ein.";
   }
   if (!values.phone || !isValidPhone(values.phone)) {
-    return "Between 6 and 15 digits required.";
+    return "Bitte geben Sie zwischen 6 und 15 Ziffern ein.";
   }
   return "";
 }

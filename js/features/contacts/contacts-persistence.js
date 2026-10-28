@@ -95,7 +95,7 @@ async function createNewContact(values, overlay, form, listElement) {
     refreshContactUI(listElement, overlay, form, newContact.id);
     showImageToast(
       "/assets/img/icons/contact.succesfull-create.svg",
-      "Contact created",
+      "Kontakt erstellt",
     );
   } catch (error) {
     console.error("Error creating contact:", error);
@@ -241,13 +241,13 @@ function validateContactForm(inputs, values) {
 function getContactFieldErrors(values) {
   const errors = {};
   if (!values.name || !isValidContactName(values.name)) {
-    errors.name = "Please enter your full name. Only letters are allowed.";
+    errors.name = "Bitte geben Sie Ihren vollständigen Namen ein. Es sind nur Buchstaben erlaubt.";
   }
   if (!values.email || !isValidEmail(values.email)) {
-    errors.email = "Please enter a valid email address.";
+    errors.email = "Bitte geben Sie eine gültige E-Mail-Adresse ein.";
   }
   if (!values.phone || !isValidPhone(values.phone)) {
-    errors.phone = `Between ${CONTACT_PHONE_MIN} and ${CONTACT_PHONE_MAX} digits required.`;
+    errors.phone = `Bitte geben Sie zwischen ${CONTACT_PHONE_MIN} und ${CONTACT_PHONE_MAX} Ziffern ein.`;
   }
   return errors;
 }
@@ -311,7 +311,7 @@ function validateContactLength(input, max, errorId, label) {
   if (value.length <= max) return clearContactFieldError(errorId, input);
   setContactFieldError(
     errorId,
-    `${label} is too long (max ${max} characters).`,
+    `${label} ist zu lang (maximal ${max} Zeichen).`,
     input,
   );
 }
@@ -325,7 +325,7 @@ function validatePhoneDigits(input, min, max, errorId) {
   if (digits > max) {
     return setContactFieldError(
       errorId,
-      `Between ${min} and ${max} digits required.`,
+      `Bitte geben Sie zwischen ${min} und ${max} Ziffern ein.`,
       input,
     );
   }
