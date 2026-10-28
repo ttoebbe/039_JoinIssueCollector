@@ -39,6 +39,7 @@ function wireBoardUi() {
   }
   wireAddTaskButtons();
   wireMoveMenus();
+  wireBoardTimeline();
 }
 
 /**
@@ -237,6 +238,7 @@ function renderBoard() {
   renderColumn("inprogress", filtered);
   renderColumn("awaitfeedback", filtered);
   renderColumn("done", filtered);
+  renderTimeline(filtered);
 }
 
 /**

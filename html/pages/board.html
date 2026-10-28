@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="/css/core/base.css" />
     <link rel="stylesheet" href="/css/components/index.css" />
     <link rel="stylesheet" href="/css/pages/board.css" />
+    <link rel="stylesheet" href="/css/pages/board-timeline.css" />
     <link rel="stylesheet" href="/css/pages/overlay.css" />
   </head>
 
@@ -25,7 +26,7 @@
 
         <main class="content board-content">
           <!-- content starts here -->
-          <section class="board-page">
+          <section class="board-page" data-view="columns">
             <!-- Board header row -->
             <div class="board-head">
               <h1 class="board-title">Board</h1>
@@ -60,6 +61,11 @@
                   Aufgabe hinzufügen <span class="board-add-plus">+</span>
                 </button>
               </div>
+            </div>
+
+            <div class="board-view-bar" role="group" aria-label="Ansicht">
+              <button class="board-view-btn" type="button" data-board-view="columns" aria-pressed="true">Spalten</button>
+              <button class="board-view-btn" type="button" data-board-view="timeline" aria-pressed="false">Timeline</button>
             </div>
 
             <!-- No results message (shown only if search has no matches) -->
@@ -154,6 +160,16 @@
                 </div>
               </section>
             </div>
+
+            <section class="board-timeline" aria-label="Timeline">
+              <ul class="board-timeline-legend">
+                <li class="board-timeline-key board-timeline-key--urgent">Dringend</li>
+                <li class="board-timeline-key board-timeline-key--medium">Mittel</li>
+                <li class="board-timeline-key board-timeline-key--low">Niedrig</li>
+                <li class="board-timeline-key board-timeline-key--today">Heute</li>
+              </ul>
+              <div id="boardTimeline" class="board-timeline-scroller"></div>
+            </section>
           </section>
           <!-- content ends here -->
         </main>
@@ -201,6 +217,8 @@
     <script src="/js/features/board/render-cards-assigned.js"></script>
     <script src="/js/features/board/render-cards-prio.js"></script>
     <script src="/js/features/board/render-cards.js"></script>
+    <script src="/js/features/board/board-timeline-scale.js"></script>
+    <script src="/js/features/board/board-timeline.js"></script>
     <script src="/js/features/board/board.js"></script>
   </body>
 </html>
