@@ -13,6 +13,12 @@ All measures in px. "Display size" = size of the node in the Figma design.
 | `logos/join-logo-splash.svg` | `332:2465` | Capa 2 | 100 x 122 | Figma /v1/images SVG |
 | `logos/join-wordmark.svg` | `71072:5051` | Logo | 272 x 65 | Figma /v1/images SVG |
 
+Branch `PFG`: `join-logo-dark.svg`, `join-logo-light.svg`, `join-logo-splash.svg`,
+`img/capa-1.svg`, `img/capa-2.svg`, `img/homepage-join.svg` and the new
+`logos/pfg-favicon.svg` carry the Premium Food Group emblem instead. Paths taken
+from `https://premiumfoodgroup.de/favicon.svg` (viewBox 512 x 512); fill
+`#38604D` on light backgrounds, `#ffffff` on dark ones.
+
 ## 2. Icons from Figma (SVG)
 
 | File | Source node | Node name | Display size | Origin |
